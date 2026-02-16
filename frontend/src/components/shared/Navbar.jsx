@@ -22,8 +22,8 @@ const Navbar = () => {
                     </ul>
                 {!user ?(
                         <div className='flex  items-center gap-2 space-x-2'>
-                            <Button varient="outline">Login</Button>
-                            <Button className='bg-[#6A38C2] hover:bg-[#5b30a6]'>Signup</Button>
+                            <Link to="/login"><Button varient="outline">Login</Button></Link>
+                            <Link to="/signup"> <Button className='bg-[#6A38C2] hover:bg-[#5b30a6]'>Signup</Button></Link> 
                         </div>
                     ):(
 <Popover classname="cursor-pointer">
