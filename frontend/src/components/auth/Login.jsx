@@ -5,6 +5,8 @@ import { Input } from '../ui/input'
 import { RadioGroup } from '../ui/radio-group'
 import { Button } from '../ui/button'
 import { Link } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { setLoading } from '@/redux/authslice'
 
 const Login = () => {
     const [input,setInput] =useState({
@@ -12,13 +14,14 @@ const Login = () => {
         password:"",
         role:"",
     });
+    const dispatch = useDispatch();
     const changeEventHandler = (e)=>{
         setInput({...input, [e.target.name]:e.target.value});
     }
     const submitHandler = async(e) =>{
             e.preventDefault();
-            console.log(input);
-    }
+           
+             console.log(input);}
     return (
         <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100">
             <Navbar />

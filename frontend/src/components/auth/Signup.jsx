@@ -23,7 +23,10 @@ const Signup = () => {
         }
         const submitHandler = async(e) =>{
             e.preventDefault();
-            console.log(input);
+            try{
+                const res = await axios.post()
+            }catch(error){
+        }
         }
     return (
         <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100">
