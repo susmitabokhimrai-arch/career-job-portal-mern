@@ -1,39 +1,48 @@
-import React from 'react'
-import { Button } from './ui/button'
-import { Search } from 'lucide-react'
+import React from "react";
+import { Button } from "./ui/button";
+import { Search } from "lucide-react";
 
 const HeroSection = () => {
-    return (
-        <div className="flex flex-col items-center justify-center pt-12 pb-6 px-4">
-            <div className="flex flex-col items-center gap-2 text-center">
+  return (
+    <section className="bg-gradient-to-b from-gray-50 to-white py-20">
+      <div className="max-w-6xl mx-auto px-6 text-center">
+        
+        {/* Badge */}
+        <span className="inline-block px-4 py-2 text-sm font-medium bg-blue-100 text-blue-600 rounded-full mb-6">
+          No. 1 Job Portal for Students
+        </span>
 
-                <span className="px-4 py-2 rounded-full bg-blue-100 text-blue-600 text-sm font-semibold tracking-wide">
-                    No. 1 Job Hunt Website
-                </span>
+        {/* Main Heading */}
+        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
+          Find Your <span className="text-blue-600">Dream Job</span> Today
+        </h1>
 
-                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-                    Search, Apply & <span className='block text-blue-600'>
-                    Get Your Dream Jobs</span>
-                </h1>
+        {/* Subtitle */}
+        <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+          Search, apply and get hired by top companies. Discover thousands of
+          opportunities tailored for students and fresh graduates.
+        </p>
 
-                <p className="text-gray-500 max-w-lg text-sm">
-                    Discover jobs that fit your passion and skills. Connect with trusted recruiters and start your journey toward a brighter future today.
-                </p>
+        {/* Search Box */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4 max-w-2xl mx-auto">
+          
+          <div className="flex items-center w-full bg-white rounded-xl shadow-md px-4 py-3">
+            <Search className="text-gray-400 mr-3" size={20} />
+            <input
+              type="text"
+              placeholder="Search jobs, skills, companies..."
+              className="w-full outline-none text-gray-700"
+            />
+          </div>
 
-                <div className="flex w-full max-w-lg shadow-md border border-gray-200 pl-3 pr-1 py-1 rounded-full items-center gap-2">
-                    <input
-                        type="text"
-                        placeholder="Find Your Dream Jobs"
-                        className="outline-none border-none w-full text-base"
-                    />
-                    <Button className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold">
-                        <Search className="h-5 w-5" />
-                    </Button>
-                </div>
-
-            </div>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition-all duration-300">
+            Search
+          </Button>
         </div>
-    )
-}
 
-export default HeroSection
+      </div>
+    </section>
+  );
+};
+
+export default HeroSection;
