@@ -11,8 +11,8 @@ const Navbar = () => {
         <div className="w-full bg-white">
             <div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-6">
 
-                <h1 className="text-2xl font-bold">
-                    Career<span className="text-[#F83002]">Yatra</span>
+                <h1 className="text-5xl font-bold">
+                    Career<span className="text-blue-400">Yatra</span>
                 </h1>
                 <div className='flex items-center space-x-5'>
                     <ul className="flex items-center space-x-5 font-medium list-none p-0 m-0">
