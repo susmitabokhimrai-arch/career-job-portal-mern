@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import { LogOut, User2 } from 'lucide-react';
 
 const Navbar = () => { 
-    const user =false;
+    const user = true;
     return (
         <div className="w-full bg-white">
             <div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-6">
@@ -52,7 +52,7 @@ const Navbar = () => {
                             <div className='flex flex-col text-gray-60'>
                                 <div className='flex w-fit items-center gap-2 cursor-pointer'>
                                     <User2/>
-                                        <Button varient="link" className="p-2 h-auto">View Profile</Button>
+                                        <Button varient="link"> <Link to="/profile">View Profile</Link> </Button>
                                     
                                 </div>
                                 <div className='flex w-fit items-center gap-2 cursor-pointer'>

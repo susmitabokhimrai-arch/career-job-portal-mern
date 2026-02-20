@@ -5,6 +5,7 @@ import Signup from './components/auth/Signup'
 import Home from './components/Home'
 import Browse from './components/Browse'
 import Jobs from './components/Jobs'
+import Profile from './components/Profile'
 const appRouter = createBrowserRouter([
   {
     path:'/',
@@ -25,6 +26,10 @@ const appRouter = createBrowserRouter([
   {
     path:'/jobs',
     element:<Jobs/>
+  },
+  {
+    path:'/profile',
+    element:<Profile/>
   },
 ]
 )
