@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Navbar from './shared/Navbar'
 import { Avatar, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
@@ -6,11 +6,13 @@ import { Contact, Mail, Pen } from 'lucide-react'
 import { Badge } from './ui/badge'
 import { Label } from './ui/label'
 import AppliedJobTable from './AppliedJobTable'
+import UpdateProfileDialog from './UpdateProfileDialog'
 
 const skills = ["HTML", "CSS", "JavaScript", "ReactJS"]
+const isResume = true;
 
 const Profile = () => {
-    const isResume = true;
+const [open, setOpen] = useState(false);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -40,7 +42,7 @@ const Profile = () => {
                     </div>
 
                     {/* Edit Button */}
-                    <Button
+                    <Button onClick={() => setOpen(true)}
                         variant='outline'
                         size='icon'
                         className='rounded-full'
@@ -113,6 +115,7 @@ const Profile = () => {
 
                 <AppliedJobTable />
             </div>
+            <UpdateProfileDialog open={open} setOpen={setOpen}/>
         </div>
     )
 }
