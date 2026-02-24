@@ -5,7 +5,7 @@ import { Avatar, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { useNavigate } from "react-router-dom";
 
-const Job = () => {
+const Job = (job) => {
   const navigate = useNavigate();
   const jobId ="gyfuyyuiy";
   return (
@@ -31,7 +31,7 @@ const Job = () => {
 
         <div>
           <h2 className="font-semibold text-lg text-gray-800">
-            Company Name
+            {job?.Company?.name}
           </h2>
           <p className="text-sm text-gray-500">Nepal</p>
         </div>
@@ -40,29 +40,29 @@ const Job = () => {
       {/* Job Title */}
       <div>
         <h1 className="text-xl font-bold text-gray-900 mb-2">
-          Frontend Developer
+          {job?.title}
         </h1>
         <p className="text-sm text-gray-600 line-clamp-3">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          {job?.description}
         </p>
       </div>
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mt-5">
         <Badge className="bg-blue-50 text-blue-600">
-          12 Positions
+          {job?.position}Positions
         </Badge>
         <Badge className="bg-red-50 text-red-600">
-          Part Time
+           {job?.jobType}
         </Badge>
         <Badge className="bg-purple-50 text-purple-600">
-          Remote
+          {job?.salary}LPA
         </Badge>
       </div>
 
       {/* Buttons */}
       <div className="flex gap-3 mt-6">
-        <Button onClick ={()=> navigate(`/description/${jobId}`)} variant="outline" className="flex-1">
+        <Button onClick ={()=> navigate(`/description/${job?._id}`)} variant="outline" className="flex-1">
           Details
         </Button>
         <Button className="flex-1 bg-purple-600 hover:bg-purple-700">
