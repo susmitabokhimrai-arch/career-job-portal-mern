@@ -1,4 +1,4 @@
-import { User } from "../models/user.model.js";
+import {User} from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -12,7 +12,7 @@ export const register = async (req, res) => {
             });
         };
         const user = await User.findOne({ email });
-        if (User) {
+        if (user) {
             return res.status(400).json({
                 message: 'User already exists with this email.',
                 sucess: false,
@@ -113,13 +113,14 @@ export const updateProfile = async (req, res) => {
         };
         // cloudinary here...
 
-        const skillsarray = skills.split(",");
+        const skillsArray = skills.split(",");
         const userId = req.id; //middlewares authentication
         let user = await User.findById(userId);
 
+        
         if (!user) {
             return res.status(400).json({
-                message: "user not found.",
+                message: "User not found.",
                 success: false
             })
         }
@@ -131,6 +132,8 @@ export const updateProfile = async (req, res) => {
             user.profile.skills = skillsArray
 
         // resume comes later here...
+       
+       
         await user.save();
 
         user = {
@@ -142,13 +145,13 @@ export const updateProfile = async (req, res) => {
             profile: user.profile
         }
 
-        return res.status(200).json({
+         return res.status(200).json({
             message:"Profile updated successfully.",
             user,
             success:true
         })
 
     } catch (error) {
-        console.log(error);
+ console.log(error);
     }
 }
