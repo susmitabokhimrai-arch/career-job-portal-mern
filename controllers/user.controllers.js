@@ -12,7 +12,7 @@ export const register = async (req, res) => {
             });
         };
         const user = await User.findOne({ email });
-        if (user) {
+        if (User) {
             return res.status(400).json({
                 message: 'User already exists with this email.',
                 sucess: false,
