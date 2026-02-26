@@ -5,15 +5,22 @@ import { Avatar, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { useNavigate } from "react-router-dom";
 
-const Job = (job) => {
+const Job = ({job}) => {
   const navigate = useNavigate();
-  const jobId ="gyfuyyuiy";
+  //const jobId ="gyfuyyuiy";
+
+  const daysAgoFunction =(mongodbTime) => {
+    const createdAt = new Data(mongodbTime);
+    const currentTime = new data();
+    const timeDifference = currentTime - createdAt;
+    return Math.floor(timeDiffernce/ (1000*24*60*60));
+  }
   return (
     <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
 
       {/* Top Section */}
       <div className="flex items-center justify-between">
-        <p className="text-xs text-gray-500">2 days ago</p>
+        <p className="text-xs text-gray-500">{daysAgoFunction(job?.createdAt) == 0 ? "Today" :`${daysAgoFunction(job?.createdAt0)}days ago`}</p>
         <Button
           variant="ghost"
           size="icon"
@@ -26,7 +33,7 @@ const Job = (job) => {
       {/* Company Info */}
       <div className="flex items-center gap-3 my-5">
         <Avatar className="h-12 w-12 border">
-          <AvatarImage src="https://img.freepik.com/premium-vector/creative-elegant-abstract-minimalistic-logo-design-vector-any-brand-company_1253202-137644.jpg" />
+          <AvatarImage src={job?.company?.logo || "https://img.freepik.com/premium-vector/creative-elegant-abstract-minimalistic-logo-design-vector-any-brand-company_1253202-137644.jpg" }/>
         </Avatar>
 
         <div>

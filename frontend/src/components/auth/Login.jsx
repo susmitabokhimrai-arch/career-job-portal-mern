@@ -7,6 +7,8 @@ import { Button } from '../ui/button'
 import { Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { setLoading } from '@/redux/authslice'
+import axios from 'axios'
+import { USER_API_END_POINT } from '@/utils/constant'
 
 const Login = () => {
     const [input,setInput] =useState({
@@ -20,8 +22,23 @@ const Login = () => {
     }
     const submitHandler = async(e) =>{
             e.preventDefault();
-           
-             console.log(input);}
+            
+            try{
+                const res = await axios.post(`$(USER_API_END_POINT}/login`,input,{
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    withCredentials:true,
+                });
+                if(res.data.success){
+                    navigate("/");
+                    toast.success(res.data.message);
+                }
+            }catch(error){
+                console.log(error);
+                toast.error(error.response.data.message);
+        }
+        }
     return (
         <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100">
             <Navbar />

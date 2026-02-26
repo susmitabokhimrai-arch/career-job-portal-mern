@@ -12,7 +12,7 @@ const JobDescription = () => {
     const params = useParams();
     const jobid = params.id;
     const {singleJob} = useSelector(store=>store.job);
-    const{user} = useSelector(store=>store.auth);
+    const{User} = useSelector(store=>store.auth);
     const dispatch = useDispatch();
 
     useEffect(()=>{
@@ -29,7 +29,7 @@ const JobDescription = () => {
         }
     }
     fetchSingleJob();
-  },[jobid,dispatch,User?._id]);
+  },[jobid,dispatch, User?._id]);
     return (
         <div className='min-h-screen bg-gray-50 py-10 px-4'>
             <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-8">

@@ -5,61 +5,61 @@ import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Loader2, User } from 'lucide-react'
 import { useDispatch } from 'react-redux'
+import { toast } from 'sonner'
 
 const UpdateProfileDialog = ({ open, setOpen }) => {
     const [loading, setLoading] = useState(false);
-    const [input,setInput] = useState({
-        fullname:"",
-        email:"",
-        phoneNumber:"",
-        bio:"",
-        skills:"",
-        file:null
-    });  
+    const [input, setInput] = useState({
+        fullname: "",
+        email: "",
+        phoneNumber: "",
+        bio: "",
+        skills: "",
+        file: null
+    });
     const dispatch = useDispatch();
 
-    const changeEventHandler =(e) => {
-        setInput({...input,[e.target.name]:e.target.value})
+    const changeEventHandler = (e) => {
+        setInput({ ...input, [e.target.name]: e.target.value })
     }
-const fileChangeHandler =(e) => {
-    const file = e.target.files?.[0];
-    setInput({...input,file})
-}
+    const fileChangeHandler = (e) => {
+        const file = e.target.files?.[0];
+        setInput({ ...input, file })
+    }
 
-const submitHandler = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    const formData = new FormData();
-    formData.append("fullname",input.fullname);
-     formData.append("email",input.email);
-      formData.append("phoneNumber",input.phoneNumber);
-       formData.append("bio",input.bio);
-        formData.append("skills",input.skills);
-if(input.file){
-    formData.append("file",input.file);
-} 
-try  {
-    //backend code commented for now
-    /*const res = await axios.post(`${USER_API_END_POINT}/profile/update`,formData,{
-        headers:{
-            'content-Type':'multipart/form-data'
-        },
-        withCredentials:true
-    });
-    if(res.data.success){
-dispatch(setUser(res.data.user));
-toast.success(res.data.message);
-    }*/
-    console.log("backend not ready")
-        console.log(input)
-} catch (error) {
-console.log(error);
-//toast.error(error.response.data.message);
-}
-setLoading(false)
-setOpen(false)
-       
-}
+    const submitHandler = async (e) => {
+        e.preventDefault()
+        setLoading(true)
+        const formData = new FormData();
+        formData.append("fullname", input.fullname);
+        formData.append("email", input.email);
+        formData.append("phoneNumber", input.phoneNumber);
+        formData.append("bio", input.bio);
+        formData.append("skills", input.skills);
+        if (input.file) {
+            formData.append("file", input.file);
+        }
+        try {
+            const res = await axios.post(`${USER_API_END_POINT}/profile/update`, formData, {
+                headers: {
+                    'content-Type': 'multipart/form-data'
+                },
+                withCredentials: true
+            });
+            if (res.data.success) {
+                dispatch(setUser(res.data.user));
+                toast.success(res.data.message);
+            }
+            console.log("backend not ready")
+            console.log(input)
+        } catch (error) {
+            console.log(error);
+            //toast.error(error.response.data.message);
+        }
+        setLoading(false)
+        setOpen(false)
+
+    }
 
     return (
         <div>
@@ -137,7 +137,7 @@ setOpen(false)
                         </div>
                         <DialogFooter>
                             {
-loading ? <Button className='w-full my-4'> <Loader2 className='mr-2 h-4 w-4 animate-spin'/>Please Wait</Button> : <Button type="submit" className="w-full my-4">Update</Button>
+                                loading ? <Button className='w-full my-4'> <Loader2 className='mr-2 h-4 w-4 animate-spin' />Please Wait</Button> : <Button type="submit" className="w-full my-4">Update</Button>
                             }
                         </DialogFooter>
                     </form>
