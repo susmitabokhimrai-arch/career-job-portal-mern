@@ -1,29 +1,3 @@
-<<<<<<< HEAD
-import React, { useState } from 'react'
-import Navbar from '../shared/Navbar'
-import { Label } from '@radix-ui/react-label'
-import { Input } from '../ui/input'
-import { RadioGroup } from '../ui/radio-group'
-import { Button } from '../ui/button'
-import { Link } from 'react-router-dom'
-
-const Login = () => {
-    const [input,setInput] =useState({
-        email:"",
-        password:"",
-        role:"",
-    });
-    const changeEventHandler = (e)=>{
-        setInput({...input, [e.target.name]:e.target.value});
-    }
-    const submitHandler = async(e) =>{
-            e.preventDefault();
-            console.log(input);
-    }
-    return (
-        <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100">
-            <Navbar />
-=======
 import React, { useState } from "react";
 import Navbar from "../shared/Navbar";
 import { Label } from "@radix-ui/react-label";
@@ -75,7 +49,6 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100">
       <Navbar />
->>>>>>> nikita
 
       <div className="flex items-center justify-center px-4">
         <form
