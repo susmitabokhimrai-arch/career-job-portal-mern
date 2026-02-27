@@ -6,19 +6,20 @@ import { Button } from '../ui/button';
 import { LogOut, User2 } from 'lucide-react';
 
 const Navbar = () => { 
-    const user =false;
+    const user = false;
     return (
         <div className="w-full bg-white">
             <div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-6">
 
-                <h1 className="text-2xl font-bold">
-                    Career<span className="text-[#F83002]">Yatra</span>
+                <h1 className="text-5xl font-bold">
+                    Career<span className="text-blue-400">Yatra</span>
                 </h1>
                 <div className='flex items-center space-x-5'>
                     <ul className="flex items-center space-x-5 font-medium list-none p-0 m-0">
-                        <li className='cursor-pointer'>Home</li>
-                        <li className='cursor-pointer'>Jobs</li>
-                        <li className='cursor-pointer'>Browse</li>
+                        <li className='cursor-pointer'><Link to="/">Home</Link></li>
+                         <li className='cursor-pointer'><Link to="/jobs">Jobs</Link></li>
+                          <li className='cursor-pointer'><Link to="/browse">Browse</Link></li>
+                        
                     </ul>
                 {!user ?(
                         <div className='flex  items-center gap-2 space-x-2'>
@@ -51,7 +52,7 @@ const Navbar = () => {
                             <div className='flex flex-col text-gray-60'>
                                 <div className='flex w-fit items-center gap-2 cursor-pointer'>
                                     <User2/>
-                                        <Button varient="link" className="p-2 h-auto">View Profile</Button>
+                                        <Button varient="link"> <Link to="/profile">View Profile</Link> </Button>
                                     
                                 </div>
                                 <div className='flex w-fit items-center gap-2 cursor-pointer'>

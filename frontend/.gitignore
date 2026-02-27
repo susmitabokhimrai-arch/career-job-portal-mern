@@ -7,10 +7,25 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+package-lock.json
+yarn.lock
+
+# Build
 dist
 dist-ssr
+.next
+
+# Environment
+.env
+.env.local
+.env.*.local
 *.local
+
+# Vite
+.vite
+.vite-cache
 
 # Editor directories and files
 .vscode/*
