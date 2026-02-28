@@ -8,6 +8,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { USER_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
 import axios from "axios";
+import { setLoading } from "@/redux/authslice";
+import { useDispatch, useSelector } from "react-redux";
 
 const Signup = () => {
   const [input, setInput] = useState({
@@ -18,6 +20,8 @@ const Signup = () => {
     role: "",
     file: "",
   });
+  const {loading} = useSelector(store=>store.auth);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const changeEventHandler = (e) => {
@@ -30,6 +34,7 @@ const Signup = () => {
     e.preventDefault();
     
     try {
+      dispatch(setLoading(true));
       const res = await axios.post(`${USER_API_END_POINT}/register`, {
         fullname: input.fullname,
         email: input.email,
@@ -46,6 +51,8 @@ const Signup = () => {
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Server not running");
+    }finally{
+      dispatch(setLoading(false));
     }
   };
   return (
@@ -153,12 +160,14 @@ const Signup = () => {
           </div>
 
           {/* Button */}
-          <Button
+          {
+            loading ? <Button className="w-full my-4"> <Loader2 className="mr-2 h-4 animate-spin"/>Please Wait</Button> : <Button
             type="submit"
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300"
           >
             Signup
           </Button>
+          }
           <span className="text-center text-sm text-gray-700 mt-4">
             Already have an account?{" "}
             <Link
