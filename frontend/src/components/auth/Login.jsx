@@ -5,12 +5,13 @@ import { Input } from "../ui/input";
 import { RadioGroup } from "../ui/radio-group";
 import { Button } from "../ui/button";
 import { Link, Navigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "@/redux/authslice";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { USER_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Login = () => {
     password: "",
     role: "",
   });
+  const {loading} = useSelector(store=>store.auth);
   const dispatch = useDispatch();
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -27,6 +29,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
+      dispatch(setLoading(true));
       const res = await axios.post(`${USER_API_END_POINT}/login`, input, {
         headers: {
           "Content-Type": "application/json",
@@ -38,12 +41,10 @@ const Login = () => {
         toast.success(res.data.message);
       }
     } catch (error) {
-      //   console.log(error);
-      //   toast.error(error.response.data.message);
-      const msg =
-        error?.response?.data?.message || error?.message || "Login failed";
-      toast.error(msg);
-      console.error("LOGIN ERROR:", error);
+        console.log(error);
+         toast.error(error.response.data.message);
+    } finally {
+      dispatch(setLoading(false));
     }
   };
   return (
@@ -110,13 +111,16 @@ const Login = () => {
               </label>
             </div>
           </div>
-          {/* Button */}
-          <Button
+          {
+            loading ? <Button className="w-full my-4"> <Loader2 className="mr-2 h-4 animate-spin"/>Please Wait</Button> : <Button
             type="submit"
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300"
           >
             Login
           </Button>
+          }
+          
+          
           <span className="text-center text-sm text-gray-700 mt-4">
             Don't have an account?{" "}
             <Link
