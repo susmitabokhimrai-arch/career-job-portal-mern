@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../shared/Navbar";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "../ui/input";
@@ -20,7 +20,7 @@ const Login = () => {
     password: "",
     role: "",
   });
-  const {loading} = useSelector(store=>store.auth);
+  const {loading, user} = useSelector(store=>store.auth);
   const dispatch = useDispatch();
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -37,6 +37,7 @@ const Login = () => {
         withCredentials: true,
       });
       if (res.data.success) {
+        dispatch(setUser(res.data.user));
         navigate("/");
         toast.success(res.data.message);
       }
@@ -46,7 +47,12 @@ const Login = () => {
     } finally {
       dispatch(setLoading(false));
     }
-  };
+  }
+    useEffect(() => {
+      if (user) {
+        navigate("/");
+      }
+  }, [user, navigate]);
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100">
       <Navbar />

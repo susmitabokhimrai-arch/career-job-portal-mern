@@ -4,9 +4,10 @@ import React from 'react'
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { LogOut, User2 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const Navbar = () => { 
-    const user = false;
+    const {user} = useSelector(store=>store.auth);
     return (
         <div className="w-full bg-white">
             <div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-6">
