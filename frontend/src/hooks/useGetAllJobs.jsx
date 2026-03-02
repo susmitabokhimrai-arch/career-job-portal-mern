@@ -1,4 +1,4 @@
-import { setAllJobs } from '@/redux/jobSlice';
+/*import { setAllJobs } from '@/redux/jobSlice';
 import{JOB_API_END_POINT} from '@/utils/constant';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
@@ -24,4 +24,4 @@ const useGetAllJobs = () => {
   },[dispatch])
 }
 
-export default useGetAllJobs
+export default useGetAllJobs*/
