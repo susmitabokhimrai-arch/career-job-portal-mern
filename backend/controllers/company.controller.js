@@ -1,4 +1,4 @@
-import {Company} from "../../models/company.model.js";
+import {Company} from "../models/company.model.js";
 
 export const registerCompany = async (req,res) => {
     try{
@@ -9,7 +9,7 @@ export const registerCompany = async (req,res) => {
             success:false
         });
     }
-      let company = await Company.findOne({name:companyname});
+      let company = await Company.findOne({name:companyName});
       if(company){
            return res.status(400).json({
             message:"You can't register same company.",

@@ -3,20 +3,23 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
-    try {
-        const { fullname, email, phoneNumber, password, role } = req.body;
+try{
 
-        if (!fullname || !email || !phoneNumber || !password || !role) {
+    const { fullname, email, password, phoneNumber, role } = req.body;
+
+        if (!fullname || !email || !password || !phoneNumber || !role ){
             return res.status(400).json({
                 message: "Something is missing",
                 success: false
             });
-        };
+        }
+
+   
         const user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({
                 message: "User already exists with this email.",
-                sucess: false,
+                success: false,
             });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -35,7 +38,7 @@ export const register = async (req, res) => {
 } catch (error) {
 console.log(error);
 }
-}
+};
 export const login = async (req, res) => {
     try {
         const { email, password, role } = req.body;
@@ -45,10 +48,10 @@ export const login = async (req, res) => {
                 message: "Something is missing",
                 success: false
             });
-        };
+        }
 
-     const user = await User.findOne({ email });
-        if (!User) {
+     let user = await User.findOne({ email });
+        if (!user) {
             return res.status(400).json({
                 message: "Incorrect email or password.",
                 success: false,
@@ -85,8 +88,8 @@ export const login = async (req, res) => {
             profile: user.profile
         }
 
-        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSita: 'strict' }).json({
-            message: 'Welcome back ${user.fullname}',
+        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpOnly: true, sameSita: 'strict' }).json({
+            message: `Welcome back ${user.fullname}`,
             user,
             success: true
         })
@@ -108,15 +111,12 @@ export const updateProfile = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
         const file = req.file;
-        if (!fullname || !email || !phoneNumber || !bio || !skills) {
-            return res.status(400).json({
-                message: "Something is missing",
-                success: false
-            });
-        };
+       
         // cloudinary here...
-
-        const skillsArray = skills.split(",");
+let skillsArray;
+if(skills){
+     skillsArray = skills.split(","); 
+}
         const userId = req.id; //middlewares authentication
         let user = await User.findById(userId);
 
@@ -128,11 +128,12 @@ export const updateProfile = async (req, res) => {
             })
         }
         // updating data
-        user.fullname = fullname,
-            user.email = email,
-            user.phoneNumber = phoneNumber,
-            user.profile.bio = bio,
-            user.profile.skills = skillsArray
+
+        if(fullname) user.fullname = fullname
+          if(email)  user.email = email
+    if(phoneNumber) user.phoneNumber = phoneNumber
+          if(bio)  user.profile.bio = bio
+           if(skills) user.profile.skills = skillsArray
 
         // resume comes later here...
        
