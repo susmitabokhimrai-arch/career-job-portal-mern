@@ -4,9 +4,10 @@ import React from 'react'
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { LogOut, User2 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const Navbar = () => { 
-    const user = false;
+    const {user} = useSelector(store=>store.auth);
     return (
         <div className="w-full bg-white">
             <div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-6">
@@ -27,7 +28,7 @@ const Navbar = () => {
                             <Link to="/signup"> <Button className='bg-[#6A38C2] hover:bg-[#5b30a6]'>Signup</Button></Link> 
                         </div>
                     ):(
-<Popover classname="cursor-pointer">
+<Popover className="cursor-pointer">
                         <PopoverTrigger asChild>
                             <Avatar className=' w-7 h-7 rounded-full overflow-hidden cursor-pointer '>
                                 <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" className='w-full h-full object-cover' />
@@ -57,7 +58,7 @@ const Navbar = () => {
                                 </div>
                                 <div className='flex w-fit items-center gap-2 cursor-pointer'>
                                     <LogOut />
-                                    <Button varient="link"className="p-2 h-auto">Log out</Button>
+                                    <Button variant="link"className="p-2 h-auto">Log out</Button>
                                 </div>
 
                             </div>

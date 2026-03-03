@@ -3,7 +3,7 @@ import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import{JOB_API_END_POINT} from '@/utils/constant';
+//import{JOB_API_END_POINT} from '@/utils/constant';
 import { setSingleJob } from '@/redux/jobSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -18,7 +18,7 @@ const JobDescription = () => {
     useEffect(()=>{
     const fetchSingleJob = async () => {
         try{
-            const res = await axios .get(`${JOB_API_END_POINT}/get/${jobid}`,{withCredentials:true});
+           // const res = await axios .get(`${JOB_API_END_POINT}/get/${jobid}`,{withCredentials:true});
             if(res.data.success){
                 dispatch(setSingleJob(res.data.jobs));
             }else{

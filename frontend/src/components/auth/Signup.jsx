@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../shared/Navbar";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "../ui/input";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { setLoading } from "@/redux/authslice";
 import { useDispatch, useSelector } from "react-redux";
+import { Loader2, User } from "lucide-react";
 
 const Signup = () => {
   const [input, setInput] = useState({
@@ -20,7 +21,7 @@ const Signup = () => {
     role: "",
     file: "",
   });
-  const {loading} = useSelector(store=>store.auth);
+  const {loading, user} = useSelector(store=>store.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -31,17 +32,23 @@ const Signup = () => {
     setInput({ ...input, file: e.target.files?.[0] });
   };
   const submitHandler = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
+const formData = new FormData();    //formdata object
+        formData.append("fullname", input.fullname);
+        formData.append("email", input.email);
+        formData.append("phoneNumber", input.phoneNumber);
+        formData.append("password", input.password);
+        formData.append("role", input.role);
+        if (input.file) {
+            formData.append("file", input.file);
+        }
     
     try {
       dispatch(setLoading(true));
-      const res = await axios.post(`${USER_API_END_POINT}/register`, {
-        fullname: input.fullname,
-        email: input.email,
-        phoneNumber: input.phoneNumber,
-        password: input.password,
-        role: input.role,
-      }, {
+      const res = await axios.post(`${USER_API_END_POINT}/register`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
         withCredentials: true,
       });
       if (res.data.success) {
@@ -50,11 +57,16 @@ const Signup = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error?.response?.data?.message || "Server not running");
+      toast.error(error.response.data.message || "Server not running");
     }finally{
       dispatch(setLoading(false));
     }
-  };
+  }
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100">
       <Navbar />

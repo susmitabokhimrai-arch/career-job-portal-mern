@@ -1,9 +1,5 @@
 import express from "express";
-<<<<<<< HEAD
-import { login, register, updateProfile} from "../controllers/user.controllers.js";
-=======
 import { login, register, logout, updateProfile} from "../controllers/user.controller.js";
->>>>>>> d1709cc (user testing done through postman)
 import isAuthenticated from "../middlewares/isAuthenticate.js";
 
 const router = express.Router();
