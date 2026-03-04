@@ -32,7 +32,7 @@ required:true
         type:Number,
         required:true
     },
-    comapany:{
+    company:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Company',
         required:true
