@@ -42,16 +42,12 @@ const formData = new FormData();    //formdata object
         if (input.file) {
             formData.append("file", input.file);
         }
-        const jsonData = {};
-        formData.forEach((value, key) => {
-            jsonData[key] = value;
-        });
     
     try {
       dispatch(setLoading(true));
-      const res = await axios.post(`${USER_API_END_POINT}/register`, jsonData, {
+      const res = await axios.post(`${USER_API_END_POINT}/register`, formData, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
         withCredentials: true,
       });
