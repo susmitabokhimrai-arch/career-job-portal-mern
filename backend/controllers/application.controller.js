@@ -1,6 +1,7 @@
  import { Application} from "../models/application.model.js";
  import { Job } from "../models/job.model.js";
 
+
  export const applyJob = async (req,res) => {
     try{
         const userId = req.id;
@@ -12,8 +13,9 @@
             })
         };
         //check if the user has already applied for job
-        const existingApplication = await application.findOne({ job: jobId, applicant: userId});
-        if(!existingApplication){
+        const existingApplication = await Application.findOne({ job: jobId, applicant: userId});
+        
+        if(existingApplication){
             return res.status(400).json({
                 message:"You have applied for this job already.",
                 success:false
@@ -28,7 +30,7 @@
             })
         }
         // create a new application
-        const newApplication = await application.create({
+        const newApplication = await Application.create({
             job:jobId,
             applicant:userId,
         });
@@ -74,7 +76,7 @@ export const getApplicants = async (req,res) =>
 {
     try{
         const {id} = req.params;
-const job = await Job.findById(jobId).populate({
+const job = await Job.findById(id).populate({
     path:'applications',
     options: {sort:{createdAt:-1}},
     populate:{
