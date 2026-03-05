@@ -1,4 +1,4 @@
-/*import { setAllJobs } from '@/redux/jobSlice';
+import { setAllJobs } from '@/redux/jobSlice';
 import{JOB_API_END_POINT} from '@/utils/constant';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
@@ -12,9 +12,9 @@ const useGetAllJobs = () => {
         try{
             const res = await axios .get(`${JOB_API_END_POINT}/get`,{withCredentials:true});
             if(res.data.success){
-                dispatchEvent(setAllJobs(res.data.jobs));
+                dispatch(setAllJobs(res.data.jobs));
             }else{
-                console.log("API returned succes: false",res.data);
+                console.log("API returned success: false",res.data);
             }
         }catch (error){
             console.error("error fetching jobs:",error);
@@ -24,4 +24,4 @@ const useGetAllJobs = () => {
   },[dispatch])
 }
 
-export default useGetAllJobs*/
+export default useGetAllJobs

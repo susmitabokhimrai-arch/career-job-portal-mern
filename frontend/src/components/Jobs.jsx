@@ -4,7 +4,7 @@ import FilterCard from "./FilterCard";
 import Job from "./Job";
 import { useSelector } from "react-redux";
 
-const jobsarray = [1, 2, 3, 4, 5, 6, 7, 8];
+//const jobsarray = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const Jobs = () => {
   const {allJobs} = useSelector(store=>store.job);
@@ -22,11 +22,11 @@ const Jobs = () => {
 
           {/* Jobs Section */}
           <div className="flex-1">
-            {jobsarray.length <= 0 ? (
+            {allJobs.length <= 0 ? 
               <div className="text-center text-gray-500 mt-20">
                 Job not found
               </div>
-            ) : (
+             : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {
                 allJobs.map((job) => (

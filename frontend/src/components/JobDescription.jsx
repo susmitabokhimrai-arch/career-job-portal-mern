@@ -1,28 +1,50 @@
-import React, { useEffect } from 'react'
+import React, { useEffect , useState} from 'react'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-//import{JOB_API_END_POINT} from '@/utils/constant';
+import{APPLICATION_API_END_POINT, JOB_API_END_POINT} from '@/utils/constant';
 import { setSingleJob } from '@/redux/jobSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'sonner';
 
 const JobDescription = () => {
-    const isApplied = true;
-    const params = useParams();
-    const jobid = params.id;
     const {singleJob} = useSelector(store=>store.job);
     const{User} = useSelector(store=>store.auth);
+    const isInitiallyApplied = singleJob?.applications?.some(application => application.applicant === User?._id) || false;
+   
+    const params = useParams();
+   const[isApplied, setIsApplied] = useState(isInitiallyApplied);
+    const jobid = params.id;
+    
+    
     const dispatch = useDispatch();
+    const applyJobHandler = async () => {
+        try {
+            const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobid}`, { withCredentials: true });
+           // console.log(res.data);
+            if (res.data.success) {
+                setIsApplied(true);//update local state to reflect the applied status immediately
+                const updatedSingleJob = {...singleJob,applications:[...singleJob.applications,{applicant:User?._id}]};
+                dispatch(setSingleJob(updatedSingleJob));
+                toast.success(res.data.message);}
+        } catch (error) {
+            console.log(error);
+            toast.error(error.response?.data?.message || "Error applying for job");
+            console.error("Error applying for job:", error);
+        }
+    };
 
     useEffect(()=>{
     const fetchSingleJob = async () => {
         try{
-           // const res = await axios .get(`${JOB_API_END_POINT}/get/${jobid}`,{withCredentials:true});
+           const res = await axios .get(`${JOB_API_END_POINT}/get/${jobid}`,{withCredentials:true});
             if(res.data.success){
-                dispatch(setSingleJob(res.data.jobs));
+                dispatch(setSingleJob(res.data.job));
+                setIsApplied(res.data.job.applications.some(application => application.applicant === User?._id));//ensure the state is in sync with fetched data
             }else{
-                console.log("API returned succes: false",res.data);
+                console.log("API returned success: false",res.data); 
+                
             }
         }catch (error){
             console.error("error fetching jobs:",error);
@@ -52,7 +74,8 @@ const JobDescription = () => {
                             ? "bg-gray-600 opacity-70 cursor-not-allowed"
                             : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
                         }`}
-                    onClick={!isApplied ? () => console.log("Apply") : undefined}
+                    onClick={isApplied ? null : applyJobHandler}
+                    disabled={isApplied}
                 >
                         {isApplied ? "Already Applied" : "Apply Now"}
                     </Button>
