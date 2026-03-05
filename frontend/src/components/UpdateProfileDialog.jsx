@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from './ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
@@ -11,128 +11,64 @@ import axios from 'axios'
 import { setUser } from '@/redux/authslice'
 
 const UpdateProfileDialog = ({ open, setOpen }) => {
-    const [loading, setLoading] = useState(false);
-    const { user } = useSelector(store => store.auth);
-    const [input, setInput] = useState({
-        fullname: user?.fullname || "",
-        email: user?.email || "",
-        phoneNumber: user?.phoneNumber || "",
-        bio: user?.profile?.bio || "",
-        skills: user?.profile?.skills?.map(skill => skill) || "",
-        file: null, //user?.profile?.resume || "",
-    });
-    const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false)
+  const { user } = useSelector(store => store.auth)
 
-    const changeEventHandler = (e) => {
-        setInput({ ...input, [e.target.name]: e.target.value });
-    }
-    const fileChangeHandler = (e) => {
-        const file = e.target.files?.[0];
-        setInput({ ...input, file })
+  const [input, setInput] = useState({
+    fullname: user?.fullname || "",
+    email: user?.email || "",
+    phoneNumber: user?.phoneNumber || "",
+    bio: user?.profile?.bio || "",
+    skills: user?.profile?.skills?.join(",") || "",
+    file: null // File upload (resume) will be handled later
+  })
+
+  const dispatch = useDispatch()
+
+  const changeEventHandler = (e) => {
+    setInput({ ...input, [e.target.name]: e.target.value })
+  }
+
+  const fileChangeHandler = (e) => {
+    const file = e.target.files?.[0]
+    setInput({ ...input, file })
+    // Multer/Cloudinary code commented for now
+    // formData.append("file", file)
+  }
+
+  const submitHandler = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      // Sending JSON for now since backend does not accept multipart
+      const res = await axios.post(`${USER_API_END_POINT}/profile/update`, {
+        fullname: input.fullname,
+        email: input.email,
+        phoneNumber: input.phoneNumber,
+        bio: input.bio,
+        skills: input.skills
+        // file: input.file // Multer/Cloudinary integration commented for now
+      }, {
+        withCredentials: true
+      })
+
+      if (res.data.success) {
+        dispatch(setUser(res.data.user));
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false)
+      setOpen(false)
     }
 
-    const submitHandler = async (e) => {
-        e.preventDefault()
-        setLoading(true);
-        try{
-            let res;
-            const backendReady=false;//set this to true when backend is ready to handle profile update requests
-       if(!backendReady){
-        //mock fallback response until backend is ready
-        const mockUser = {
-            ...user,
-            fullname: input.fullname,
-            email: input.email,
-            phoneNumber: input.phoneNumber,
-            profile: {
-                ...user?.profile,
-                bio: input.bio,
-                skills: input.skills.split(",").map(skill => skill.trim()),
-                resume: input.file || user?.profile?.resume,
-            },
-        };
-        dispatch(setUser(mockUser));
-        toast.success("Profile updated successfully (mock response).Backend is not ready to handle profile updates yet.");
-       //setLoading(false);
-       setOpen(false);
-       return;
-    }
-            //actual API call to update profile once backend is ready
-      /*  const formData = new FormData();
-        formData.append("fullname", input.fullname);
-        formData.append("email", input.email);
-        formData.append("phoneNumber", input.phoneNumber);
-        formData.append("bio", input.bio);
-        formData.append("skills", input.skills);
-        if (input.file) {
-            formData.append("file", input.file);
-        }
-        try {
-            setLoading(true);
-            const res = await axios.post(`${USER_API_END_POINT}/profile/update`, formData, {
-                headers: {
-                    'content-Type': 'multipart/form-data'
-                },
-                withCredentials: true
-            });
-}else{
-    */
-   //json only request until backend is ready to handle multipart/form-data
-   const payload = {
-    fullname: input.fullname,
-    email: input.email,
-    phoneNumber: input.phoneNumber,
-    bio: input.bio,
-    skills: input.skills.split(",").map(skill => skill.trim()),
-   };
-   res= await axios.post(`${USER_API_END_POINT}/profile/update`, payload, {
-    headers: {
-        'content-Type': 'application/json' },
-    withCredentials: true
-   });
-   /*try {
-            setLoading(true);
-            const res = await axios.post(`${USER_API_END_POINT}/profile/update`, payload, {
-                headers: {
-                    'content-Type': 'application/json'
-                },
-                withCredentials: true
-            });*/
-            if (res?.data?.success) {
-                dispatch(setUser(res.data.user));
-                toast.success(res.data.message || "Profile updated successfully");
-            } else {
-                //fallback safe update in case API returns success: false
-                const fallbackUser = {
-                    ...user,
-                    fullname: input.fullname,
-                    email: input.email,
-                    phoneNumber: input.phoneNumber,
-                    profile: {
-                        ...user?.profile,
-                        bio: input.bio,
-                        skills: input.skills.split(",").map(skill => skill.trim()),
-                        resume: input.file || user?.profile?.resume,
-                    },
-                };
-                dispatch(setUser(fallbackUser));
-                toast.success("Profile updated successfully (fallback update).");
-        } 
-        setOpen(false);
-        console.log(input);
-    }catch (error) {
-         console.log(error);
-            toast.error(error?.response?.data?.message || "Something went wrong");
+    console.log(input)
+  }
 
-        } finally {
-            setLoading(false);//ensure button never stucks
-            
-        /*}
-        setOpen(false)
-        console.log(input);*/
-        }
-    };
-    return (
+ return (
         <div>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-[425px] bg-white" onInteractOutside={() => setOpen(false)}>
