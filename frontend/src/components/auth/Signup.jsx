@@ -57,7 +57,7 @@ const formData = new FormData();    //formdata object
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message || "Server not running");
+      toast.error(error?.response?.data?.message || "Server not running");
     }finally{
       dispatch(setLoading(false));
     }
