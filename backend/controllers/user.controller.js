@@ -5,14 +5,16 @@ import jwt from "jsonwebtoken";
 export const register = async (req, res) => {
 try{
     const { fullname, email, password, phoneNumber, role } = req.body;
-    const file = req.file;
 
         if (!fullname || !email || !password || !phoneNumber || !role ){
             return res.status(400).json({
                 message: "Something is missing",
                 success: false
             });
-        }
+        };
+        const file = req.file;
+        const fileUri = getDataUri(file);
+        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
 
    
         const user = await User.findOne({ email });
@@ -30,7 +32,11 @@ try{
             phoneNumber,
             password: hashedPassword,
             role,
+            profile:{
+                profilePhoto:cloudResponse.secure_url,
+            }
         });
+
          return res.status(201).json({
             message:"Account created successfully.",
               success:true
@@ -110,9 +116,11 @@ export const logout = async (req, res) => {
 export const updateProfile = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
-        const file = req.file;
-       
         // cloudinary here...
+        const file = req.file;
+       const fileUri = getDataUri(file);
+       const cloudResponse = await cloudinary.uploader.uploader.upload(fileUri.content);
+
 let skillsArray;
 if(skills){
      skillsArray = skills.split(","); 
@@ -136,6 +144,10 @@ if(skills){
            if(skills) user.profile.skills = skillsArray
 
         // resume comes later here...
+        if(cloudResponse) {
+            user.profile.resume = cloudResponse.secure_url // save the cloudinary url
+            user.profile.resumeOriginalName = file.originalname // save the original file name
+        }
        
          await user.save();
 
