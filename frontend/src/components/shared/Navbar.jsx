@@ -1,6 +1,6 @@
 import React from 'react'
-import { Avatar, AvatarImage } from '@radix-ui/react-avatar';
-import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
+
+
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { LogOut, User2 } from 'lucide-react';
@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { USER_API_END_POINT } from '@/utils/constant';
 import { setUser } from '@/redux/authslice';
+import { Avatar, AvatarImage } from '../ui/avatar';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 
 
 const Navbar = () => {
