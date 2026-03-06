@@ -10,14 +10,12 @@ import { toast } from 'sonner';
 
 const JobDescription = () => {
     const {singleJob} = useSelector(store=>store.job);
-    const{User} = useSelector(store=>store.auth);
-    const isInitiallyApplied = singleJob?.applications?.some(application => application.applicant === User?._id) || false;
+    const{ user } = useSelector(store=>store.auth);
+    const isInitiallyApplied = singleJob?.applications?.some(application => application.applicant?._id?.toString() === user?._id?.toString()) || false;
    
     const params = useParams();
    const[isApplied, setIsApplied] = useState(isInitiallyApplied);
     const jobid = params.id;
-    
-    
     const dispatch = useDispatch();
     const applyJobHandler = async () => {
         try {
@@ -25,9 +23,10 @@ const JobDescription = () => {
            // console.log(res.data);
             if (res.data.success) {
                 setIsApplied(true);//update local state to reflect the applied status immediately
-                const updatedSingleJob = {...singleJob,applications:[...singleJob.applications,{applicant:User?._id}]};
+                const updatedSingleJob = {...singleJob,applications:[...singleJob.applications,{applicant:user?._id}]};
                 dispatch(setSingleJob(updatedSingleJob));
-                toast.success(res.data.message);}
+                toast.success(res.data.message);
+            }
         } catch (error) {
             console.log(error);
             toast.error(error.response?.data?.message || "Error applying for job");
@@ -41,7 +40,7 @@ const JobDescription = () => {
            const res = await axios .get(`${JOB_API_END_POINT}/get/${jobid}`,{withCredentials:true});
             if(res.data.success){
                 dispatch(setSingleJob(res.data.job));
-                setIsApplied(res.data.job.applications.some(application => application.applicant === User?._id));//ensure the state is in sync with fetched data
+                setIsApplied(res.data.job.applications.some(application => application.applicant?._id?.toString() === user?._id?.toString())|| false);//ensure the state is in sync with fetched data
             }else{
                 console.log("API returned success: false",res.data); 
                 
@@ -51,7 +50,7 @@ const JobDescription = () => {
         }
     }
     fetchSingleJob();
-  },[jobid,dispatch, User?._id]);
+  },[jobid,dispatch, user?._id]);
     return (
         <div className='min-h-screen bg-gray-50 py-10 px-4'>
             <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-8">
