@@ -7,10 +7,10 @@ const LatestJobs = () => {
   const {allJobs} = useSelector(store=>store.job);
   return (
     <div className='max-w-4xl mx-auto my-20'>
-      <h1 className='text-4xl font-bold text-center text-gray-9oo mb-12'><span className='text-[#6A38C2]'>Latest & Top </span> Job openings</h1>
+      <h1 className='text-4xl font-bold text-center text-gray-900 mb-12'><span className='text-[#6A38C2]'>Latest & Top </span> Job openings</h1>
     <div className='grid grid-cols-3  gap-4 my-5'>
 {
-       allJobs.length !== 0 ?<span>No job Available</span>: allJobs?.slice(0,6).map((job)=> <LatestJobCards key={job._id} job={job} />) 
+       allJobs.length <= 0 ?<span>No job Available</span>: allJobs?.slice(0,6).map((job)=> <LatestJobCards key={job._id} job={job} />) 
     }
     </div>
        </div>
