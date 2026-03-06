@@ -54,7 +54,7 @@ const Navbar = () => {
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Avatar className=' w-7 h-7 rounded-full overflow-hidden cursor-pointer '>
-                                    <AvatarImage src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"}
+                                    <AvatarImage src={user?.profile?.profilePhoto}
                                         alt="@shadcn"
                                         className='w-full h-full object-cover' />
 
@@ -64,7 +64,7 @@ const Navbar = () => {
                                 <div className="flex gap-6 space-y-1 space-x-2 ">
                                     <Avatar className="w-7 h-7 rounded-full overflow-hidden">
                                         <AvatarImage
-                                            src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"}
+                                            src={user?.profile?.profilePhoto}
                                             alt="profile"
                                             className="w-full h-full object-cover"
                                         />

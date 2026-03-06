@@ -20,8 +20,8 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
     phoneNumber: user?.phoneNumber || "",
     bio: user?.profile?.bio || "",
     skills: user?.profile?.skills?.join(",") || "",
-    file: null // File upload (resume) will be handled later
-  })
+    file: user?.profile?.resume || ""
+  });
 
   const dispatch = useDispatch()
 
@@ -30,26 +30,28 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
   }
 
   const fileChangeHandler = (e) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     setInput({ ...input, file })
-    // Multer/Cloudinary code commented for now
-    // formData.append("file", file)
+    
   }
 
   const submitHandler = async (e) => {
     e.preventDefault()
-    setLoading(true)
-
-    try {
-      // Sending JSON for now since backend does not accept multipart
-      const res = await axios.post(`${USER_API_END_POINT}/profile/update`, {
-        fullname: input.fullname,
-        email: input.email,
-        phoneNumber: input.phoneNumber,
-        bio: input.bio,
-        skills: input.skills
-        // file: input.file // Multer/Cloudinary integration commented for now
-      }, {
+      const formData = new FormData();
+      formData.append("fullname", input.fullname);
+      formData.append("email", input.email);
+      formData.append("phoneNumber", input.phoneNumber);
+      formData.append("bio", input.bio);
+      formData.append("skills", input.skills);
+      if(input.file){
+        formData.append("file", input.file);
+      }
+try {
+      setLoading(true)
+      const res = await axios.post(`${USER_API_END_POINT}/profile/update`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        },
         withCredentials: true
       })
 
@@ -59,7 +61,7 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false)
       setOpen(false)
