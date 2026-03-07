@@ -1,6 +1,4 @@
 import React from 'react'
-
-
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { LogOut, User2 } from 'lucide-react';
@@ -29,7 +27,7 @@ const Navbar = () => {
 
         } catch (error) {
             console.error("Error occurred while logging out:", error);
-            toast.error(error.response.data.message || "Something went wrong during logout");
+            toast.error(error.response?.data?.message || "Something went wrong during logout");
         }
     };
 
@@ -48,15 +46,19 @@ const Navbar = () => {
 
                     </ul>
                     {!user ? (
-                        <div className='flex  items-center gap-2 space-x-2'>
-                            <Link to="/login"><Button variant="outline">Login</Button></Link>
-                            <Link to="/signup"> <Button className='bg-[#6A38C2] hover:bg-[#5b30a6]'>Signup</Button></Link>
+                        <div className="flex items-center gap-2">
+                            <Button asChild variant="outline">
+                                <Link to="/login">Login</Link>
+                            </Button>
+                            <Button asChild className="bg-[#6A38C2] hover:bg-[#5b30a6]">
+                                <Link to="/signup">Signup</Link>
+                            </Button>
                         </div>
                     ) : (
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Avatar className=' w-7 h-7 rounded-full overflow-hidden cursor-pointer '>
-                                    <AvatarImage src={user?.profile?.profilePhoto ||"https://github.com/shadcn.png"}
+                                    <AvatarImage src={user?.profile?.profilePhoto}
                                         alt="@shadcn"
                                         className='w-full h-full object-cover' />
 
@@ -66,7 +68,7 @@ const Navbar = () => {
                                 <div className="flex gap-6 space-y-1 space-x-2 ">
                                     <Avatar className="w-7 h-7 rounded-full overflow-hidden">
                                         <AvatarImage
-                                            src={user?.profile?.profilePhoto ||"https://github.com/shadcn.png"}
+                                            src={user?.profile?.profilePhoto}
                                             alt="profile"
                                             className="w-full h-full object-cover"
                                         />
@@ -77,33 +79,34 @@ const Navbar = () => {
                                         <p className="text-sm text-muted-foreground">{user?.profile?.bio || "Welcome to CareerYatra!"}</p>
                                     </div>
                                 </div>
-                                <div className='flex flex-col text-gray-60'>
-                                    <div className='flex w-fit items-center gap-2 cursor-pointer'>
-                                        {
-                                            user && user.role == 'student' && (
-                                                <div className='flex w-fit items-center gap-2 cursor-pointer'>
-
-                                                    <User2 />
-                                                    <Button variant="link"> <Link to="/profile">View Profile</Link> </Button>
-
-                                                </div>
-                                            )
-                                        }
-                                        <div className='flex w-fit items-center gap-2 cursor-pointer'>
-                                            <LogOut />
-                                            <Button onClick={logoutHandler} variant="link" className="p-2 h-auto">Log out</Button>
-                                        </div>
+                                <div className='flex flex-col text-gray-600 mt-4'>
+                                    {
+                                        user && user.role == 'student' && (
+                                            <div className='flex w-fit items-center gap-2 cursor-pointer'>
+                                                <User2 />
+                                                <Button asChild variant="link">
+                                                    <Link to="/profile">View Profile</Link>
+                                                </Button>
+                                            </div>
+                                        )}
+                                    <div className="flex w-fit items-center gap-2 cursor-pointer mt-2">
+                                        <LogOut />
+                                        <Button
+                                            onClick={logoutHandler}
+                                            variant="link"
+                                            className="p-2 h-auto"
+                                        >
+                                            Log out
+                                        </Button>
                                     </div>
                                 </div>
                             </PopoverContent>
                         </Popover>
-                    )
-                    }
-
+                    )}
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Navbar
+export default Navbar;
