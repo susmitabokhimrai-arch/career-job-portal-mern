@@ -29,7 +29,7 @@ const{user} = useSelector(store=>store.auth);
                     <div className='flex items-center gap-5'>
                         <Avatar className="h-24 w-24">
                             <AvatarImage
-                                src="https://img.freepik.com/premium-vector/creative-elegant-abstract-minimalistic-logo-design-vector-any-brand-company_1253202-137644.jpg"
+                                src={user?.profile?.profilePhoto || "https://img.freepik.com/premium-vector/creative-elegant-abstract-minimalistic-logo-design-vector-any-brand-company_1253202-137644.jpg"}
                                 alt="profile"
                             />
                         </Avatar>
