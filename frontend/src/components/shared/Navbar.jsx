@@ -40,9 +40,21 @@ const Navbar = () => {
                 </h1>
                 <div className='flex items-center space-x-5'>
                     <ul className="flex items-center space-x-5 font-medium list-none p-0 m-0">
-                        <li className='cursor-pointer'><Link to="/">Home</Link></li>
-                        <li className='cursor-pointer'><Link to="/jobs">Jobs</Link></li>
-                        <li className='cursor-pointer'><Link to="/browse">Browse</Link></li>
+                        {
+                            user && user.role === 'recruiter' ? (
+                                <>
+                                    <li className='cursor-pointer'><Link to="/admin/companies">Companies</Link></li>
+                                    <li className='cursor-pointer'><Link to="/admin/jobs">Jobs</Link></li>
+                                </>
+                            ) : (
+                                <>
+                                    <li className='cursor-pointer'><Link to="/">Home</Link></li>
+                                    <li className='cursor-pointer'><Link to="/jobs">Jobs</Link></li>
+                                    <li className='cursor-pointer'><Link to="/browse">Browse</Link></li>
+                                </>
+
+                            )
+                        }
 
                     </ul>
                     {!user ? (
@@ -81,7 +93,7 @@ const Navbar = () => {
                                 </div>
                                 <div className='flex flex-col text-gray-600 mt-4'>
                                     {
-                                        user && user.role == 'student' && (
+                                        user && user.role === 'student' && (
                                             <div className='flex w-fit items-center gap-2 cursor-pointer'>
                                                 <User2 />
                                                 <Button asChild variant="link">
