@@ -3,12 +3,14 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Avatar, AvatarImage } from '../ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Edit2, MoreHorizontal } from 'lucide-react'
+import { useSelector } from 'react-redux'
 
 const CompaniesTable = () => {
+    const companies = useSelector(store => store.company.companies)|| [];
     return (
         <div>
             <Table>
-                <TableCaption>A list of your recent regidtered companies</TableCaption>
+                <TableCaption>A list of your recent registered companies</TableCaption>
                 <TableHeader>
                     <TableRow>
                         <TableHead>Logo</TableHead>
@@ -18,25 +20,33 @@ const CompaniesTable = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    <TableCell>
-                        <Avatar>
-                            <AvatarImage src="https://img.freepik.com/premium-vector/creative-elegant-abstract-minimalistic-logo-design-vector-any-brand-company_1253202-137644.jpg?semt=ais_user_personalization&w=740&q=80"/>
-                        </Avatar>
-                    </TableCell>
-                    <TableCell>Company Name</TableCell>
-                    <TableCell>09-03-2026</TableCell>
-                    <TableCell className="text-right cursor-pointer">
-                        <Popover>
-                            <PopoverTrigger><MoreHorizontal/></PopoverTrigger>
-                            <PopoverContent className="w-32">
-                            <div className='flex items-center gap-2 w-fit cursor-pointer'> 
-                                <Edit2 className='w-4'/>
-                                <span>Edit</span>
-                            </div>
-                            </PopoverContent>
-                        </Popover>
-                    </TableCell>
+                    {
+                        companies?.map((company) => (
+                            <tr>
+                                <TableCell>
+                                    <Avatar>
+                                        <AvatarImage src="https://img.freepik.com/premium-vector/creative-elegant-abstract-minimalistic-logo-design-vector-any-brand-company_1253202-137644.jpg?semt=ais_user_personalization&w=740&q=80" />
+                                    </Avatar>
+                                </TableCell>
+                                <TableCell>{company.name}</TableCell>
+                                <TableCell>{company.createdAt.split("T")[0]}</TableCell>
+                                <TableCell className="text-right cursor-pointer">
+                                    <Popover>
+                                        <PopoverTrigger><MoreHorizontal /></PopoverTrigger>
+                                        <PopoverContent className="w-32">
+                                            <div className='flex items-center gap-2 w-fit cursor-pointer'>
+                                                <Edit2 className='w-4' />
+                                                <span>Edit</span>
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                </TableCell>
 
+                            </tr>
+
+
+                        ))
+                    }
                 </TableBody>
             </Table>
         </div>
