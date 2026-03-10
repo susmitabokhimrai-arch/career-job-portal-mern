@@ -20,12 +20,18 @@ const CompaniesTable = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {
-                        companies?.map((company) => (
-                            <tr>
+                    {companies.length === 0 ? (
+                        <TableRow>
+                            <TableCell colspan={4} className="text-center">
+                                You haven't registered any company yet.
+                            </TableCell>
+                        </TableRow>
+                    ) : (
+                        companies.map((company) => (
+                            <TableRow key={company._id}> 
                                 <TableCell>
                                     <Avatar>
-                                        <AvatarImage src="https://img.freepik.com/premium-vector/creative-elegant-abstract-minimalistic-logo-design-vector-any-brand-company_1253202-137644.jpg?semt=ais_user_personalization&w=740&q=80" />
+                                        <AvatarImage src={company.logo}/>
                                     </Avatar>
                                 </TableCell>
                                 <TableCell>{company.name}</TableCell>
@@ -42,11 +48,11 @@ const CompaniesTable = () => {
                                     </Popover>
                                 </TableCell>
 
-                            </tr>
+                            </TableRow>
 
 
                         ))
-                    }
+                    )}
                 </TableBody>
             </Table>
         </div>
