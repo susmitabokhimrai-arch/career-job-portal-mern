@@ -23,7 +23,7 @@ const CompaniesTable = () => {
                     {companies.length === 0 ? (
                         <TableRow>
                             <TableCell colspan={4} className="text-center">
-                                You haven't registered any company yet.
+                                You haven't registered any company yet!
                             </TableCell>
                         </TableRow>
                     ) : (
