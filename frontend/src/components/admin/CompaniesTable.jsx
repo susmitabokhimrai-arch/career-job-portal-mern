@@ -34,7 +34,7 @@ const CompaniesTable = () => {
                 <TableBody>
                     {
                         filterCompany?.map((company) => (
-                            <TableRow> 
+                            <tr key={company._id}>
                                 <TableCell>
                                     <Avatar>
                                         <AvatarImage src={company.logo}/>
@@ -54,7 +54,7 @@ const CompaniesTable = () => {
                                     </Popover>
                                 </TableCell>
 
-                            </TableRow>
+                            </tr>
 
 
                         ))
