@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { Edit2, MoreHorizontal } from 'lucide-react'
+import { Edit2, Eye, MoreHorizontal } from 'lucide-react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 
 const AdminJobsTable = () => {
-    const { allAdminJobs, searchJobByText} = useSelector(store=>store.job);
+    const { allAdminJobs, searchJobByText } = useSelector(store => store.job);
     const [filterJobs, setFilterJobs] = useState(allAdminJobs);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const filteredJobs = (allAdminJobs || []).filter((job)=>{
+        const filteredJobs = (allAdminJobs || []).filter((job) => {
             if (!searchJobByText) {
                 return true
             };
@@ -36,7 +36,7 @@ const AdminJobsTable = () => {
                 <TableBody>
                     {
                         filterJobs?.map((job) => (
-                            <tr>
+                            <tr key={job._id}>
                                 <TableCell>{job?.company?.name}</TableCell>
                                 <TableCell>{job?.title}</TableCell>
                                 <TableCell>{job?.createdAt.split("T")[0]}</TableCell>
@@ -48,6 +48,10 @@ const AdminJobsTable = () => {
                                                 <Edit2 className='w-4' />
                                                 <span>Edit</span>
                                             </div>
+                                            <div onClick={()=> navigate(`/admin/jobs/$(job._id}/applicants`)} className='flex items-center w-fit gap-2 cursor-pointer mt-2' >
+                                                <Eye className='w-4'/>
+                                                <span>Applicants</span>
+                                            </div>
                                         </PopoverContent>
                                     </Popover>
                                 </TableCell>
@@ -55,7 +59,7 @@ const AdminJobsTable = () => {
                             </tr>
 
                         ))
-}
+                    }
                 </TableBody>
             </Table>
         </div>
