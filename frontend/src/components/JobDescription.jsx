@@ -9,48 +9,46 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 
 const JobDescription = () => {
-    const {singleJob} = useSelector(store=>store.job);
-    const{ user } = useSelector(store=>store.auth);
-    const isInitiallyApplied = singleJob?.applications?.some(application => application.applicant?._id?.toString() === user?._id?.toString()) || false;
-   
+    const {singleJob} = useSelector(store => store.job);
+    const {user} = useSelector(store=>store.auth);
+    const isIntiallyApplied = singleJob?.applications?.some(application => application.applicant === user?._id) || false;
+    const [isApplied, setIsApplied] = useState(isIntiallyApplied);
+
     const params = useParams();
-   const[isApplied, setIsApplied] = useState(isInitiallyApplied);
-    const jobid = params.id;
+    const jobId = params.id;
     const dispatch = useDispatch();
+
     const applyJobHandler = async () => {
         try {
-            const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobid}`, { withCredentials: true });
-           // console.log(res.data);
-            if (res.data.success) {
-                setIsApplied(true);//update local state to reflect the applied status immediately
-                const updatedSingleJob = {...singleJob,applications:[...singleJob.applications,{applicant:user?._id}]};
-                dispatch(setSingleJob(updatedSingleJob));
+            const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobId}`, {withCredentials:true});
+            
+            if(res.data.success){
+                setIsApplied(true); // Update the local state
+                const updatedSingleJob = {...singleJob, applications:[...singleJob.applications,{applicant:user?._id}]}
+                dispatch(setSingleJob(updatedSingleJob)); // helps us to real time UI update
                 toast.success(res.data.message);
+
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response?.data?.message || "Error applying for job");
-            console.error("Error applying for job:", error);
-        }
-    };
-
-    useEffect(()=>{
-    const fetchSingleJob = async () => {
-        try{
-           const res = await axios .get(`${JOB_API_END_POINT}/get/${jobid}`,{withCredentials:true});
-            if(res.data.success){
-                dispatch(setSingleJob(res.data.job));
-                setIsApplied(res.data.job.applications.some(application => application.applicant?._id?.toString() === user?._id?.toString())|| false);//ensure the state is in sync with fetched data
-            }else{
-                console.log("API returned success: false",res.data); 
-                
-            }
-        }catch (error){
-            console.error("error fetching jobs:",error);
+            toast.error(error.response.data.message);
         }
     }
-    fetchSingleJob();
-  },[jobid,dispatch, user?._id]);
+
+    useEffect(()=>{
+        const fetchSingleJob = async () => {
+            try {
+                const res = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {withCredentials:true});
+                if(res.data.success){
+                    dispatch(setSingleJob(res.data.job));
+                    setIsApplied(res.data.job.applications.some(application=>application.applicant === user?._id)) // Ensure the state is in sync with fetched data
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        fetchSingleJob(); 
+    },[jobId,dispatch, user?._id]);
     return (
         <div className='min-h-screen bg-gray-50 py-10 px-4'>
             <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-8">
