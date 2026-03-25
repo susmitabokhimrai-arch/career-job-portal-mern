@@ -2,9 +2,11 @@ import React from 'react'
 import LatestJobCards from './LatestJobCards';
 import { useSelector } from 'react-redux';
 
+
 //const randomjobs = [1,2,3,4,5,6,7,8];
 const LatestJobs = () => {
   const {allJobs} = useSelector(store=>store.job);
+  
   return (
     <div className='max-w-4xl mx-auto my-20'>
       <h1 className='text-4xl font-bold text-center text-gray-900 mb-12'><span className='text-[#6A38C2]'>Latest & Top </span> Job openings</h1>
