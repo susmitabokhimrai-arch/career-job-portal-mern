@@ -5,7 +5,7 @@ import React from 'react'
 const LatestJobCards = ({job}) => {
     const navigate = useNavigate();
     return (
-        <div onClick={()=> navigate(`/description/${job._id}`)} className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+        <div onClick={()=> navigate(`/description/${job._id}`)} className='p-5 rounded-md shadow-xl bg-white border border-gray-100 cursor-pointer'>
             <div>
                 <h1 className='font-medium text-lg'>{job?.Company?.Name}</h1>
                 <p className='text-sm text-gray-500'>Nepal</p>
