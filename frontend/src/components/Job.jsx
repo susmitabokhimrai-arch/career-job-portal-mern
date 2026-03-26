@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Bookmark, Share2 } from 'lucide-react';
+import { Bookmark, Share2, MapPin } from 'lucide-react';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { Badge } from './ui/badge';
 import { useNavigate } from 'react-router-dom';
@@ -18,13 +18,12 @@ const JobCard = ({ job }) => {
 
   const handleSave = () => {
     setSaved(!saved);
-    // Later: dispatch Redux action or call API to persist
   };
 
   const handleShare = async () => {
     const shareData = {
       title: job?.title,
-      text: `Check out this internship: ${job?.title} at ${job?.company?.name || job?.Company?.Name}`,
+      text: `Check out this internship: ${job?.title}`,
       url: `${window.location.origin}/description/${job?._id}`,
     };
     try {
@@ -32,62 +31,82 @@ const JobCard = ({ job }) => {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(shareData.url);
-        alert('Link copied to clipboard!');
       }
     } catch (err) {
-      console.error('Error sharing:', err);
+      console.error(err);
     }
   };
 
+  const isNew = daysAgoFunction(job?.createdAt) <= 2;
+
   return (
     <div className='p-5 rounded-md shadow-xl bg-white border border-gray-100'>
-      
+
       {/* Top Row */}
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-sm text-gray-500">
-          {daysAgoFunction(job?.createdAt) === 0
-            ? 'Today'
-            : `${daysAgoFunction(job?.createdAt)} days ago`}
-        </p>
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex gap-2 items-center">
+          <p className="text-xs text-gray-500">
+            {daysAgoFunction(job?.createdAt) === 0
+              ? 'Today'
+              : `${daysAgoFunction(job?.createdAt)} days ago`}
+          </p>
+
+          {isNew && (
+            <Badge className="bg-red-100 text-red-600 text-xs">🔥 New</Badge>
+          )}
+        </div>
+
         <Button
           onClick={handleSave}
-          variant={saved ? 'default' : 'outline'}
+          variant="outline"
           className={`rounded-full p-2 ${saved ? 'bg-green-600 text-white' : ''}`}
         >
           <Bookmark size={16} />
         </Button>
       </div>
 
-      {/* Company Info */}
+      {/* Company */}
       <div className="flex items-center gap-3 mb-3">
         <Avatar className="w-12 h-12">
           <AvatarImage src={job?.company?.logo} />
         </Avatar>
         <div>
-          <h1 className="font-semibold text-lg">{job?.company?.name || job?.Company?.Name}</h1>
-          <p className="text-sm text-gray-500">Nepal</p>
+          <h1 className="font-semibold text-base">
+            {job?.company?.name || job?.Company?.Name}
+          </h1>
+          <p className="text-xs text-gray-500 flex items-center gap-1">
+            <MapPin size={12} />
+            {job?.location || 'Remote'}
+          </p>
         </div>
       </div>
 
-      {/* Job Info */}
-      <div className="mb-4">
-        <h1 className="font-bold text-xl mb-1">{job?.title}</h1>
-        <p className="text-sm text-gray-600 line-clamp-3">{job?.description}</p>
+      {/* Title */}
+      <div className="mb-3">
+        <h1 className="font-bold text-lg leading-snug">
+          {job?.title}
+        </h1>
+        <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+          {job?.description}
+        </p>
       </div>
 
-      {/* Badges */}
+      {/* Internship Highlights */}
       <div className="flex flex-wrap gap-2 mb-4">
-        <Badge className="text-blue-700 font-bold" variant="ghost">
+        <Badge className="bg-blue-100 text-blue-700 text-xs">
           Internship
         </Badge>
-        <Badge className="text-red-600 font-bold" variant="ghost">
-          Stipend: {job?.stipend || job?.salary || 'Unpaid'}
+
+        <Badge className="bg-green-100 text-green-700 text-xs font-semibold">
+          💰 {job?.stipend || job?.salary || 'Unpaid'}
         </Badge>
-        <Badge className="text-purple-700 font-bold" variant="ghost">
-          Duration: {job?.duration || job?.position}
+
+        <Badge className="bg-purple-100 text-purple-700 text-xs">
+          ⏳ {job?.duration || '3 Months'}
         </Badge>
-        <Badge className="text-green-700 font-bold" variant="ghost">
-          Eligibility: {job?.eligibility || 'Students'}
+
+        <Badge className="bg-yellow-100 text-yellow-700 text-xs">
+          🎓 Students
         </Badge>
       </div>
 
@@ -98,8 +117,9 @@ const JobCard = ({ job }) => {
           variant="outline"
           className="flex-1"
         >
-          Details
+          View
         </Button>
+
         <Button
           onClick={handleSave}
           className={`flex-1 ${saved ? 'bg-green-600 text-white' : 'bg-[#7209b7] text-white'}`}
@@ -109,9 +129,9 @@ const JobCard = ({ job }) => {
         <Button
           onClick={handleShare}
           variant="outline"
-          className="flex-1 flex items-center justify-center gap-2"
+          className="px-3"
         >
-          <Share2 size={16} /> Share
+          <Share2 size={16} />
         </Button>
       </div>
     </div>
