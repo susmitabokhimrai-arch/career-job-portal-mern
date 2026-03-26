@@ -61,8 +61,8 @@ const JobDescription = () => {
                         <div className="flex flex-wrap gap-3">
                             <Badge className="bg-blue-50 text-blue-600">{singleJob?.position} Positions</Badge>
                             <Badge className="bg-red-50 text-red-600">📍{singleJob?.internshipType}</Badge>
-                            <Badge className="bg-purple-50 text-purple-600">💰{singleJob?.stipend || 'Unpaid'} LPA</Badge>
-                            <Badge className="bg-purple-50 text-purple-600">⏳{singleJob?.duration} LPA</Badge>
+                            <Badge className="bg-purple-50 text-purple-600">💰{singleJob?.stipend || 'Unpaid'}</Badge>
+                            <Badge className="bg-purple-50 text-purple-600">⏳{singleJob?.duration}</Badge>
 
                         </div>
                     </div>
