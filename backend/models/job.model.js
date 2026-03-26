@@ -12,22 +12,38 @@ const jobSchema = new mongoose.Schema({
      requirements:[{
         type:String
     }],
-     salary:{
-        type:Number,
-        required:true
+
+    // intership fields
+
+     stipend:{
+        type:String
     },
-    experienceLevel:{
-type:Number,
+
+    internshipType:{
+type:String,
+enum:["remote","onsite","hybrid"],
 required:true
     },
     location:{
         type:String,
         required:true
     },
-    jobType:{
+    duration:{
         type:String,
         required:true
     },
+    skillsRequired:[{
+        type:String
+    }],
+    applicationDeadline:{
+        type:Date
+    },
+    startDate:{
+        type:Date
+    },
+    perks:[{
+        type:String // certificate
+    }],
     position:{
         type:Number,
         required:true
