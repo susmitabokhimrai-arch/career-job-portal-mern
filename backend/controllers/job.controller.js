@@ -48,7 +48,7 @@ created_by:userId
         try{
             const keyword = req.query.keyword || "";
             const duration = req.query.duration;
-            const intershipType = req.query.intershipType;
+            const internshipType = req.query.intershipType;
 
             let query={
                 $or:[
