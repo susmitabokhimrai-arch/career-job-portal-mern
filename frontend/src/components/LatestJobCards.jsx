@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Badge } from './ui/badge'
 import React from 'react'
+import { MapPin } from 'lucide-react';
 
 const LatestJobCards = ({job}) => {
     const navigate = useNavigate();

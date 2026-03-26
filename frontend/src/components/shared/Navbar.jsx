@@ -76,7 +76,7 @@ const Navbar = () => {
 
                                 </Avatar>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80 p-6 border-0 outline-none shadow-lg">
+                            <PopoverContent className="w-80 p-6 border-0 outline-none shadow-lg bg-white">
                                 <div className="flex gap-6 space-y-1 space-x-2 ">
                                     <Avatar className="w-7 h-7 rounded-full overflow-hidden">
                                         <AvatarImage
