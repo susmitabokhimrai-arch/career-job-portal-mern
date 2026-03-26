@@ -50,7 +50,7 @@ const PostJob = () => {
             const res = await axios.post(`${JOB_API_END_POINT}/post`, 
                 {
                     ...input,
-                skillsRequired: input.skillsRequired.split(",")
+                skillsRequired: input.skillsRequired.toString()
                 },
                 {
                 headers: {
