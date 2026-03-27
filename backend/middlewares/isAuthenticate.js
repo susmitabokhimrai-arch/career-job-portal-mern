@@ -8,15 +8,15 @@ const isAuthenticated = async (req, res, next) => {
             return res.status(401).json({
                 message: "user not authenticated",
                 success: false,
-            })
+            });
         }
-        const decode = await jwt.verify(token, process.env.SECRET_KEY);
-        if(!decode){
+        const decode = jwt.verify(token, process.env.SECRET_KEY);
+        if(!decoded){
             return res.status(401).json({
                 message: "Invalid token",
                 success: false
-            })
-        };
+            });
+        }
 
          const user = await User.findById(decoded.userId);
     if (!user) {
@@ -26,10 +26,11 @@ const isAuthenticated = async (req, res, next) => {
       });
     }
     
-        req.id = decode.userId;
+        req.id = decoded.userId;
         next();
     } catch (error) {
     console.log(error);
+return res.status(401).json({ message: "Authentication failed", success: false });
 }
-}
+};
 export default isAuthenticated;
