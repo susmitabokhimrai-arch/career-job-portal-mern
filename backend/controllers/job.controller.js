@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Job } from "../models/job.model.js";
 
 export const postJob = async (req, res) => {
@@ -97,6 +98,14 @@ created_by:userId
     export const getJobById = async (req,res) => {
         try{
             const jobId = req.params.id;
+
+              // 🛑 FIX: Prevent invalid IDs like "get"
+        if (!mongoose.Types.ObjectId.isValid(jobId)) {
+            return res.status(400).json({
+                message: "Invalid Internship ID",
+                success: false
+            });
+        }
             const job = await Job.findById(jobId).populate({
                 path:"applications"
             });
