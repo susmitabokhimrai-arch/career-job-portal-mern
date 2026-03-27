@@ -87,6 +87,7 @@ export const login = async (req, res) => {
 
         const token = await jwt.sign(tokenData, process.env.SECRET_KEY, {expiresIn:'1d' });
 
+
         user = {
             _id: user._id,
             fullname: user.fullname,
@@ -145,6 +146,7 @@ export const updateProfile = async (req, res) => {
       });
     }
 
+
     // updating data
     if (fullname) user.fullname = fullname;
     if (email) user.email = email;
@@ -167,7 +169,8 @@ export const updateProfile = async (req, res) => {
       email: user.email,
       phoneNumber: user.phoneNumber,
       role: user.role,
-      profile: user.profile
+      profile: user.profile,
+       savedJobs: user.savedJobs || [],
     };
 
     return res.status(200).json({
@@ -176,6 +179,27 @@ export const updateProfile = async (req, res) => {
       success: true
     });
 
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+
+// ---------------------- TOGGLE SAVE JOB ----------------------
+export const toggleSaveJob = async (req, res) => {
+  try {
+    const user = await User.findById(req.id);
+    if (!user) return res.status(404).json({ message: "User not found", success: false });
+
+    const jobId = req.params.id;
+    const index = user.savedJobs.indexOf(jobId);
+
+    if (index === -1) user.savedJobs.push(jobId);
+    else user.savedJobs.splice(index, 1);
+
+    await user.save();
+
+    return res.status(200).json({ success: true, savedJobs: user.savedJobs });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Server error", success: false });
