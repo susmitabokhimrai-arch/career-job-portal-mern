@@ -32,10 +32,20 @@ const AppliedJobTable = () => {
                             <TableCell>{appliedJob.job?.title}</TableCell>
                             <TableCell>{appliedJob.job?.company?.name}</TableCell>
                             <TableCell className="text-right">
-                                <Badge className={`${appliedJob?.status === "rejected" ? 'bg-red-400' : appliedJob.status === 'pending' ? 'bg-gray-400' : 'bg-green-400'}`}>{appliedJob.status.toUpperCase()}</Badge>
+                                <Badge className={`
+                                ${appliedJob?.status === "rejected" && 'bg-red-400' }
+                                ${appliedJob?.status === "applied" && 'bg-gray-400' }
+                                ${appliedJob?.status === "shortlisted" && 'bg-yellow-400'}
+                                ${appliedJob?.status === "interview" && 'bg-blue-400'}
+                                ${appliedJob?.status === "selected" && 'bg-green-400'}
+                                `}>
+                                {appliedJob?.status.toUpperCase()}
+                                </Badge>
                             </TableCell>
                         </TableRow>
-                    ))}
+                    ))
+                
+                }
                 </TableBody>
 
             </Table>
