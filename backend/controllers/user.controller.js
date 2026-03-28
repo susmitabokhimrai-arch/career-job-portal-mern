@@ -45,10 +45,8 @@ try{
          });
 } catch (error) {
 console.log(error);
-
 }
-
-
+};
 export const login = async (req, res) => {
     try {
         const { email, password, role } = req.body;
@@ -192,41 +190,33 @@ export const updateProfile = async (req, res) => {
 export const toggleSaveJob = async (req, res) => {
   try {
     const user = await User.findById(req.id);
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        success: false
-      });
-    }
+    if (!user) return res.status(404).json({ message: "User not found", success: false });
 
     const jobId = req.params.id;
+    const index = user.savedJobs.indexOf(jobId);
 
-    // FIX: compare properly
-    const isSaved = user.savedJobs.some(
-      (id) => id.toString() === jobId
-    );
-
-    if (!isSaved) {
-      user.savedJobs.push(jobId);
-    } else {
-      user.savedJobs = user.savedJobs.filter(
-        (id) => id.toString() !== jobId
-      );
-    }
+    if (index === -1) user.savedJobs.push(jobId);
+    else user.savedJobs.splice(index, 1);
 
     await user.save();
 
-    return res.status(200).json({
-      success: true,
-      savedJobs: user.savedJobs
-    });
-
+    return res.status(200).json({ success: true, savedJobs: user.savedJobs });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      message: "Server error",
-      success: false
-    });
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+
+export const getSavedJobs = async (req, res) => {
+  try {
+    const user = await User.findById(req.id).populate("savedJobs"); // optional: populate job details
+    if (!user) {
+      return res.status(404).json({ message: "User not found", success: false });
+    }
+
+    return res.status(200).json({ success: true, savedJobs: user.savedJobs });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error", success: false });
   }
 };
