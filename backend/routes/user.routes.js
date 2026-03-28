@@ -1,8 +1,8 @@
 import express from "express";
-import { login, register, logout, updateProfile, toggleSaveJob} from "../controllers/user.controller.js";
+import { login, register, logout, updateProfile, toggleSaveJob, getSavedJobs} from "../controllers/user.controller.js";
 import isAuthenticated from "../middlewares/isAuthenticate.js";
 import { singleUpload } from "../middlewares/multer.js";
-import { getSavedJobs } from "../controllers/user.controller.js";
+
 
 const router = express.Router();
 
