@@ -31,11 +31,11 @@ const JobCard = ({ job }) => {
   const handleSave = async () => {
     try {
       const res = await axios.post(
-        `/api/user/save/${job._id}`,
+        `/api/v1/user/save/${job._id}`,
         {},
         { withCredentials: true }
       );
-      dispatch(setUser({ ...user, savedJobs: res.data.savedJobs }));
+      dispatch(setUser(res.data.user));
     } catch (error) {
       console.error('Error saving job:', error);
     }
