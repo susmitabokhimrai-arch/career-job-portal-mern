@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { setUser } from '@/redux/authslice';
+import { USER_API_END_POINT } from '@/utils/constant';
 
 
 const JobCard = ({ job }) => {
@@ -31,7 +32,7 @@ const JobCard = ({ job }) => {
   const handleSave = async () => {
     try {
       const res = await axios.post(
-        `/api/v1/user/save/${job._id}`,
+        `http://localhost:3000/api/v1/user/save/${job._id}`,
         {},
         { withCredentials: true }
       );
