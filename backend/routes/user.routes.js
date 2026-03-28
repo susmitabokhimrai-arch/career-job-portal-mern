@@ -11,5 +11,5 @@ router.route("/logout").get(logout);
 router.route("/profile/update").post(isAuthenticated, singleUpload, updateProfile);
 
 // Save/Unsave job
-router.post("user/save/:id", isAuthenticated, toggleSaveJob);
+router.post("/save/:id", isAuthenticated, toggleSaveJob);
 export default router;
