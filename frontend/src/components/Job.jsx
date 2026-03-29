@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Bookmark, Share2, MapPin } from 'lucide-react';
 import { Avatar, AvatarImage } from './ui/avatar';
@@ -9,40 +9,42 @@ import axios from 'axios';
 import { setUser } from '@/redux/authslice';
 import { USER_API_END_POINT } from '@/utils/constant';
 
-
 const JobCard = ({ job }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector(store => store.auth);
+  const [loading, setLoading] = useState(false);
 
-  // Check if job is already saved
-  const isSaved = user?.savedJobs?.some(
-    id => id.toString() === job._id?.toString()
-  );
+  //  handle both populated objects and plain IDs robustly
+  const isSaved = user?.savedJobs?.some(entry => {
+    const id = entry?._id ?? entry; // works whether entry is an object or a plain ID
+    return id?.toString() === job._id?.toString();
+  });
 
-  // Calculate how many days ago the job was posted
   const daysAgoFunction = (mongodbTime) => {
     const createdAt = new Date(mongodbTime);
-    const currentTime = new Date();
-    const timeDifference = currentTime - createdAt;
+    const timeDifference = new Date() - createdAt;
     return Math.floor(timeDifference / (1000 * 60 * 60 * 24));
   };
 
-  // Save or unsave job
+  // add loading state to prevent double-clicks
   const handleSave = async () => {
+    if (loading) return;
+    setLoading(true);
     try {
       const res = await axios.post(
-        `http://localhost:3000/api/v1/user/save/${job._id}`,
+        `${USER_API_END_POINT}/save/${job._id}`,
         {},
         { withCredentials: true }
       );
       dispatch(setUser(res.data.user));
     } catch (error) {
       console.error('Error saving job:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Share job link
   const handleShare = async () => {
     const shareData = {
       title: job?.title,
@@ -75,8 +77,10 @@ const JobCard = ({ job }) => {
           </p>
           {isNew && <Badge className="bg-red-100 text-red-600 text-xs">🔥 New</Badge>}
         </div>
+        {/* FIX 2: disabled while loading */}
         <Button
           onClick={handleSave}
+          disabled={loading}
           variant="outline"
           className={`rounded-full p-2 ${isSaved ? 'bg-green-600 text-white' : ''}`}
         >
@@ -127,9 +131,10 @@ const JobCard = ({ job }) => {
         </Button>
         <Button
           onClick={handleSave}
+          disabled={loading}
           className={`flex-1 ${isSaved ? 'bg-green-600 text-white' : 'bg-[#7209b7] text-white'}`}
         >
-          {isSaved ? 'Saved' : 'Favorite'}
+          {loading ? 'Saving...' : isSaved ? 'Saved ✓' : 'Favorite'}
         </Button>
         <Button onClick={handleShare} variant="outline" className="px-3">
           <Share2 size={16} />
