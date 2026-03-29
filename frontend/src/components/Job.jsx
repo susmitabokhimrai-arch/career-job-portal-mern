@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { setUser } from '@/redux/authslice';
-import { USER_API_END_POINT } from '@/utils/constant';
 
 const JobCard = ({ job }) => {
   const navigate = useNavigate();
