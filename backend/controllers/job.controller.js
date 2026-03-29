@@ -99,7 +99,7 @@ created_by:userId
         try{
             const jobId = req.params.id;
 
-              // 🛑 FIX: Prevent invalid IDs like "get"
+              //  FIX: Prevent invalid IDs like "get"
         if (!mongoose.Types.ObjectId.isValid(jobId)) {
             return res.status(400).json({
                 message: "Invalid Internship ID",
