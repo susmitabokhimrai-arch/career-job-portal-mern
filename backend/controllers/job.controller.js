@@ -112,7 +112,7 @@ created_by:userId
             
             if(!job){
                  return res.status(404).json({
-        message:"Intership not found.",
+        message:"Internship not found.",
         success:false
     });
             }
@@ -133,7 +133,7 @@ created_by:userId
             }).sort({ createdAt: -1 });
             
             if(!jobs){
-                return res.status(404).josn({
+                return res.status(404).json({
                     message:"Inetrnships not found.",
                     success:false
                 });
