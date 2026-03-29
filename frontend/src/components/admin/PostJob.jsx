@@ -47,7 +47,7 @@ const PostJob = () => {
         e.preventDefault();
         try {
             setLoading(true);
-            const res = await axios.post(`${JOB_API_END_POINT}/post`, 
+            const res = await axios.post(`${JOB_API_END_POINT}`, 
                 {
                     ...input,
                 skillsRequired: input.skillsRequired.toString()
