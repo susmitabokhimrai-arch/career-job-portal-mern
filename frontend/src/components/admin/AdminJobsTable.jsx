@@ -22,35 +22,39 @@ const AdminJobsTable = () => {
         setFilterJobs(filteredJobs);
     }, [allAdminJobs, searchJobByText])
     return (
-        <div>
-            <Table>
-                <TableCaption>A list of your recent posted jobs</TableCaption>
-                <TableHeader>
+        <div className="p-6 bg-gray-50 rounded-lg shadow-lg">
+            <Table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">>
+                <TableCaption className="text-center text-gray-500 text-sm pb-4">A list of your recent posted jobs</TableCaption>
+                <TableHeader className="bg-gray-100">
                     <TableRow>
-                        <TableHead>Company Name</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead className="text-right">Action</TableHead>
+                        <TableHead className="text-left text-gray-700 font-medium px-4 py-2">Company Name</TableHead>
+                        <TableHead className="text-left text-gray-700 font-medium px-4 py-2">Role</TableHead>
+                        <TableHead className="text-left text-gray-700 font-medium px-4 py-2">Date</TableHead>
+                        <TableHead className="text-right text-gray-700 font-medium px-4 py-2">Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {
                         filterJobs?.map((job) => (
-                            <tr key={job._id}>
-                                <TableCell>{job?.company?.name}</TableCell>
-                                <TableCell>{job?.title}</TableCell>
-                                <TableCell>{job?.createdAt?.split("T")[0]}</TableCell>
-                                <TableCell className="text-right cursor-pointer">
+                            <tr key={job._id}className="hover:bg-gray-50 transition duration-200">
+                                <TableCell className="px-4 py-3">{job?.company?.name}</TableCell>
+                                <TableCell className="px-4 py-3">{job?.title}</TableCell>
+                                <TableCell className="px-4 py-3">{job?.createdAt?.split("T")[0]}</TableCell>
+                                <TableCell className="px-4 py-3 text-right">
                                     <Popover>
-                                        <PopoverTrigger><MoreHorizontal /></PopoverTrigger>
-                                        <PopoverContent className="w-32 bg-white">
-                                            <div onClick={() => navigate(`/admin/jobs/${job._id}`)} className='flex items-center gap-2 w-fit cursor-pointer'>
-                                                <Edit2 className='w-4' />
-                                                <span>Edit</span>
+                                        <PopoverTrigger>
+                                        <div className="p-2 hover:bg-gray-100 rounded-full inline-flex">
+                                           <MoreHorizontal className="w-5 h-5 text-gray-600" />
                                             </div>
-                                            <div onClick={()=> navigate(`/admin/jobs/${job._id}/applicants`)} className='flex items-center w-fit gap-2 cursor-pointer mt-2' >
-                                                <Eye className='w-4'/>
-                                                <span>Applicants</span>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-36 bg-white shadow-lg rounded-md p-2">
+                                            <div onClick={() => navigate(`/admin/jobs/${job._id}`)} className='flex items-center gap-2 w-full cursor-pointer px-2 py-1 hover:bg-gray-100 rounded-md transition'>
+                                                <Edit2 className='w-4 h-4 text-gray-600' />
+                                                <span className="text-gray-700 text-sm">Edit</span>
+                                            </div>
+                                            <div onClick={()=> navigate(`/admin/jobs/${job._id}/applicants`)} className='flex items-center gap-2 w-full cursor-pointerpx-2 py-1 mt-1 hover:bg-gray-100 rounded-md transition' >
+                                                <Eye className='w-4 h-4 text-gray-600'/>
+                                                <span className="text-gray-700 text-sm">Applicants</span>
                                             </div>
                                         </PopoverContent>
                                     </Popover>
