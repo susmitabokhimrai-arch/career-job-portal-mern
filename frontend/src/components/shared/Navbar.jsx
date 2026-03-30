@@ -52,10 +52,34 @@ const Navbar = () => {
                             </>
                             ) : (
                                 <>
-                                    <li className='cursor-pointer'><Link to="/">Home</Link></li>
-                                    <li className='cursor-pointer'><Link to="/jobs">Jobs</Link></li>
-                                    <li className='cursor-pointer'><Link to="/browse">Browse</Link></li>
-                                    {/* ✅ Show Saved Jobs link only when student is logged in */}
+                                    <li>
+                                        <Link
+                                            to="/"
+                                            className="hover:text-blue-500 transition-colors duration-200"
+                                        >
+                                            Home
+                                        </Link>
+                                    </li>
+
+                                    <li>
+                                        <Link
+                                            to="/jobs"
+                                            className="hover:text-blue-500 transition-colors duration-200"
+                                        >
+                                            Jobs
+                                        </Link>
+                                    </li>
+
+                                    <li>
+                                        <Link
+                                            to="/browse"
+                                            className="hover:text-blue-500 transition-colors duration-200"
+                                        >
+                                            Browse
+                                        </Link>
+                                    </li>
+
+                                    {/* Saved Jobs */}
                                     {user && user.role === 'student' && (
                                         <li className='hover:text-secondary transition-colors cursor-pointer'>
                                             <Link to="/saved-jobs" className="flex items-center gap-1">
@@ -96,7 +120,7 @@ const Navbar = () => {
                                         <AvatarImage
                                             src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"}
                                             alt="profile"
-                                            className="w-full h-full object-cover"
+                                            className="object-cover"
                                         />
                                     </Avatar>
 
