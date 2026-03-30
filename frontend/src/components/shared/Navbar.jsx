@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { Bookmark, LogOut, User2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,12 +9,14 @@ import { USER_API_END_POINT } from '@/utils/constant';
 import { setUser } from '@/redux/authslice';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-
+import { Building,Briefcase } from 'lucide-react';
 
 const Navbar = () => {
     const { user } = useSelector(store => store.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
+
     const logoutHandler = async () => {
         try {
             const res = await axios.get(`${USER_API_END_POINT}/logout`, { withCredentials: true });
@@ -23,7 +25,6 @@ const Navbar = () => {
                 navigate("/");
                 toast.success(res.data.message);
             }
-
 
         } catch (error) {
             console.error("Error occurred while logging out:", error);
@@ -36,18 +37,26 @@ const Navbar = () => {
             < div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-6">
 
                 <h1 className="text-3xl md:text-4xl font-bold font-heading text-primary">
-                    Career<span className="text-blue-400">Yatra</span>
+                    Career<span className="text-blue-500">Yatra</span>
                 </h1>
                 <div className='flex items-center space-x-6'>
-                    <ul className="flex items-center space-x-6 font-medium list-none p-0 m-0">
+                    <ul className="flex items-center space-x-4 font-medium list-none p-0 m-0">
                         {
                             user && user.role === 'recruiter' ? (
                                 <>
-                                    <li className='hover:text-secondary transition-colors cursor-pointer'>
-                                    <Link to="/admin/companies">Companies</Link>
+                                    <li>
+                                    <Link to="/admin/companies"
+                                      className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
+                                        ${location.pathname === '/admin/companies' ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`} >
+                                     <Building className="w-4 h-4 mr-2 text-gray-500" />
+                                     Companies</Link>
                                     </li>
-                                    <li className='hover:text-secondary transition-colors cursor-pointer'>
-                                    <Link to="/admin/jobs">Jobs</Link>
+                                    <li>
+                                    <Link to="/admin/jobs"
+                                     className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
+                                        ${location.pathname === '/admin/jobs' ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`} >
+                                    <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
+                                    Jobs</Link>
                             </li>
                             </>
                             ) : (
