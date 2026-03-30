@@ -232,7 +232,7 @@ export const toggleSaveJob = async (req, res) => {
 // ---------------------- GET SAVED JOBS ----------------------
 export const getSavedJobs = async (req, res) => {
     try {
-        const user = await User.findById(req.id).populate("savedJobs");
+        const user = await User.findById(req.id).populate({path: "savedJobs", populate: { path: "company" }});
         if (!user) {
             return res.status(404).json({ message: "User not found", success: false });
         }
