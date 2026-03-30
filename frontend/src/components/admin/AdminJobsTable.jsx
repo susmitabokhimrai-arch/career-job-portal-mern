@@ -23,8 +23,8 @@ const AdminJobsTable = () => {
     }, [allAdminJobs, searchJobByText])
     return (
         <div className="p-6 bg-gray-50 rounded-lg shadow-lg">
-            <Table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">>
-                <TableCaption className="text-center text-gray-500 text-sm pb-4">A list of your recent posted jobs</TableCaption>
+            <Table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                <TableCaption className="text-center text-blue-500 text-sm pb-4">A list of your recent posted jobs</TableCaption>
                 <TableHeader className="bg-gray-100">
                     <TableRow>
                         <TableHead className="text-left text-gray-700 font-medium px-4 py-2">Company Name</TableHead>
