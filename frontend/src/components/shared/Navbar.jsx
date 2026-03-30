@@ -47,24 +47,18 @@ const Navbar = () => {
                                     <li>
                                     <Link to="/admin/companies"
                                       className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
-                                        ${location.pathname === '/admin/companies' ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`} >
+                                        ${location.pathname.startsWith('/admin/companies') ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`} >
                                      <Building className="w-4 h-4 mr-2 text-gray-500" />
                                      Companies</Link>
                                     </li>
                                     <li>
                                     <Link to="/admin/jobs"
                                      className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
-                                        ${location.pathname === '/admin/jobs' ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`} >
+                                        ${location.pathname.startsWith('/admin/jobs') ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`} >
                                     <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
                                     Jobs</Link>
                             </li>
-                            </>
-                                    <li className='hover:text-secondary transition-colors cursor-pointer'>
-                                        <Link to="/admin/companies">Companies</Link>
-                                    </li>
-                                    <li className='hover:text-secondary transition-colors cursor-pointer'>
-                                        <Link to="/admin/jobs">Jobs</Link>
-                                    </li>
+                            
                                 </>
                             ) : (
                                 <>
