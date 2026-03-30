@@ -32,34 +32,24 @@ const Navbar = () => {
     };
 
     return (
-        <div className="w-full bg-white">
-            <div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-6">
+        < nav className="w-full bg-white shadow-md sticky top-0 z-50">
+            < div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-6">
 
-                <h1 className="text-5xl font-bold">
+                <h1 className="text-3xl md:text-4xl font-bold font-heading text-primary">
                     Career<span className="text-blue-400">Yatra</span>
                 </h1>
-                <div className='flex items-center space-x-5'>
-                    <ul className="flex items-center gap-6 font-medium text-gray-700">
+                <div className='flex items-center space-x-6'>
+                    <ul className="flex items-center space-x-6 font-medium list-none p-0 m-0">
                         {
                             user && user.role === 'recruiter' ? (
                                 <>
-                                    <li>
-                                        <Link
-                                            to="/admin/companies"
-                                            className="hover:text-blue-500 transition-colors duration-200"
-                                        >
-                                            Companies
-                                        </Link>
+                                    <li className='hover:text-secondary transition-colors cursor-pointer'>
+                                    <Link to="/admin/companies">Companies</Link>
                                     </li>
-                                    <li>
-                                        <Link
-                                            to="/admin/jobs"
-                                            className="hover:text-blue-500 transition-colors duration-200"
-                                        >
-                                            Jobs
-                                        </Link>
-                                    </li>
-                                </>
+                                    <li className='hover:text-secondary transition-colors cursor-pointer'>
+                                    <Link to="/admin/jobs">Jobs</Link>
+                            </li>
+                            </>
                             ) : (
                                 <>
                                     <li>
@@ -91,13 +81,10 @@ const Navbar = () => {
 
                                     {/* Saved Jobs */}
                                     {user && user.role === 'student' && (
-                                        <li>
-                                            <Link
-                                                to="/saved-jobs"
-                                                className="flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 text-purple-600 hover:bg-purple-100 transition"
-                                            >
-                                                <Bookmark size={16} />
-                                                Saved
+                                        <li className='hover:text-secondary transition-colors cursor-pointer'>
+                                            <Link to="/saved-jobs" className="flex items-center gap-1">
+                                                <Bookmark size={15} />
+                                                Saved Jobs
                                             </Link>
                                         </li>
                                     )}
@@ -118,18 +105,18 @@ const Navbar = () => {
                     ) : (
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Avatar className=' w-7 h-7 rounded-full overflow-hidden cursor-pointer '>
-                                    <AvatarImage src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"}
-                                        alt="@shadcn"
-                                        className='w-full h-full object-cover' />
+                                <Avatar className=' w-9 h-9 rounded-full overflow-hidden cursor-pointer border border-gray-200 shadow-sm'>
+                                    <AvatarImage
+                                     src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"}
+                                        alt="user avatar"
+                                        className='w-full h-full object-cover' 
+                                        />
 
                                 </Avatar>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80 p-0 border border-gray-100 shadow-xl rounded-xl overflow-hidden bg-white">
-
-                                {/* Top Profile Section */}
-                                <div className="flex items-center gap-3 p-4 border-b bg-gray-50">
-                                    <Avatar className="w-10 h-10">
+                            <PopoverContent className="w-80 p-6 border-0 outline-none shadow-lg bg-white rounded-xl">
+                                <div className="flex gap-4 items-center mb-4 ">
+                                    <Avatar className="w-10 h-10 rounded-full overflow-hidden border border-gray-200">
                                         <AvatarImage
                                             src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"}
                                             alt="profile"
@@ -138,48 +125,37 @@ const Navbar = () => {
                                     </Avatar>
 
                                     <div>
-                                        <h4 className="font-semibold text-gray-800">
-                                            {user?.fullname || "User"}
-                                        </h4>
-                                        <p className="text-sm text-gray-500">
-                                            {user?.profile?.bio || "Welcome to CareerYatra!"}
-                                        </p>
+                                        <h4 className="font-medium">{user?.fullname || "User"}</h4>
+                                        <p className="text-sm text-gray-500">{user?.profile?.bio || "Welcome to CareerYatra!"}</p>
                                     </div>
                                 </div>
-
-                                {/* Menu Section */}
-                                <div className="flex flex-col p-2">
-
-                                    {/* View Profile */}
-                                    {user && user.role === "student" && (
-                                        <Link
-                                            to="/profile"
-                                            className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                                <div className='flex flex-col text-gray-600 space-y-2'>
+                                    {
+                                        user && user.role === 'student' && (
+                                            <div className='flex items-center gap-2 cursor-pointer hover:text-primary transition'>
+                                                <User2 />
+                                                <Button asChild variant="link" className="p-0">
+                                                    <Link to="/profile">View Profile</Link>
+                                                </Button>
+                                            </div>
+                                        )}
+                                    <div className="flex items-center gap-2 cursor-pointer hover:text-red-500 transition">
+                                        <LogOut />
+                                        <Button
+                                            onClick={logoutHandler}
+                                            variant="link"
+                                            className="p-0"
                                         >
-                                            <User2 className="w-4 h-4 text-gray-600" />
-                                            <span className="text-sm font-medium text-gray-700">
-                                                View Profile
-                                            </span>
-                                        </Link>
-                                    )}
-
-                                    {/* Logout */}
-                                    <button
-                                        onClick={logoutHandler}
-                                        className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-red-50 transition cursor-pointer text-left"
-                                    >
-                                        <LogOut className="w-4 h-4 text-red-500" />
-                                        <span className="text-sm font-medium text-red-500">
-                                            Logout
-                                        </span>
-                                    </button>
+                                            Log out
+                                        </Button>
+                                    </div>
                                 </div>
                             </PopoverContent>
                         </Popover>
                     )}
                 </div>
-            </div>
         </div>
+        </nav>
     );
 };
 
