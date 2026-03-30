@@ -32,20 +32,24 @@ const Navbar = () => {
     };
 
     return (
-        <div className="w-full bg-white">
-            <div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-6">
+        < nav className="w-full bg-white shadow-md sticky top-0 z-50">
+            < div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-6">
 
-                <h1 className="text-5xl font-bold">
+                <h1 className="text-3xl md:text-4xl font-bold font-heading text-primary">
                     Career<span className="text-blue-400">Yatra</span>
                 </h1>
-                <div className='flex items-center space-x-5'>
-                    <ul className="flex items-center space-x-5 font-medium list-none p-0 m-0">
+                <div className='flex items-center space-x-6'>
+                    <ul className="flex items-center space-x-6 font-medium list-none p-0 m-0">
                         {
                             user && user.role === 'recruiter' ? (
                                 <>
-                                    <li className='cursor-pointer'><Link to="/admin/companies">Companies</Link></li>
-                                    <li className='cursor-pointer'><Link to="/admin/jobs">Jobs</Link></li>
-                                </>
+                                    <li className='hover:text-secondary transition-colors cursor-pointer'>
+                                    <Link to="/admin/companies">Companies</Link>
+                                    </li>
+                                    <li className='hover:text-secondary transition-colors cursor-pointer'>
+                                    <Link to="/admin/jobs">Jobs</Link>
+                            </li>
+                            </>
                             ) : (
                                 <>
                                     <li className='cursor-pointer'><Link to="/">Home</Link></li>
@@ -53,7 +57,7 @@ const Navbar = () => {
                                     <li className='cursor-pointer'><Link to="/browse">Browse</Link></li>
                                     {/* ✅ Show Saved Jobs link only when student is logged in */}
                                     {user && user.role === 'student' && (
-                                        <li className='cursor-pointer'>
+                                        <li className='hover:text-secondary transition-colors cursor-pointer'>
                                             <Link to="/saved-jobs" className="flex items-center gap-1">
                                                 <Bookmark size={15} />
                                                 Saved Jobs
@@ -77,16 +81,18 @@ const Navbar = () => {
                     ) : (
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Avatar className=' w-7 h-7 rounded-full overflow-hidden cursor-pointer '>
-                                    <AvatarImage src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"}
-                                        alt="@shadcn"
-                                        className='w-full h-full object-cover' />
+                                <Avatar className=' w-9 h-9 rounded-full overflow-hidden cursor-pointer border border-gray-200 shadow-sm'>
+                                    <AvatarImage
+                                     src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"}
+                                        alt="user avatar"
+                                        className='w-full h-full object-cover' 
+                                        />
 
                                 </Avatar>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80 p-6 border-0 outline-none shadow-lg bg-white">
-                                <div className="flex gap-6 space-y-1 space-x-2 ">
-                                    <Avatar className="w-7 h-7 rounded-full overflow-hidden">
+                            <PopoverContent className="w-80 p-6 border-0 outline-none shadow-lg bg-white rounded-xl">
+                                <div className="flex gap-4 items-center mb-4 ">
+                                    <Avatar className="w-10 h-10 rounded-full overflow-hidden border border-gray-200">
                                         <AvatarImage
                                             src={user?.profile?.profilePhoto || "https://github.com/shadcn.png"}
                                             alt="profile"
@@ -96,25 +102,25 @@ const Navbar = () => {
 
                                     <div>
                                         <h4 className="font-medium">{user?.fullname || "User"}</h4>
-                                        <p className="text-sm text-muted-foreground">{user?.profile?.bio || "Welcome to CareerYatra!"}</p>
+                                        <p className="text-sm text-gray-500">{user?.profile?.bio || "Welcome to CareerYatra!"}</p>
                                     </div>
                                 </div>
-                                <div className='flex flex-col text-gray-600 mt-4'>
+                                <div className='flex flex-col text-gray-600 space-y-2'>
                                     {
                                         user && user.role === 'student' && (
-                                            <div className='flex w-fit items-center gap-2 cursor-pointer'>
+                                            <div className='flex items-center gap-2 cursor-pointer hover:text-primary transition'>
                                                 <User2 />
-                                                <Button asChild variant="link">
+                                                <Button asChild variant="link" className="p-0">
                                                     <Link to="/profile">View Profile</Link>
                                                 </Button>
                                             </div>
                                         )}
-                                    <div className="flex w-fit items-center gap-2 cursor-pointer mt-2">
+                                    <div className="flex items-center gap-2 cursor-pointer hover:text-red-500 transition">
                                         <LogOut />
                                         <Button
                                             onClick={logoutHandler}
                                             variant="link"
-                                            className="p-2 h-auto"
+                                            className="p-0"
                                         >
                                             Log out
                                         </Button>
@@ -124,8 +130,8 @@ const Navbar = () => {
                         </Popover>
                     )}
                 </div>
-            </div>
         </div>
+        </nav>
     );
 };
 
