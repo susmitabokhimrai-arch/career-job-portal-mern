@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
-import { LogOut, User2 } from 'lucide-react';
+import { Bookmark, LogOut, User2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -51,12 +51,20 @@ const Navbar = () => {
                                     <li className='cursor-pointer'><Link to="/">Home</Link></li>
                                     <li className='cursor-pointer'><Link to="/jobs">Jobs</Link></li>
                                     <li className='cursor-pointer'><Link to="/browse">Browse</Link></li>
+                                    {/* ✅ Show Saved Jobs link only when student is logged in */}
+                                    {user && user.role === 'student' && (
+                                        <li className='cursor-pointer'>
+                                            <Link to="/saved-jobs" className="flex items-center gap-1">
+                                                <Bookmark size={15} />
+                                                Saved Jobs
+                                            </Link>
+                                        </li>
+                                    )}
                                 </>
-
                             )
                         }
-
                     </ul>
+
                     {!user ? (
                         <div className="flex items-center gap-2">
                             <Button asChild variant="outline">
