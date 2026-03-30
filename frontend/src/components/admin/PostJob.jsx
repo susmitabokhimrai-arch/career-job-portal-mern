@@ -47,17 +47,17 @@ const PostJob = () => {
         e.preventDefault();
         try {
             setLoading(true);
-            const res = await axios.post(`${JOB_API_END_POINT}`, 
+            const res = await axios.post(`${JOB_API_END_POINT}`,
                 {
                     ...input,
-                skillsRequired: input.skillsRequired.toString()
+                    skillsRequired: input.skillsRequired.toString()
                 },
                 {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                withCredentials: true
-            });
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    withCredentials: true
+                });
             if (res.data.success) {
                 toast.success(res.data.message);
                 navigate("/admin/jobs");
@@ -130,13 +130,22 @@ const PostJob = () => {
                         </div>
                         <div>
                             <Label>Internship Type</Label>
-                            <Input
-                                type="text"
-                                name="internshipType"
-                                value={input.internshipType}
-                                onChange={changeEventHandler}
-                                className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
-                            />
+                            <Select
+                                onValueChange={(value) =>
+                                    setInput({ ...input, internshipType: value })
+                                }
+                            >
+                                <SelectTrigger className="w-full my-1">
+                                    <SelectValue placeholder="Select Internship Type" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white rounded-md shadow-lg border z-50">
+                                    <SelectGroup>
+                                        <SelectItem value="remote">Remote</SelectItem>
+                                        <SelectItem value="onsite">Onsite</SelectItem>
+                                        <SelectItem value="hybrid">Hybrid</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div>
                             <Label>Duration</Label>
@@ -197,44 +206,44 @@ const PostJob = () => {
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
                             />
                         </div>
-                    
-            
-            {
-                companies.length > 0 && (
-                    <Select onValueChange={selectChangeHandler}>
-                        <SelectTrigger className="w-full max-w-48">
-                            <SelectValue placeholder="Select a Company" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                {
-                                    companies.map((company) => {
-                                        return (
-                                            <SelectItem
-                                                key={company._id}
-                                                value={company?.name?.toLowerCase()}>{company.name}</SelectItem>
-                                        )
-                                    })
-                                }
 
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
 
-                )
-            }
-        </div>
+                        {
+                            companies.length > 0 && (
+                                <Select onValueChange={selectChangeHandler}>
+                                    <SelectTrigger className="w-full max-w-48">
+                                        <SelectValue placeholder="Select a Company" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-white rounded-md shadow-lg border z-50">
+                                        <SelectGroup>
+                                            {
+                                                companies.map((company) => {
+                                                    return (
+                                                        <SelectItem
+                                                            key={company._id}
+                                                            value={company?.name?.toLowerCase()}>{company.name}</SelectItem>
+                                                    )
+                                                })
+                                            }
+
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+
+                            )
+                        }
+                    </div>
                     {
-        loading ? <Button className="w-full my-4"> <Loader2 className="mr-2 h-4 animate-spin" />Please Wait</Button> : <Button
-            type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300"
-        >
-            Post Internship
-        </Button>
-    }
-    {
-        companies.length === 0 && <p className='text-xs text-red-600 font-bold text-center my-3' > *Please register a company first, before posting a job</p>
-    }
+                        loading ? <Button className="w-full my-4"> <Loader2 className="mr-2 h-4 animate-spin" />Please Wait</Button> : <Button
+                            type="submit"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300"
+                        >
+                            Post Internship
+                        </Button>
+                    }
+                    {
+                        companies.length === 0 && <p className='text-xs text-red-600 font-bold text-center my-3' > *Please register a company first, before posting a job</p>
+                    }
                 </form >
             </div >
         </div >
