@@ -16,53 +16,67 @@ const Jobs = () => {
   useEffect(() => {
     if (searchedQuery) {
       const filteredJobs = allJobs.filter((job) => {
-        return job?.title?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+        return (
+          job?.title?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
           job?.description?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          job?.location?.toLowerCase().includes(searchedQuery.toLowerCase())
-      })
-      setFilterJobs(filteredJobs)
+          job?.location?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+          job?.stipend?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+          job?.duration?.toLowerCase().includes(searchedQuery.toLowerCase())
+        );
+      });
+      setFilterJobs(filteredJobs);
     } else {
-      setFilterJobs(allJobs)
+      setFilterJobs(allJobs);
     }
   }, [allJobs, searchedQuery]);
 
   return (
-    <div>
+    <div className="bg-gray-50 min-h-screen">
       <Navbar />
-      <div className="max-w-7xl mx-auto mt-5">
-        <div className="flex gap-5">
+      <div className="max-w-7xl mx-auto px-4 mt-8">
+        <div className="flex gap-6">
 
-          {/* Sidebar */}
-          <div className="w-20%">
-            <FilterCard />
+          {/* Sidebar — fixed width */}
+          <div className="w-72 shrink-0">
+            <div className="sticky top-6">
+              <FilterCard />
+            </div>
           </div>
 
           {/* Jobs Section */}
-          {
-            filterJobs.length <= 0 ? <span>Internships are not available</span> : (
-              <div className="flex-1 h-[88vh] overflow-y-auto pb-5">
-                <div className="grid grid-cols-3 gap-4">
-                  {
-                    filterJobs.map((job) => (
-                      <motion.div
-                        initial={{ opacity: 0, x: 100 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -100 }}
-                        transition={{ duration: 0.3 }}
-                        key={job?._id}>
-                        <Job job={job} />
-                      </motion.div>
-                    ))
-                  }
-                </div>
+          <div className="flex-1">
+            {filterJobs.length <= 0 ? (
+              <div className="flex flex-col items-center justify-center h-64 gap-3">
+                <p className="text-gray-400 text-lg font-medium">No internships found</p>
+                <p className="text-gray-400 text-sm">Try adjusting your filters</p>
               </div>
-            )
-          }
+            ) : (
+              <>
+                {/* Result count */}
+                <p className="text-sm text-gray-500 mb-4">
+                  Showing <span className="font-semibold text-gray-700">{filterJobs.length}</span> internships
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 pb-10">
+                  {filterJobs.map((job) => (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.3 }}
+                      key={job?._id}
+                    >
+                      <Job job={job} />
+                    </motion.div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
         </div>
       </div>
-
     </div>
-  )
-}
+  );
+};
 
-export default Jobs
+export default Jobs;
