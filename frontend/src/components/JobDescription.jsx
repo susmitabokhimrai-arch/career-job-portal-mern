@@ -36,19 +36,20 @@ const JobDescription = () => {
     }
 
     useEffect(()=>{
-        const fetchSingleJob = async () => {
-            try {
-                const res = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {withCredentials:true});
-                if(res.data.success){
-                    dispatch(setSingleJob(res.data.job));
-                    setIsApplied(res.data.job.applications.some(application=>application.applicant === user?._id)) // Ensure the state is in sync with fetched data
-                }
-            } catch (error) {
-                console.log(error);
+    const fetchSingleJob = async () => {
+        try {
+            const res = await axios.get(`${JOB_API_END_POINT}/${jobId}`, { withCredentials: true });
+            if(res.data.success){
+                dispatch(setSingleJob(res.data.job));
+                setIsApplied(res.data.job.applications.some(application => application.applicant === user?._id));
             }
+        } catch (error) {
+            console.error('Failed to fetch job:', error.response?.data || error.message);
+            toast.error("Job not found or server error");
         }
-        fetchSingleJob(); 
-    },[jobId,dispatch, user?._id]);
+    }
+    fetchSingleJob(); 
+}, [jobId, dispatch, user?._id]);
     return (
         <div className='min-h-screen bg-gray-50 py-10 px-4'>
             <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-8">
