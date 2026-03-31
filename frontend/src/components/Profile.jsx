@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Navbar from './shared/Navbar'
 import { Avatar, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
-import { Contact, Mail, Pen, Bookmark } from 'lucide-react' 
+import { Contact, Mail, Pen, Bookmark, FileText } from 'lucide-react' 
 import { Badge } from './ui/badge'
 import { Label } from './ui/label'
 import AppliedJobTable from './AppliedJobTable'
@@ -46,7 +46,6 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    {/* Edit Button */}
                     <Button
                         onClick={() => setOpen(true)}
                         variant='outline'
@@ -56,8 +55,7 @@ const Profile = () => {
                         <Pen className='w-4 h-4' />
                     </Button>
                 </div>
-
-                {/* Contact Info */}
+            
                 <div className='my-6 space-y-3'>
                     <div className='flex items-center gap-3 text-gray-700'>
                         <Mail className='w-4 h-4' />
@@ -69,7 +67,6 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Skills */}
                 <div className='my-6'>
                     <h2 className='font-semibold text-lg mb-3'>Skills</h2>
                     <div className='flex flex-wrap gap-2'>
@@ -95,6 +92,7 @@ const Profile = () => {
                             href={user?.profile?.resume}
                             className="block text-blue-600 font-medium hover:underline mt-1"
                         >
+                            <FileText className='w-4 h-4 inline-block mr-1' />
                             {user?.profile?.resumeOriginalName || "View Resume"}
                         </a>
                     ) : (
@@ -102,7 +100,7 @@ const Profile = () => {
                     )}
                 </div>
 
-                {/* ✅ Saved Jobs Count + Quick Link */}
+                {/*  Saved Jobs Count + Quick Link */}
                 <div className='mt-6 pt-6 border-t border-gray-100'>
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center gap-3'>
