@@ -14,10 +14,11 @@ try{
                 success: false
             });
         };
+
         const file = req.file;
         const fileUri = getDataUri(file);
         const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-
+        
         const user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({
@@ -34,7 +35,7 @@ try{
             password: hashedPassword,
             role,
             profile:{
-                profilePhoto:cloudResponse.secure_url,
+                profilePhoto: cloudResponse.secure_url,
             }
         });
 
@@ -241,5 +242,21 @@ export const getSavedJobs = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server error", success: false });
+    }
+};
+
+// view resume
+export const getResume = async (req, res) => {
+    try {
+        const user = await User.findById(req.id);
+        if (!user || !user.profile.resume) {
+            return res.status(404).json({ message: "Resume not found" });
+        }
+
+        // Redirect to the Cloudinary resume URL
+        return res.redirect(user.profile.resume);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Server error" });
     }
 };
