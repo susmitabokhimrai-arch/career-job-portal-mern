@@ -21,7 +21,7 @@ const jobSchema = new mongoose.Schema({
 
     internshipType:{
 type:String,
-enum:["remote","onsite","hybrid"],
+ enum: ["Full-time", "Part-time", "Remote", "Hybrid"],
 required:true
     },
     location:{
@@ -45,7 +45,7 @@ required:true
         type:String // certificate
     }],
     position:{
-        type:Number,
+        type: String,
         required:true
     },
     company:{
