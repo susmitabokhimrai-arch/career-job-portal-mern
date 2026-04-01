@@ -11,21 +11,28 @@ const RecommendedJobs = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchRecommendedJobs = async () => {
-      try {
-        const res = await axios.get(`${USER_API_END_POINT}/recommendations`, {
-          withCredentials: true
-        })
+  if (!user) return;
 
-        if (res.data.success) {
-          setRecommendedJobs(res.data.jobs)
-        }
-      } catch (error) {
-        console.log(error)
-      } finally {
-        setLoading(false)
+  const fetchRecommendedJobs = async () => {
+    try {
+      const res = await axios.get(`${USER_API_END_POINT}/recommendations`, {
+        withCredentials: true
+      });
+
+      console.log("RECOMMENDED JOBS:", JSON.stringify(res.data, null, 2));
+
+      if (res.data.success) {
+        setRecommendedJobs(res.data.jobs);
       }
+
+    } catch (error) {
+      console.log("ERROR:", error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  
 
     fetchRecommendedJobs()
   }, [user])

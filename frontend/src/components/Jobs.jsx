@@ -6,8 +6,6 @@ import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import useGetAllJobs from "@/hooks/useGetAllJobs";
 
-//const jobsarray = [1, 2, 3, 4, 5, 6, 7, 8];
-
 const Jobs = () => {
   useGetAllJobs();
   const { allJobs, searchedQuery } = useSelector(store => store.job);
@@ -21,7 +19,11 @@ const Jobs = () => {
           job?.description?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
           job?.location?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
           job?.stipend?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          job?.duration?.toLowerCase().includes(searchedQuery.toLowerCase())
+          job?.duration?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+          //  search by skillsRequired too
+          job?.skillsRequired?.some(skill =>
+            skill.toLowerCase().includes(searchedQuery.toLowerCase())
+          )
         );
       });
       setFilterJobs(filteredJobs);
@@ -35,8 +37,7 @@ const Jobs = () => {
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 mt-8">
         <div className="flex gap-6">
-
-          {/* Sidebar — fixed width */}
+          {/* Sidebar */}
           <div className="w-72 shrink-0">
             <div className="sticky top-6">
               <FilterCard />
@@ -52,7 +53,6 @@ const Jobs = () => {
               </div>
             ) : (
               <>
-                {/* Result count */}
                 <p className="text-sm text-gray-500 mb-4">
                   Showing <span className="font-semibold text-gray-700">{filterJobs.length}</span> internships
                 </p>
@@ -72,7 +72,6 @@ const Jobs = () => {
               </>
             )}
           </div>
-
         </div>
       </div>
     </div>
