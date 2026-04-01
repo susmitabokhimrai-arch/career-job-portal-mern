@@ -260,3 +260,23 @@ export const getResume = async (req, res) => {
         return res.status(500).json({ message: "Server error" });
     }
 };
+
+// Fetch recommended jobs based on user's skills
+export const getRecommendedJobs = async (req, res) => {
+    try {
+        const user = req.user; // from isAuthenticated middleware
+        if (!user.skills || user.skills.length === 0) {
+            return res.status(400).json({ message: "No skills found for recommendation." });
+        }
+
+        // Assuming you have a Job model
+        const recommendedJobs = await Job.find({
+            requiredSkills: { $in: user.skills } // matches any skill
+        }).limit(10); // limit to top 10 recommendations
+
+        res.status(200).json({ jobs: recommendedJobs });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch recommended jobs." });
+    }
+};
