@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
+import { Job } from "../models/job.model.js";
 
 // register
 export const register = async (req, res) => {
@@ -40,6 +41,7 @@ export const register = async (req, res) => {
     return res.status(201).json({ message: "Account created successfully.", success: true });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ message: "Server error", success: false });
   }
 };
 
@@ -98,6 +100,7 @@ export const login = async (req, res) => {
       .json({ message: `Welcome back ${user.fullname}`, user, success: true });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ message: "Server error", success: false });
   }
 };
 
@@ -110,6 +113,7 @@ export const logout = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ message: "Server error", success: false });
   }
 };
 
@@ -128,7 +132,7 @@ export const updateProfile = async (req, res) => {
           success: false 
         });
       }
-// Check file size (max 5MB)
+      // Check file size (max 5MB)
       const maxSize = 5 * 1024 * 1024; 
       if (file.size > maxSize) {
         return res.status(400).json({ 
@@ -221,7 +225,7 @@ export const toggleSaveJob = async (req, res) => {
   }
 };
 
-// get saved job
+// get saved jobs
 export const getSavedJobs = async (req, res) => {
   try {
     const user = await User.findById(req.id).populate({
@@ -238,7 +242,41 @@ export const getSavedJobs = async (req, res) => {
   }
 };
 
-// updated get resume
+// get recommended jobs based on user's skills
+export const getRecommendedJobs = async (req, res) => {
+  try {
+    const userId = req.id;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found", success: false });
+    }
+    
+    if (!user.profile.skills || user.profile.skills.length === 0) {
+      return res.status(400).json({ 
+        message: "No skills found for recommendation.", 
+        success: false 
+      });
+    }
+
+    const recommendedJobs = await Job.find({
+      requiredSkills: { $in: user.profile.skills }
+    }).populate("company").limit(10);
+
+    return res.status(200).json({ 
+      success: true, 
+      jobs: recommendedJobs 
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ 
+      message: "Failed to fetch recommended jobs.", 
+      success: false 
+    });
+  }
+};
+
+// get resume - view or download
 export const getResume = async (req, res) => {
   try {
     console.log("=== getResume called ===");
@@ -246,7 +284,6 @@ export const getResume = async (req, res) => {
     const targetUserId = req.params.id;
     const loggedInUserId = req.id;
     const userIdToFetch = targetUserId || loggedInUserId;
-    // Check if user wants to view or download (default to view)
     const action = req.query.action || 'view';
 
     const targetUser = await User.findById(userIdToFetch);
@@ -254,9 +291,12 @@ export const getResume = async (req, res) => {
     if (!targetUser) {
       return res.status(404).json({ message: "User not found", success: false });
     }
-// Check if profile and resume exist
+
     if (!targetUser.profile || !targetUser.profile.resume) {
-      return res.status(404).json({ message: "Resume not found. Please upload a resume first.", success: false });
+      return res.status(404).json({ 
+        message: "Resume not found. Please upload a resume first.", 
+        success: false 
+      });
     }
 
     const resumeUrl = targetUser.profile.resume;
@@ -265,14 +305,16 @@ export const getResume = async (req, res) => {
     if (targetUserId && targetUserId !== loggedInUserId) {
       const loggedInUser = await User.findById(loggedInUserId);
       if (!loggedInUser || (loggedInUser.role !== 'admin' && loggedInUser.role !== 'hr')) {
-        return res.status(401).json({ message: "Unauthorized to view this resume", success: false });
+        return res.status(401).json({ 
+          message: "Unauthorized to view this resume", 
+          success: false 
+        });
       }
     }
 
     if (action === 'download') return res.redirect(resumeUrl);
 
     try {
-        // fetch the PDF from Cloudinary
       const response = await fetch(resumeUrl);
       const pdfBuffer = await response.arrayBuffer();
 
@@ -283,7 +325,6 @@ export const getResume = async (req, res) => {
       return res.send(Buffer.from(pdfBuffer));
     } catch (pdfError) {
       console.error("Error fetching PDF:", pdfError);
-      // Fallback: redirect to Cloudinary
       return res.redirect(resumeUrl);
     }
 
