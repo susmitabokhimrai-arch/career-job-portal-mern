@@ -38,7 +38,7 @@ const Profile = () => {
       borderColor: 'border-gray-200',
       displayExt: ext.toUpperCase() || 'FILE',
     };
-    return Result;
+    
   };
 
   const fileInfo= getFileInfo(user?.profile?.resumeOriginalName);
