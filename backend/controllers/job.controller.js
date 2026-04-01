@@ -156,27 +156,29 @@ title,
         };
     
 // recommendation based 
-
-        export const getRecommendedJobs = async (req, res) => {
+export const getRecommendedJobs = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId);
+    // Use authenticated user (no need for params)
+    const user = req.user;
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
+    // Safe access to skills
     const skills = user.profile?.skills || [];
 
-    // If no skills
-    if (skills.length === 0) {
-      return res.json([]);
+    // No skills → no recommendations
+    if (!skills.length) {
+      return res.status(200).json({
+        success: true,
+        jobs: [],
+        message: "No skills found. Add skills to get recommendations."
+      });
     }
 
+    //  Find jobs matching at least one skill
     const jobs = await Job.find({
       requirements: { $in: skills }
     });
 
-    // Rank jobs by matching skills
+    // Rank jobs by number of matched skills
     const rankedJobs = jobs
       .map(job => {
         const matchCount = job.requirements.filter(skill =>
@@ -188,11 +190,21 @@ title,
           matchedSkillsCount: matchCount
         };
       })
-      .sort((a, b) => b.matchedSkillsCount - a.matchedSkillsCount);
+      .sort((a, b) => b.matchedSkillsCount - a.matchedSkillsCount)
+      .slice(0, 10); // limit top 10
 
-    res.json(rankedJobs);
+    // Final response
+    return res.status(200).json({
+      success: true,
+      count: rankedJobs.length,
+      jobs: rankedJobs
+    });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Recommendation Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch recommended jobs"
+    });
   }
 };
