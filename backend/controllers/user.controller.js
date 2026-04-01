@@ -249,10 +249,7 @@ export const getRecommendedJobs = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        success: false
-      });
+      return res.status(404).json({ message: "User not found", success: false });
     }
 
     const skills = user.profile?.skills || [];
@@ -265,25 +262,18 @@ export const getRecommendedJobs = async (req, res) => {
       });
     }
 
-    // Fetch jobs matching at least one skill
     const jobs = await Job.find({
-      requiredSkills: { $in: skills }
+      skillsRequired: { $in: skills.map(s => new RegExp(s, 'i')) }
     }).populate("company");
 
-    // Rank jobs based on skill match count
     const rankedJobs = jobs
       .map(job => {
-        const matchCount = job.requiredSkills.filter(skill =>
-          skills.includes(skill)
+        const matchCount = job.skillsRequired.filter(skill =>
+          skills.some(s => s.toLowerCase() === skill.toLowerCase())
         ).length;
-
-        return {
-          ...job.toObject(),
-          matchedSkillsCount: matchCount
-        };
+        return { ...job.toObject(), matchedSkillsCount: matchCount };
       })
-      .sort((a, b) => b.matchedSkillsCount - a.matchedSkillsCount)
-      .slice(0, 10); // limit top 10
+      .sort((a, b) => b.matchedSkillsCount - a.matchedSkillsCount);
 
     return res.status(200).json({
       success: true,
@@ -299,7 +289,6 @@ export const getRecommendedJobs = async (req, res) => {
     });
   }
 };
-
 // get resume - view or download
 export const getResume = async (req, res) => {
   try {
