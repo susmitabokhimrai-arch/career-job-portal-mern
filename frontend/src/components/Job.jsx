@@ -67,7 +67,7 @@ const JobCard = ({ job }) => {
 
   return (
     <div className="p-5 rounded-md shadow-xl bg-white border border-gray-100 flex flex-col">
-      {/* Top Row */}
+     
       <div className="flex justify-between items-center mb-3">
         <div className="flex gap-2 items-center">
           <p className="text-xs text-gray-500">
@@ -88,7 +88,7 @@ const JobCard = ({ job }) => {
         </Button>
       </div>
 
-      {/* Company */}
+      
       <div className="flex items-center gap-3 mb-3">
         <Avatar className="w-12 h-12">
           <AvatarImage src={job?.company?.logo} />
@@ -102,13 +102,13 @@ const JobCard = ({ job }) => {
         </div>
       </div>
 
-      {/* Job Title & Description */}
+      
       <div className="mb-3">
         <h1 className="font-bold text-lg leading-snug">{job?.title}</h1>
         <p className="text-sm text-gray-600 line-clamp-2 mt-1">{job?.description}</p>
       </div>
 
-      {/* Highlights */}
+      
       <div className="flex flex-wrap gap-2 mb-4">
         <Badge className="bg-blue-100 text-blue-700 text-xs">Internship</Badge>
         <Badge className="bg-green-100 text-green-700 text-xs font-semibold">
@@ -120,7 +120,7 @@ const JobCard = ({ job }) => {
         <Badge className="bg-yellow-100 text-yellow-700 text-xs">🎓 Students</Badge>
       </div>
 
-      {/* Action Buttons */}
+      
       <div className="flex justify-between gap-2 mt-auto">
         <Button
           onClick={() => navigate(`/description/${job?._id}`)}

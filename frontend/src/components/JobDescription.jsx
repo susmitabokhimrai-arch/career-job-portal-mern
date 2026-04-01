@@ -11,8 +11,8 @@ import { toast } from 'sonner';
 const JobDescription = () => {
     const {singleJob} = useSelector(store => store.job);
     const {user} = useSelector(store=>store.auth);
-    const isIntiallyApplied = singleJob?.applications?.some(application => application.applicant === user?._id) || false;
-    const [isApplied, setIsApplied] = useState(isIntiallyApplied);
+    const isInitiallyApplied = singleJob?.applications?.some(application => application.applicant === user?._id) || false;
+    const [isApplied, setIsApplied] = useState(isInitiallyApplied);
 
     const params = useParams();
     const jobId = params.id;
@@ -55,7 +55,7 @@ const JobDescription = () => {
             <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-8">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
 
-                    {/* LEFT SIDE */}
+                    
                     <div>
                         <h1 className="text-3xl font-bold mb-3 text-gray-800">{singleJob?.title}</h1>
 
@@ -68,7 +68,6 @@ const JobDescription = () => {
                         </div>
                     </div>
 
-                    {/* RIGHT SIDE BUTTON */}
                     <Button
                     className={`rounded-lg px-4 py-2 ${isApplied
                             ? "bg-gray-600 opacity-70 cursor-not-allowed"
@@ -96,7 +95,6 @@ const JobDescription = () => {
 
                     <p><b>Posted Date:</b> {singleJob?.createdAt ? new Date(singleJob.createdAt).toLocaleDateString() : "N/A"}</p>
 
-                    {/* Skills */}
                     <div>
                         <b>Skills Required:</b>
                         <div className="flex flex-wrap gap-2 mt-1">
@@ -108,7 +106,6 @@ const JobDescription = () => {
                         </div>
                     </div>
 
-                    {/* Perks */}
                     <div>
                         <b>Perks:</b>
                         <ul className="list-disc ml-6 mt-1">
