@@ -15,6 +15,7 @@ import PostJob from './components/admin/PostJob'
 import Applicants from './components/admin/Applicants'
 import ProtectedRoute from './components/admin/ProtectedRoute'
 import SavedJobs from './components/SavedJobs'
+import { Toaster } from 'sonner';
 
 const appRouter = createBrowserRouter([
   {
@@ -82,15 +83,18 @@ const appRouter = createBrowserRouter([
 ])
 
 function App() {
-  
-
   return (
-    <div>
+    <>
     
+        <Toaster 
+        position="bottom-right"
+        richColors
+        closeButton
+      />
      <RouterProvider router ={appRouter} />
       
-    </div>
+    </>
   )
 }
 
-export default App
+export default App;
