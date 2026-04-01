@@ -19,7 +19,7 @@ router.post("/save/:id", isAuthenticated, toggleSaveJob);
 
 // resume
 router.get("/profile/resume", isAuthenticated, getResume);
-export default router; 
 
 // Recommendation route
 router.get("/recommendations", isAuthenticated, getRecommendedJobs);
+export default router; 

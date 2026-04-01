@@ -247,31 +247,55 @@ export const getRecommendedJobs = async (req, res) => {
   try {
     const userId = req.id;
     const user = await User.findById(userId);
-    
+
     if (!user) {
-      return res.status(404).json({ message: "User not found", success: false });
-    }
-    
-    if (!user.profile.skills || user.profile.skills.length === 0) {
-      return res.status(400).json({ 
-        message: "No skills found for recommendation.", 
-        success: false 
+      return res.status(404).json({
+        message: "User not found",
+        success: false
       });
     }
 
-    const recommendedJobs = await Job.find({
-      requiredSkills: { $in: user.profile.skills }
-    }).populate("company").limit(10);
+    const skills = user.profile?.skills || [];
 
-    return res.status(200).json({ 
-      success: true, 
-      jobs: recommendedJobs 
+    if (!skills.length) {
+      return res.status(200).json({
+        success: true,
+        jobs: [],
+        message: "No skills found. Please update your profile."
+      });
+    }
+
+    // Fetch jobs matching at least one skill
+    const jobs = await Job.find({
+      requiredSkills: { $in: skills }
+    }).populate("company");
+
+    // Rank jobs based on skill match count
+    const rankedJobs = jobs
+      .map(job => {
+        const matchCount = job.requiredSkills.filter(skill =>
+          skills.includes(skill)
+        ).length;
+
+        return {
+          ...job.toObject(),
+          matchedSkillsCount: matchCount
+        };
+      })
+      .sort((a, b) => b.matchedSkillsCount - a.matchedSkillsCount)
+      .slice(0, 10); // limit top 10
+
+    return res.status(200).json({
+      success: true,
+      count: rankedJobs.length,
+      jobs: rankedJobs
     });
+
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ 
-      message: "Failed to fetch recommended jobs.", 
-      success: false 
+    console.error("Recommendation Error:", error);
+    return res.status(500).json({
+      message: "Failed to fetch recommended jobs",
+      success: false
     });
   }
 };
