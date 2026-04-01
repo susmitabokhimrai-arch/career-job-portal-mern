@@ -1,52 +1,147 @@
-import React from 'react'
-import { Button } from './ui/button'
-import { Bookmark } from 'lucide-react'
-import { Avatar, AvatarImage } from './ui/avatar'
-import { Badge } from './ui/badge'
-import { useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { Button } from './ui/button';
+import { Bookmark, Share2, MapPin } from 'lucide-react';
+import { Avatar, AvatarImage } from './ui/avatar';
+import { Badge } from './ui/badge';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import { setUser } from '@/redux/authslice';
+import { USER_API_END_POINT } from '@/utils/constant';
 
-const job = ({job}) => {
-    const navigate = useNavigate();
-    //const jobid = "gjhfhjkk";
-    const daysAgoFunction = (mongodbTime) =>{
-        const createdAt = new Date(mongodbTime);
-        const currentTime = new Date();
-        const timeDifference = currentTime - createdAt;
-        return Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-        
+const JobCard = ({ job }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector(store => store.auth);
+  const [loading, setLoading] = useState(false);
+
+  //  handle both populated objects and plain IDs robustly
+  const isSaved = user?.savedJobs?.some(entry => {
+    const id = entry?._id ?? entry; // works whether entry is an object or a plain ID
+    return id?.toString() === job._id?.toString();
+  });
+
+  const daysAgoFunction = (mongodbTime) => {
+    const createdAt = new Date(mongodbTime);
+    const timeDifference = new Date() - createdAt;
+    return Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+  };
+
+  // add loading state to prevent double-clicks
+  const handleSave = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `${USER_API_END_POINT}/save/${job._id}`,
+        {},
+        { withCredentials: true }
+      );
+      dispatch(setUser(res.data.user));
+    } catch (error) {
+      console.error('Error saving job:', error);
+    } finally {
+      setLoading(false);
     }
-    return (
-        <div className='p-5 rounded-md shadow-xl bg-white border border-gray-100'>
-            <div className='flex items-center justify-between'>
-                <p className='text-sm text-gray-500'>{daysAgoFunction(job?.createdAt) === 0 ? "Today" : `${daysAgoFunction(job?.createdAt)} days ago`}</p>
-                <Button variant="outline" className='rounded-full' size='icon'><Bookmark /></Button>
-            </div>
-            <div className='flex items-center gap-2 my-2'>
-                <Button className="p-6" variant="outline" size="icon">
-                    <Avatar>
-                        <AvatarImage src="https://img.freepik.com/premium-vector/creative-elegant-abstract-minimalistic-logo-design-vector-any-brand-company_1253202-137644.jpg?semt=ais_user_personalization&w=740&q=80" />
-                    </Avatar>
-                </Button>
-                <div>
-                    <h1 className='font-medium text-lg'>{job?.Company?.Name}</h1>
-                    <p className='text-sm text-gray-500'>Nepal</p>
-                </div>
-            </div>
-            <div>
-                <h1 className='font-bold text-lg my-2'>{job?.title}</h1>
-                <p className='text-sm text-gray-600'>{job?.description}</p>
-            </div>
-            <div className='flex items-center gap-2 mt-4'>
-                <Badge className={'text-blue-700 font-bold'} variant='ghost'>{job?.position} Position</Badge>
-                <Badge className={'text-[#F83002] font-bold'} variant='ghost'>{job?.jobType}</Badge>
-                <Badge className={'text-[#7209b7] font-bold'} variant='ghost'>{job?.salary} LPA</Badge>
-            </div>
-            <div className='flex items-center gap-4 mt-4'>
-                <Button onClick={() => navigate(`/description/${job?._id}`)} variant="outline">Details</Button>
-                <Button className="bg-[#7209b7]">Save For Later</Button>
-            </div>
-        </div>
-    )
-}
+  };
 
-export default job
+  const handleShare = async () => {
+    const shareData = {
+      title: job?.title,
+      text: `Check out this internship: ${job?.title}`,
+      url: `${window.location.origin}/description/${job?._id}`,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        alert('Link copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
+
+  const isNew = daysAgoFunction(job?.createdAt) <= 2;
+
+  return (
+    <div className="p-5 rounded-md shadow-xl bg-white border border-gray-100 flex flex-col">
+     
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex gap-2 items-center">
+          <p className="text-xs text-gray-500">
+            {daysAgoFunction(job?.createdAt) === 0
+              ? 'Today'
+              : `${daysAgoFunction(job?.createdAt)} days ago`}
+          </p>
+          {isNew && <Badge className="bg-red-100 text-red-600 text-xs">🔥 New</Badge>}
+        </div>
+        {/* FIX 2: disabled while loading */}
+        <Button
+          onClick={handleSave}
+          disabled={loading}
+          variant="outline"
+          className={`rounded-full p-2 ${isSaved ? 'bg-green-600 text-white' : ''}`}
+        >
+          <Bookmark size={16} />
+        </Button>
+      </div>
+
+      
+      <div className="flex items-center gap-3 mb-3">
+        <Avatar className="w-12 h-12">
+          <AvatarImage src={job?.company?.logo} />
+        </Avatar>
+        <div>
+          <h1 className="font-semibold text-base">{job?.company?.name}</h1>
+          <p className="text-xs text-gray-500 flex items-center gap-1">
+            <MapPin size={12} />
+            {job?.location || 'Remote'}
+          </p>
+        </div>
+      </div>
+
+      
+      <div className="mb-3">
+        <h1 className="font-bold text-lg leading-snug">{job?.title}</h1>
+        <p className="text-sm text-gray-600 line-clamp-2 mt-1">{job?.description}</p>
+      </div>
+
+      
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Badge className="bg-blue-100 text-blue-700 text-xs">Internship</Badge>
+        <Badge className="bg-green-100 text-green-700 text-xs font-semibold">
+          💰 {job?.stipend || job?.salary || 'Unpaid'}
+        </Badge>
+        <Badge className="bg-purple-100 text-purple-700 text-xs">
+          ⏳ {job?.duration || '3 Months'}
+        </Badge>
+        <Badge className="bg-yellow-100 text-yellow-700 text-xs">🎓 Students</Badge>
+      </div>
+
+      
+      <div className="flex justify-between gap-2 mt-auto">
+        <Button
+          onClick={() => navigate(`/description/${job?._id}`)}
+          variant="outline"
+          className="flex-1"
+        >
+          View
+        </Button>
+        <Button
+          onClick={handleSave}
+          disabled={loading}
+          className={`flex-1 ${isSaved ? 'bg-green-600 text-white' : 'bg-[#7209b7] text-white'}`}
+        >
+          {loading ? 'Saving...' : isSaved ? 'Saved ✓' : 'Favorite'}
+        </Button>
+        <Button onClick={handleShare} variant="outline" className="px-3">
+          <Share2 size={16} />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default JobCard;

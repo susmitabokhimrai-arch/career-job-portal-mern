@@ -10,6 +10,13 @@ import JobDescription from './components/JobDescription'
 import Companies from './components/admin/Companies'
 import CompanyCreate from './components/admin/CompanyCreate'
 import CompanySetup from './components/admin/CompanySetup'
+import AdminJobs from "./components/admin/AdminJobs";
+import PostJob from './components/admin/PostJob'
+import Applicants from './components/admin/Applicants'
+import ProtectedRoute from './components/admin/ProtectedRoute'
+import SavedJobs from './components/SavedJobs'
+import { Toaster } from 'sonner';
+
 const appRouter = createBrowserRouter([
   {
     path:'/',
@@ -39,32 +46,55 @@ const appRouter = createBrowserRouter([
     path:'/profile',
     element:<Profile/>
   },
+  {
+    path: '/saved-jobs',       // added
+    element: <SavedJobs />     // added
+  },
   //admin part here start
   {
     path:"/admin/companies",
-    element:<Companies/>
+    element:<ProtectedRoute><Companies/></ProtectedRoute>
   },
   {
     path:"/admin/companies/create",
-    element:<CompanyCreate/>
+    element:<ProtectedRoute><CompanyCreate/></ProtectedRoute>
   },
   {
     path:"/admin/companies/:id",
-    element:<CompanySetup/>
+    element:<ProtectedRoute><CompanySetup/></ProtectedRoute>
   },
-]
-)
+  {
+    path:"/admin/jobs",
+    element:<ProtectedRoute><AdminJobs/></ProtectedRoute>
+  },
+  {
+    path:"/admin/jobs/create",
+    element:<ProtectedRoute><PostJob/></ProtectedRoute>
+  },
+  {
+    path:"/admin/jobs/:id",
+    element:<ProtectedRoute><PostJob/></ProtectedRoute>
+  },
+  {
+    path:"/admin/jobs/:id/applicants",
+    element:<ProtectedRoute><Applicants/></ProtectedRoute>
+  },
+
+])
 
 function App() {
-  
-
   return (
-    <div>
+    <>
     
+        <Toaster 
+        position="bottom-right"
+        richColors
+        closeButton
+      />
      <RouterProvider router ={appRouter} />
       
-    </div>
+    </>
   )
 }
 
-export default App
+export default App;

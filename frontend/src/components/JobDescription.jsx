@@ -9,65 +9,65 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 
 const JobDescription = () => {
-    const {singleJob} = useSelector(store=>store.job);
-    const{ user } = useSelector(store=>store.auth);
-    const isInitiallyApplied = singleJob?.applications?.some(application => application.applicant?._id?.toString() === user?._id?.toString()) || false;
-   
+    const {singleJob} = useSelector(store => store.job);
+    const {user} = useSelector(store=>store.auth);
+    const isInitiallyApplied = singleJob?.applications?.some(application => application.applicant === user?._id) || false;
+    const [isApplied, setIsApplied] = useState(isInitiallyApplied);
+
     const params = useParams();
-   const[isApplied, setIsApplied] = useState(isInitiallyApplied);
-    const jobid = params.id;
+    const jobId = params.id;
     const dispatch = useDispatch();
+
     const applyJobHandler = async () => {
         try {
-            const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobid}`, { withCredentials: true });
-           // console.log(res.data);
-            if (res.data.success) {
-                setIsApplied(true);//update local state to reflect the applied status immediately
-                const updatedSingleJob = {...singleJob,applications:[...singleJob.applications,{applicant:user?._id}]};
-                dispatch(setSingleJob(updatedSingleJob));
+            const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobId}`, {withCredentials:true});
+            
+            if(res.data.success){
+                setIsApplied(true); // Update the local state
+                const updatedSingleJob = {...singleJob, applications:[...singleJob.applications,{applicant:user?._id}]}
+                dispatch(setSingleJob(updatedSingleJob)); // helps us to real time UI update
                 toast.success(res.data.message);
+
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response?.data?.message || "Error applying for job");
-            console.error("Error applying for job:", error);
+            toast.error(error.response.data.message);
         }
-    };
+    }
 
     useEffect(()=>{
     const fetchSingleJob = async () => {
-        try{
-           const res = await axios .get(`${JOB_API_END_POINT}/get/${jobid}`,{withCredentials:true});
+        try {
+            const res = await axios.get(`${JOB_API_END_POINT}/${jobId}`, { withCredentials: true });
             if(res.data.success){
                 dispatch(setSingleJob(res.data.job));
-                setIsApplied(res.data.job.applications.some(application => application.applicant?._id?.toString() === user?._id?.toString())|| false);//ensure the state is in sync with fetched data
-            }else{
-                console.log("API returned success: false",res.data); 
-                
+                setIsApplied(res.data.job.applications.some(application => application.applicant === user?._id));
             }
-        }catch (error){
-            console.error("error fetching jobs:",error);
+        } catch (error) {
+            console.error('Failed to fetch job:', error.response?.data || error.message);
+            toast.error("Job not found or server error");
         }
     }
-    fetchSingleJob();
-  },[jobid,dispatch, user?._id]);
+    fetchSingleJob(); 
+}, [jobId, dispatch, user?._id]);
     return (
         <div className='min-h-screen bg-gray-50 py-10 px-4'>
             <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-8">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
 
-                    {/* LEFT SIDE */}
+                    
                     <div>
                         <h1 className="text-3xl font-bold mb-3 text-gray-800">{singleJob?.title}</h1>
 
                         <div className="flex flex-wrap gap-3">
                             <Badge className="bg-blue-50 text-blue-600">{singleJob?.position} Positions</Badge>
-                            <Badge className="bg-red-50 text-red-600">{singleJob?.jobType}</Badge>
-                            <Badge className="bg-purple-50 text-purple-600">{singleJob?.salary} LPA</Badge>
+                            <Badge className="bg-red-50 text-red-600">📍{singleJob?.internshipType}</Badge>
+                            <Badge className="bg-purple-50 text-purple-600">💰{singleJob?.stipend || 'Unpaid'}</Badge>
+                            <Badge className="bg-purple-50 text-purple-600">⏳{singleJob?.duration}</Badge>
+
                         </div>
                     </div>
 
-                    {/* RIGHT SIDE BUTTON */}
                     <Button
                     className={`rounded-lg px-4 py-2 ${isApplied
                             ? "bg-gray-600 opacity-70 cursor-not-allowed"
@@ -79,19 +79,46 @@ const JobDescription = () => {
                         {isApplied ? "Already Applied" : "Apply Now"}
                     </Button>
                 </div>
-                <h1 className='border-b-2 border-b-gray-300 font-medium py-4'>Job Description</h1>
+                <h1 className='border-b-2 border-b-gray-300 font-medium py-4'>Internship Details</h1>
                 <div className='my-4'>
-                    <h1 className='font-bold my-1'>Role:<span className='pl-4 font-normal text-gray-800'>{singleJob?.title}</span></h1>
-                    <h1 className='font-bold my-1'>Location:<span className='pl-4 font-normal text-gray-800'>{singleJob?.location}</span></h1>
-                    <h1 className='font-bold my-1'>Description:<span className='pl-4 font-normal text-gray-800'>{singleJob?.description}</span></h1>
-                    <h1 className='font-bold my-1'>Experience:<span className='pl-4 font-normal text-gray-800'>{singleJob?.experience}</span></h1>
-                    <h1 className='font-bold my-1'>Salary:<span className='pl-4 font-normal text-gray-800'>{singleJob?.salary} LPA</span></h1>
-                    <h1 className='font-bold my-1'>Total Applicant:<span className='pl-4 font-normal text-gray-800'>{singleJob?.applications?.length}</span></h1>
-                    <h1 className='font-bold my-1'>Posted Date:<span className='pl-4 font-normal text-gray-800'>{singleJob?.createdAt ? singleJob.createdAt.split("T")[0]:"N/A"}</span></h1>
+                    <p><b>Role:</b> {singleJob?.title}</p>
+
+                    <p><b>Location:</b> {singleJob?.location}</p>
+
+                    <p><b>Description:</b> {singleJob?.description}</p>
+
+                    <p><b>Start Date:</b> {singleJob?.startDate ? new Date(singleJob.startDate).toLocaleDateString() : "N/A"}</p>
+
+                    <p><b>Apply Before:</b> {singleJob?.applicationDeadline ? new Date(singleJob.applicationDeadline).toLocaleDateString() : "N/A"}</p>
+
+                    <p><b>Total Applicants:</b> {singleJob?.applications?.length}</p>
+
+                    <p><b>Posted Date:</b> {singleJob?.createdAt ? new Date(singleJob.createdAt).toLocaleDateString() : "N/A"}</p>
+
+                    <div>
+                        <b>Skills Required:</b>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                            {singleJob?.skillsRequired?.map((skill, index) => (
+                                <Badge key={index} className="bg-yellow-100 text-yellow-700">
+                                    {skill}
+                                </Badge>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
+                        <b>Perks:</b>
+                        <ul className="list-disc ml-6 mt-1">
+                            {singleJob?.perks?.map((perk, index) => (
+                                <li key={index}>{perk}</li>
+                            ))}
+                        </ul>
+                    </div>
+
                 </div>
             </div>
         </div>
     )
 }
 
-export default JobDescription
+export default JobDescription;

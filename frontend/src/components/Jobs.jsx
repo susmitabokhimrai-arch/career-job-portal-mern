@@ -1,40 +1,75 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./shared/Navbar";
 import FilterCard from "./FilterCard";
 import Job from "./Job";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import useGetAllJobs from "@/hooks/useGetAllJobs";
 
 //const jobsarray = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const Jobs = () => {
-  const {allJobs} = useSelector(store=>store.job);
+  useGetAllJobs();
+  const { allJobs, searchedQuery } = useSelector(store => store.job);
+  const [filterJobs, setFilterJobs] = useState(allJobs);
+
+  useEffect(() => {
+    if (searchedQuery) {
+      const filteredJobs = allJobs.filter((job) => {
+        return (
+          job?.title?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+          job?.description?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+          job?.location?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+          job?.stipend?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+          job?.duration?.toLowerCase().includes(searchedQuery.toLowerCase())
+        );
+      });
+      setFilterJobs(filteredJobs);
+    } else {
+      setFilterJobs(allJobs);
+    }
+  }, [allJobs, searchedQuery]);
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="bg-gray-50 min-h-screen">
       <Navbar />
+      <div className="max-w-7xl mx-auto px-4 mt-8">
+        <div className="flex gap-6">
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex gap-8">
-
-          {/* Sidebar */}
-          <div className="w-[260px] shrink-0">
-            <FilterCard />
+          {/* Sidebar — fixed width */}
+          <div className="w-72 shrink-0">
+            <div className="sticky top-6">
+              <FilterCard />
+            </div>
           </div>
 
           {/* Jobs Section */}
           <div className="flex-1">
-            {allJobs.length <= 0 ? 
-              <div className="text-center text-gray-500 mt-20">
-                Job not found
+            {filterJobs.length <= 0 ? (
+              <div className="flex flex-col items-center justify-center h-64 gap-3">
+                <p className="text-gray-400 text-lg font-medium">No internships found</p>
+                <p className="text-gray-400 text-sm">Try adjusting your filters</p>
               </div>
-             : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                {
-                allJobs.map((job) => (
-                  <div key={job?._id}>
-                    <Job job={job} />
-                    </div>
-                ))}
-              </div>
+            ) : (
+              <>
+                {/* Result count */}
+                <p className="text-sm text-gray-500 mb-4">
+                  Showing <span className="font-semibold text-gray-700">{filterJobs.length}</span> internships
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 pb-10">
+                  {filterJobs.map((job) => (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.3 }}
+                      key={job?._id}
+                    >
+                      <Job job={job} />
+                    </motion.div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 

@@ -11,10 +11,19 @@ const applicationSchema = new mongoose.Schema({
         ref:'User',
         required:true
     },
+
+    // internship ATS status system
     status:{
         type:String,
-        enum:['pending','accepted','rejected'],
-        default:'pending'
+        enum:[
+            //'pending','accepted','rejected'
+        'applied',
+    'shortlisted',
+'interview',
+'selected',
+'rejected'
+],
+        default:'applied'
   }
-},{timeseries:true});
+},{timestamps:true});
 export const Application = mongoose.model("Application",applicationSchema);
