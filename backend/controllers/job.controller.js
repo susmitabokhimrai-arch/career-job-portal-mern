@@ -17,23 +17,21 @@ export const postJob = async (req, res) => {
 
             const job = await Job.create({
 title,
-description,
-requirements: requirements.split(","),
+  description,
+  requirements: requirements.split(","),  // ✅ convert to array
+  stipend,
+  internshipType,
+  duration,
+  skillsRequired: skillsRequired ? skillsRequired.split(",") : [], // ✅ convert to array
+  perks: perks ? perks.split(",") : [], // ✅ convert to array
+  position,
+  location,
+  applicationDeadline,
+  startDate,
+  company: companyId,
+  created_by: userId
+});
 
-//intership fields
-stipend,
-internshipType,
-duration,
-skillsRequired: skillsRequired ? skillsRequired.split(",") :[],
-applicationDeadline,
-perks: perks ? perks.split(",") :[],
-
-location,
-position,
-company:companyId,
-created_by:userId
-            });
-            
             return res.status(201).json({
         message:"Newb Intership posted successfully.",
         job,
@@ -41,6 +39,7 @@ created_by:userId
     });
         } catch(error) {
             console.log(error);
+             return res.status(500).json({ message: error.message, success: false });
         }
     };
 
@@ -76,8 +75,10 @@ created_by:userId
         });
 } catch (error) {
         console.log(error);
+        return res.status(500).json({ message: error.message, success: false });
     }
-};
+    };
+
 
                      //if(!jobs) {
                         //return res.status(404).json({
@@ -106,9 +107,14 @@ created_by:userId
                 success: false
             });
         }
-            const job = await Job.findById(jobId).populate({
-                path:"applications"
-            });
+           // const job = await Job.findById(jobId).populate({
+              //  path:"applications"
+           // });
+
+           const job = await Job.findById(jobId)
+            .populate({ path: "applications" })
+            .populate({ path: "company" }); // populate company
+
             
             if(!job){
                  return res.status(404).json({
@@ -121,6 +127,7 @@ created_by:userId
 
             } catch (error) {
             console.log(error);
+            return res.status(500).json({ message: error.message, success: false });
         }
         };
 
@@ -144,5 +151,48 @@ created_by:userId
             })
         } catch(error) {
             console.log(error);
-        }
-    };
+             return res.status(500).json({ message: error.message, success: false });
+    }
+        };
+    
+// recommendation based 
+
+        export const getRecommendedJobs = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const skills = user.profile?.skills || [];
+
+    // If no skills
+    if (skills.length === 0) {
+      return res.json([]);
+    }
+
+    const jobs = await Job.find({
+      requirements: { $in: skills }
+    });
+
+    // Rank jobs by matching skills
+    const rankedJobs = jobs
+      .map(job => {
+        const matchCount = job.requirements.filter(skill =>
+          skills.includes(skill)
+        ).length;
+
+        return {
+          ...job.toObject(),
+          matchedSkillsCount: matchCount
+        };
+      })
+      .sort((a, b) => b.matchedSkillsCount - a.matchedSkillsCount);
+
+    res.json(rankedJobs);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

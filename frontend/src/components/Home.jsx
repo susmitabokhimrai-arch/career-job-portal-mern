@@ -7,6 +7,7 @@ import Footer from './shared/Footer'
 import useGetAllJobs from '@/hooks/useGetAllJobs'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import RecommendedJobs from './Recommendedjobs'
 
 const Home = () => {
   useGetAllJobs();
@@ -23,6 +24,12 @@ const Home = () => {
       <HeroSection />
       <CategoryCarousel />
       <LatestJobs />
+      {user?.role === 'student' && (  // only show for students
+        <div className="mt-10 px-4 md:px-8">
+          <h2 className="text-2xl font-bold mb-4">Recommended Jobs for You</h2>
+          <RecommendedJobs />
+        </div>
+      )}
       <Footer />
     </div>
   )
