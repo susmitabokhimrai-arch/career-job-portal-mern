@@ -9,7 +9,7 @@ import { USER_API_END_POINT } from '@/utils/constant';
 import { setUser } from '@/redux/authslice';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Building,Briefcase } from 'lucide-react';
+import { Building, Briefcase } from 'lucide-react';
 
 const Navbar = () => {
     const { user } = useSelector(store => store.auth);
@@ -45,27 +45,27 @@ const Navbar = () => {
                             user && user.role === 'recruiter' ? (
                                 <>
                                     <li>
-                                    <Link to="/admin/companies"
-                                      className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
+                                        <Link to="/admin/companies"
+                                            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
                                         ${location.pathname.startsWith('/admin/companies') ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`} >
-                                     <Building className="w-4 h-4 mr-2 text-gray-500" />
-                                     Companies</Link>
+                                            <Building className="w-4 h-4 mr-2 text-gray-500" />
+                                            Companies</Link>
                                     </li>
                                     <li>
-                                    <Link to="/admin/jobs"
-                                     className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
+                                        <Link to="/admin/jobs"
+                                            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
                                         ${location.pathname.startsWith('/admin/jobs') ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`} >
-                                    <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
-                                    Jobs</Link>
-                            </li>
-                            
+                                            <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
+                                            Jobs</Link>
+                                    </li>
+
                                 </>
                             ) : (
                                 <>
                                     <li>
                                         <Link
                                             to="/"
-                                             className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}
+                                            className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}
                                         >
                                             Home
                                         </Link>
@@ -83,18 +83,25 @@ const Navbar = () => {
                                     <li>
                                         <Link
                                             to="/browse"
-                                             className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/browse' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}
+                                            className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/browse' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}
                                         >
                                             Browse
                                         </Link>
                                     </li>
 
+                                    {/* Saved Jobs icon with badge */}
                                     {user && user.role === 'student' && (
-                                        <li className='hover:text-secondary transition-colors cursor-pointer'>
-                                            <Link to="/saved-jobs" 
-                                             className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/saved-jobs' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}>
-                                                <Bookmark size={15} />
-                                                Saved Jobs
+                                        <li className="relative">
+                                            <Link
+                                                to="/saved-jobs"   
+                                                className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/saved-jobs' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}
+                                            >
+                                                <Bookmark size={18} />
+                                                {user.savedJobs && user.savedJobs.length > 0 && (
+                                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                                                        {user.savedJobs.length}
+                                                    </span>
+                                                )}
                                             </Link>
                                         </li>
                                     )}
@@ -104,14 +111,23 @@ const Navbar = () => {
                     </ul>
 
                     {!user ? (
-                        <div className="flex items-center gap-2">
-                            <Button asChild variant="outline">
+                        <div className="flex items-center gap-3">
+                            <Button
+                                asChild
+                                variant="outline"
+                                className="px-5 py-2 font-semibold rounded-full text-gray-700 border-gray-300 hover:bg-gray-100 hover:text-blue-600 transition-all shadow-sm"
+                            >
                                 <Link to="/login">Login</Link>
                             </Button>
-                            <Button asChild className="bg-[#6A38C2] hover:bg-[#5b30a6]">
+
+                            <Button
+                                asChild
+                                className="px-5 py-2 font-semibold rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-md transition-all"
+                            >
                                 <Link to="/signup">Signup</Link>
                             </Button>
                         </div>
+
                     ) : (
                         <Popover>
                             <PopoverTrigger asChild>
@@ -160,7 +176,7 @@ const Navbar = () => {
 
                                 </div>
 
-                                {/* Optional: Footer Note */}
+                                {/* Footer Note */}
                                 <p className="text-xs text-gray-400 mt-4 text-center">CareerYatra © 2026</p>
 
                             </PopoverContent>

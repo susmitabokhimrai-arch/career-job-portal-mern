@@ -8,6 +8,7 @@ import { Avatar, AvatarImage } from './ui/avatar';
 import { MapPin, Bookmark } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '@/redux/authslice';
+import Navbar from './shared/Navbar';
 
 const SavedJobs = () => {
   const [savedJobs, setSavedJobs] = useState([]);
@@ -63,6 +64,8 @@ const SavedJobs = () => {
   }
 
   return (
+    <div>
+            <Navbar/>
     <div className="max-w-5xl mx-auto px-4 py-8">
 
       {/* Header */}
@@ -144,6 +147,7 @@ const SavedJobs = () => {
           ))}
         </div>
       )}
+    </div>
     </div>
   );
 };
