@@ -34,6 +34,7 @@ const SavedJobs = () => {
         setLoading(false);
       }
     };
+    useEffect
     fetchSavedJobs();
   }, []);
 
