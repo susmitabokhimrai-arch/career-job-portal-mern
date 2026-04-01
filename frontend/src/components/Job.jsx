@@ -15,9 +15,8 @@ const JobCard = ({ job }) => {
   const { user } = useSelector(store => store.auth);
   const [loading, setLoading] = useState(false);
 
-  //  handle both populated objects and plain IDs robustly
   const isSaved = user?.savedJobs?.some(entry => {
-    const id = entry?._id ?? entry; // works whether entry is an object or a plain ID
+    const id = entry?._id ?? entry;
     return id?.toString() === job._id?.toString();
   });
 
@@ -27,7 +26,6 @@ const JobCard = ({ job }) => {
     return Math.floor(timeDifference / (1000 * 60 * 60 * 24));
   };
 
-  // add loading state to prevent double-clicks
   const handleSave = async () => {
     if (loading) return;
     setLoading(true);
@@ -63,11 +61,17 @@ const JobCard = ({ job }) => {
     }
   };
 
+  //  Check how many user skills match this job
+  const userSkills = user?.profile?.skills || [];
+  const matchedSkills = job?.skillsRequired?.filter(skill =>
+    userSkills.some(s => s.toLowerCase() === skill.toLowerCase())
+  ) || [];
+
   const isNew = daysAgoFunction(job?.createdAt) <= 2;
 
   return (
     <div className="p-5 rounded-md shadow-xl bg-white border border-gray-100 flex flex-col">
-     
+
       <div className="flex justify-between items-center mb-3">
         <div className="flex gap-2 items-center">
           <p className="text-xs text-gray-500">
@@ -76,8 +80,13 @@ const JobCard = ({ job }) => {
               : `${daysAgoFunction(job?.createdAt)} days ago`}
           </p>
           {isNew && <Badge className="bg-red-100 text-red-600 text-xs">🔥 New</Badge>}
+          {/*  Show match badge if user skills match */}
+          {matchedSkills.length > 0 && (
+            <Badge className="bg-green-100 text-green-700 text-xs">
+              ✓ {matchedSkills.length} skill{matchedSkills.length > 1 ? 's' : ''} matched
+            </Badge>
+          )}
         </div>
-        {/* FIX 2: disabled while loading */}
         <Button
           onClick={handleSave}
           disabled={loading}
@@ -88,7 +97,6 @@ const JobCard = ({ job }) => {
         </Button>
       </div>
 
-      
       <div className="flex items-center gap-3 mb-3">
         <Avatar className="w-12 h-12">
           <AvatarImage src={job?.company?.logo} />
@@ -102,14 +110,12 @@ const JobCard = ({ job }) => {
         </div>
       </div>
 
-      
       <div className="mb-3">
         <h1 className="font-bold text-lg leading-snug">{job?.title}</h1>
         <p className="text-sm text-gray-600 line-clamp-2 mt-1">{job?.description}</p>
       </div>
 
-      
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-3">
         <Badge className="bg-blue-100 text-blue-700 text-xs">Internship</Badge>
         <Badge className="bg-green-100 text-green-700 text-xs font-semibold">
           💰 {job?.stipend || job?.salary || 'Unpaid'}
@@ -120,7 +126,29 @@ const JobCard = ({ job }) => {
         <Badge className="bg-yellow-100 text-yellow-700 text-xs">🎓 Students</Badge>
       </div>
 
-      
+      {/*  skillsRequired tags */}
+      {job?.skillsRequired?.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-4">
+          {job.skillsRequired.slice(0, 4).map((skill, i) => (
+            <span
+              key={i}
+              className={`text-xs px-2 py-1 rounded-full font-medium ${
+                matchedSkills.some(m => m.toLowerCase() === skill.toLowerCase())
+                  ? 'bg-green-100 text-green-700'  // highlight matched skills
+                  : 'bg-gray-100 text-gray-600'
+              }`}
+            >
+              {skill}
+            </span>
+          ))}
+          {job.skillsRequired.length > 4 && (
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">
+              +{job.skillsRequired.length - 4} more
+            </span>
+          )}
+        </div>
+      )}
+
       <div className="flex justify-between gap-2 mt-auto">
         <Button
           onClick={() => navigate(`/description/${job?._id}`)}
