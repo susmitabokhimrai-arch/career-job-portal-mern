@@ -72,7 +72,7 @@ const FilterCard = () => {
   return (
     <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
-      {/* Header */}
+      
       <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-purple-50 to-white border-b border-gray-100">
         <div>
           <h1 className="text-sm font-bold text-gray-900">Filter Internships</h1>
@@ -88,7 +88,7 @@ const FilterCard = () => {
         )}
       </div>
 
-      {/* Active Filter Banner */}
+      
       {selectedValue && (
         <div className="mx-4 mt-3 px-3 py-2 bg-purple-50 border border-purple-100 rounded-xl flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -101,13 +101,13 @@ const FilterCard = () => {
         </div>
       )}
 
-      {/* Filters */}
+      
       <div className="px-4 pt-4 pb-2 space-y-5">
         {filterData.map((data, index) => {
           const colors = colorMap[data.filterType];
           return (
             <div key={index}>
-              {/* Section Header */}
+              
               <div className="flex items-center gap-2 mb-2.5">
                 <span className={`${colors.icon}`}>{data.icon}</span>
                 <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wide">
@@ -115,7 +115,6 @@ const FilterCard = () => {
                 </h2>
               </div>
 
-              {/* Pills */}
               <div className="flex flex-wrap gap-2">
                 {data.array.map((item, idx) => {
                   const isActive = selectedValue === item;
@@ -143,7 +142,7 @@ const FilterCard = () => {
         })}
       </div>
 
-      {/* Reset Button */}
+      
       <div className="px-4 py-4">
         <Button
           onClick={handleClear}
