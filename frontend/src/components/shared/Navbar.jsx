@@ -163,11 +163,13 @@ const Navbar = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col gap-3 mt-3">
+                                 <div className="flex flex-col gap-3 mt-3">
+                                    {user?.role === 'student' && (
                                         <Link to="/profile" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50 transition">
-                                        <User2 className="text-purple-600 w-5 h-5" />
-                                        <span className="text-gray-900 font-medium">View Profile</span>
-                                    </Link>
+                                            <User2 className="text-purple-600 w-5 h-5" />
+                                            <span className="text-gray-900 font-medium">View Profile</span>
+                                        </Link>
+                                    )}
 
                                     <button
                                         onClick={logoutHandler}
