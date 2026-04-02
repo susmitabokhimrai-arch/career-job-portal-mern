@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect} from 'react'
 import Navbar from '../shared/Navbar';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
@@ -7,13 +7,14 @@ import { useSelector } from 'react-redux';
 import { Select, SelectValue, SelectTrigger, SelectContent, SelectGroup, SelectItem } from '../ui/select';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { JOB_API_END_POINT } from '@/utils/constant';
 
 const companyArray = [];
 
 const PostJob = () => {
+    const { id } = useParams();
     const [input, setInput] = useState({
         title: "",
         description: "",
@@ -33,49 +34,106 @@ const PostJob = () => {
     const navigate = useNavigate();
 
     const { companies } = useSelector(store => store.company);
+    // Fetch job data if editing 
+    useEffect(() => {
+        const fetchJob = async () => {
+            if (id) {
+                try {
+                    console.log("Fetching job ID:", id);
+                    const res = await axios.get(`${JOB_API_END_POINT}/${id}`, {
+                     withCredentials: true
+                    });
+                     console.log("Job data:", res.data); 
+                    const job = res.data.job;
+
+                    setInput({
+                        title: job.title || "",
+                        description: job.description || "",
+                        requirements: job.requirements?.join(",") || "",
+                        stipend: job.salary || "",
+                        location: job.location || "",
+                        internshipType: job.jobType || "",
+                        duration: job.duration || "",
+                        skillsRequired: job.skillsRequired?.join(",") || "",
+                        position: job.position || 0,
+                        companyId: job.company?._id || "",
+                        applicationDeadline: job.applicationDeadline?.split("T")[0] || "",
+                        startDate: job.startDate?.split("T")[0] || "",
+                        perks: job.perks?.join(",") || ""
+                    });
+                     } catch (error) {
+                    console.error("Error fetching job:", error);
+                    toast.error("Failed to load job data");
+                }
+            }
+        };
+        fetchJob();
+    }, [id]);
+        
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
     };
 
     const selectChangeHandler = (value) => {
         const selectedCompany = companies.find((company) => company.name.toLowerCase() === value);
-        setInput({ ...input, companyId: selectedCompany._id });
+        setInput({ ...input, companyId: selectedCompany?._id ||""});
     };
 
 
+   // supports both create and update
     const submitHandler = async (e) => {
         e.preventDefault();
         try {
             setLoading(true);
-            const res = await axios.post(`${JOB_API_END_POINT}`,
-                {
-                    ...input,
-                    skillsRequired: input.skillsRequired.toString()
-                },
-                {
+            
+            // Prepare data
+            const jobData = {
+                ...input,
+                requirements: input.requirements ? input.requirements.split(",") : [],
+                skillsRequired: input.skillsRequired ? input.skillsRequired.split(",") : [],
+                perks: input.perks ? input.perks.split(",") : []
+            };
+            
+            
+            let response;
+            if (id) {
+                response = await axios.put(`${JOB_API_END_POINT}/update/${id}`, jobData, {
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     withCredentials: true
                 });
-            if (res.data.success) {
-                toast.success(res.data.message);
+            } else {
+                // Creating new job
+                response = await axios.post(`${JOB_API_END_POINT}`, jobData, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    withCredentials: true
+                });
+            }
+            
+            if (response.data.success) {
+                toast.success(response.data.message);
                 navigate("/admin/jobs");
             }
         } catch (error) {
             toast.error(error?.response?.data?.message || "Something went wrong");
-        } finally {
+            } finally {
             setLoading(false);
         }
     };
+ // Determine button text based on edit or create mode
+    const buttonText = id ? "Update Internship" : "Post Internship";
+    const formTitle = id ? "Edit Internship" : "Post New Internship";
 
     return (
         <div>
             <Navbar />
             <div className='flex items-center justify-center w-screen my-5'>
                 <form onSubmit={submitHandler} className='p-8 max-w-4xl border border-gray-200 shadow-lg rounded-md'>
-
-
+       {/*Form Title */}
+                    <h2 className="text-2xl font-bold mb-6 text-center">{formTitle}</h2>
 
                     <div className='grid grid-cols-2 gap-2'>
                         <div>
@@ -86,9 +144,10 @@ const PostJob = () => {
                                 value={input.title}
                                 onChange={changeEventHandler}
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
+                                required
                             />
                         </div>
-                        <div>
+             <div>
                             <Label>Description</Label>
                             <Input
                                 type="text"
@@ -96,9 +155,10 @@ const PostJob = () => {
                                 value={input.description}
                                 onChange={changeEventHandler}
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
+                                required
                             />
                         </div>
-                        <div>
+<div>
                             <Label>Requirements</Label>
                             <Input
                                 type="text"
@@ -108,7 +168,7 @@ const PostJob = () => {
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
                             />
                         </div>
-                        <div>
+<div>
                             <Label>Stipend</Label>
                             <Input
                                 type="text"
@@ -118,7 +178,7 @@ const PostJob = () => {
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
                             />
                         </div>
-                        <div>
+     <div>
                             <Label>Location</Label>
                             <Input
                                 type="text"
@@ -126,15 +186,17 @@ const PostJob = () => {
                                 value={input.location}
                                 onChange={changeEventHandler}
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
+                                required
                             />
                         </div>
-                        <div>
+                                                  <div>
                             <Label>Internship Type</Label>
                             <Select
                                 onValueChange={(value) =>
                                     setInput({ ...input, internshipType: value })
                                 }
-                            >
+                                value={input.internshipType}>
+  
                                 <SelectTrigger className="w-full my-1">
                                     <SelectValue placeholder="Select Internship Type" />
                                 </SelectTrigger>
@@ -239,8 +301,9 @@ const PostJob = () => {
                             type="submit"
                             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300"
                         >
-                            Post Internship
+                            {buttonText}
                         </Button>
+
                     }
                     {
                         companies.length === 0 && <p className='text-xs text-red-600 font-bold text-center my-3' > *Please register a company first, before posting a job</p>
