@@ -25,4 +25,8 @@ router.put("/update/:id", isAuthenticated, updateJob);
 // Dynamic route last
 router.get("/:id", getJobById);  
 
+// recruiter only
+router.post("/create", isAuthenticated, isRecruiter, postJob);
+
+
 export default router;

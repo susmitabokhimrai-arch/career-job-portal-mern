@@ -3,7 +3,14 @@ import { Job } from "../models/job.model.js";
 
 export const postJob = async (req, res) => {
     try{
-          console.log(req.body); 
+        // restrict to recruiter
+        if (req.user.role !== "recruiter") {
+      return res.status(403).json({
+        message: "Only recruiters can post jobs",
+        success: false,
+      });
+    }
+         // console.log(req.body); 
         const { title, description, requirements, stipend, location, internshipType, duration, skillsRequired,  position, companyId, applicationDeadline, startDate, perks} = req.body;
         const userId = req.id;
 
