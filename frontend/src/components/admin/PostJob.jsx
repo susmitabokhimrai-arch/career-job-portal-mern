@@ -140,9 +140,10 @@ const PostJob = () => {
                                 </SelectTrigger>
                                 <SelectContent className="bg-white rounded-md shadow-lg border z-50">
                                     <SelectGroup>
-                                        <SelectItem value="remote">Remote</SelectItem>
-                                        <SelectItem value="onsite">Onsite</SelectItem>
-                                        <SelectItem value="hybrid">Hybrid</SelectItem>
+                                        <SelectItem value="Remote">Remote</SelectItem>
+                                        <SelectItem value="Hybrid">Hybrid</SelectItem>
+                                        <SelectItem value="Full-time">Full-time</SelectItem>
+                                        <SelectItem value="Part-time">Part-time</SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
