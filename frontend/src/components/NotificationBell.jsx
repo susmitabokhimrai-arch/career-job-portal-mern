@@ -11,17 +11,17 @@ const NotificationBell = () => {
 
     useEffect(() => {
         fetchNotifications();
-        
+
         const interval = setInterval(fetchNotifications, 30000);
-        
+
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setShowDropdown(false);
             }
         };
-        
+
         document.addEventListener('mousedown', handleClickOutside);
-        
+
         return () => {
             clearInterval(interval);
             document.removeEventListener('mousedown', handleClickOutside);
@@ -30,11 +30,10 @@ const NotificationBell = () => {
 
     const fetchNotifications = async () => {
         try {
-            // ← CHANGE THIS URL
             const response = await axios.get(`${NOTIFICATION_API_END_POINT}/`, {
                 withCredentials: true
             });
-            
+
             if (response.data.success) {
                 setNotifications(response.data.notifications);
                 setUnreadCount(response.data.unreadCount);
@@ -46,18 +45,17 @@ const NotificationBell = () => {
 
     const markAsRead = async (notificationId) => {
         try {
-            // ← CHANGE THIS URL
             await axios.put(`${NOTIFICATION_API_END_POINT}/${notificationId}/read`, {}, {
                 withCredentials: true
             });
-            
+
             setNotifications(prev =>
                 prev.map(notif =>
                     notif._id === notificationId ? { ...notif, read: true } : notif
                 )
             );
             setUnreadCount(prev => Math.max(0, prev - 1));
-            
+
         } catch (error) {
             console.error("Error marking as read:", error);
         }
@@ -65,7 +63,6 @@ const NotificationBell = () => {
 
     const markAllAsRead = async () => {
         try {
-            // ← CHANGE THIS URL
             await axios.put(`${NOTIFICATION_API_END_POINT}/read/all`, {}, {
                 withCredentials: true
             });
@@ -74,9 +71,9 @@ const NotificationBell = () => {
             console.error("Error marking all as read:", error);
         }
     };
-     // Added icons for new_application and applied types
+    // Added icons for new_application and applied types
     const getIcon = (type) => {
-        switch(type) {
+        switch (type) {
             case 'selected':
                 return <CheckCircle className="w-5 h-5 text-green-500" />;
             case 'interview':
@@ -86,15 +83,15 @@ const NotificationBell = () => {
             case 'rejected':
                 return <XCircle className="w-5 h-5 text-red-500" />;
             case 'new_application':  // For admin notifications when student applies
-return <UserPlus className="w-5 h-5 text-purple-500" />;
+                return <UserPlus className="w-5 h-5 text-purple-500" />;
             case 'applied':  // For student application confirmation
-     return <Briefcase className="w-5 h-5 text-indigo-500" />;
+                return <Briefcase className="w-5 h-5 text-indigo-500" />;
             default:
                 return <Clock className="w-5 h-5 text-gray-500" />;
         }
     };
-    
-     const getTimeAgo = (date) => {
+
+    const getTimeAgo = (date) => {
         const seconds = Math.floor((new Date() - new Date(date)) / 1000);
         if (seconds < 60) return 'Just now';
         const minutes = Math.floor(seconds / 60);
@@ -142,9 +139,8 @@ return <UserPlus className="w-5 h-5 text-purple-500" />;
                             notifications.map((notif) => (
                                 <div
                                     key={notif._id}
-                                    className={`p-4 border-b cursor-pointer transition-colors ${
-                                        notif.read ? 'bg-white' : 'bg-blue-50'
-                                    }`}
+                                    className={`p-4 border-b cursor-pointer transition-colors ${notif.read ? 'bg-white' : 'bg-blue-50'
+                                        }`}
                                     onClick={() => markAsRead(notif._id)}
                                 >
                                     <div className="flex gap-3">
