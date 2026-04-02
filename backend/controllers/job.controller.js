@@ -154,7 +154,61 @@ title,
              return res.status(500).json({ message: error.message, success: false });
     }
         };
-    
+        //Update job (for editing)
+export const updateJob = async (req, res) => {
+    try {
+        const jobId = req.params.id;
+        
+        // Check if job ID is valid
+        if (!mongoose.Types.ObjectId.isValid(jobId)) {
+            return res.status(400).json({
+                message: "Invalid Internship ID",
+                success: false
+            });
+        }
+     const { 
+            title, description, requirements, stipend, location, 
+            internshipType, duration, skillsRequired, position, 
+            companyId, applicationDeadline, startDate, perks 
+        } = req.body;
+         // Prepare update data
+        const updateData = {
+            title,
+            description,
+            requirements: requirements ? (Array.isArray(requirements) ? requirements : requirements.split(",")) : [],
+            stipend,
+            internshipType,
+            duration,
+            skillsRequired: skillsRequired ? (Array.isArray(skillsRequired) ? skillsRequired : skillsRequired.split(",")) : [],
+            perks: perks ? (Array.isArray(perks) ? perks : perks.split(",")) : [],
+            position,
+            location,
+            applicationDeadline,
+            startDate,
+             company: companyId
+        };
+         const updatedJob = await Job.findByIdAndUpdate(jobId, updateData, { new: true });
+        
+        if (!updatedJob) {
+            return res.status(404).json({
+                message: "Internship not found",
+                success: false
+            });
+        }
+ return res.status(200).json({
+            message: "Internship updated successfully",
+            job: updatedJob,
+            success: true
+        });
+        } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: error.message || "Server error while updating job",
+            success: false
+        });
+    }
+};
+
 // recommendation based 
 export const getRecommendedJobs = async (req, res) => {
   try {
