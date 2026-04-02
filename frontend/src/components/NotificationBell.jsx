@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, CheckCircle, Calendar, Star, XCircle, Clock } from 'lucide-react';
 import axios from 'axios';
-import { APPLICATION_API_END_POINT } from '@/utils/constant';
+import { NOTIFICATION_API_END_POINT } from '@/utils/constant'; // ← CHANGE THIS
 
 const NotificationBell = () => {
     const [notifications, setNotifications] = useState([]);
@@ -12,10 +12,8 @@ const NotificationBell = () => {
     useEffect(() => {
         fetchNotifications();
         
-        // Poll for new notifications every 30 seconds
         const interval = setInterval(fetchNotifications, 30000);
         
-        // Close dropdown when clicking outside
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setShowDropdown(false);
@@ -32,7 +30,8 @@ const NotificationBell = () => {
 
     const fetchNotifications = async () => {
         try {
-            const response = await axios.get(`${APPLICATION_API_END_POINT}/notifications`, {
+            // ← CHANGE THIS URL
+            const response = await axios.get(`${NOTIFICATION_API_END_POINT}/`, {
                 withCredentials: true
             });
             
@@ -47,7 +46,8 @@ const NotificationBell = () => {
 
     const markAsRead = async (notificationId) => {
         try {
-            await axios.put(`${APPLICATION_API_END_POINT}/notifications/${notificationId}/read`, {}, {
+            // ← CHANGE THIS URL
+            await axios.put(`${NOTIFICATION_API_END_POINT}/${notificationId}/read`, {}, {
                 withCredentials: true
             });
             
@@ -60,6 +60,18 @@ const NotificationBell = () => {
             
         } catch (error) {
             console.error("Error marking as read:", error);
+        }
+    };
+
+    const markAllAsRead = async () => {
+        try {
+            // ← CHANGE THIS URL
+            await axios.put(`${NOTIFICATION_API_END_POINT}/read/all`, {}, {
+                withCredentials: true
+            });
+            fetchNotifications();
+        } catch (error) {
+            console.error("Error marking all as read:", error);
         }
     };
 
@@ -104,10 +116,7 @@ const NotificationBell = () => {
                         <h3 className="font-semibold text-gray-800">Notifications</h3>
                         {notifications.length > 0 && (
                             <button
-                                onClick={async () => {
-                                    await axios.put(`${APPLICATION_API_END_POINT}/notifications/read-all`, {}, { withCredentials: true });
-                                    fetchNotifications();
-                                }}
+                                onClick={markAllAsRead}
                                 className="text-xs text-purple-600 hover:text-purple-700"
                             >
                                 Mark all read
