@@ -27,6 +27,7 @@ const isAuthenticated = async (req, res, next) => {
     }
     
         req.id = decoded.userId;
+        req.user = user; //for role & full data (new logic)
         next();
     } catch (error) {
     console.log(error);

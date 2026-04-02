@@ -5,7 +5,7 @@ import { postJob,
     getAdminJobs,
     getJobById
  } from "../controllers/job.controller.js";
-
+import { isRecruiter } from "../middlewares/roleMiddleware.js";
 
 const router = express.Router();
 
@@ -20,10 +20,14 @@ router.post("/", isAuthenticated, postJob);
 //  Get all internships (students)
 router.get("/", getAllJobs);
 
-//  Get admin internships
+//  recruiter get own internships
 router.get("/admin", isAuthenticated, getAdminJobs);
 
-//  Get single internship
+//  student Get single internship
 router.get("/:id", getJobById);
+
+// recruiter only
+router.post("/create", isAuthenticated, isRecruiter, postJob);
+
 
 export default router;

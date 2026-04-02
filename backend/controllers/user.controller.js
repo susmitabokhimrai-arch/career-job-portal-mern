@@ -14,6 +14,18 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "Something is missing", success: false });
     }
 
+    // NEW: Restrict recruiter creation
+    if (role === "recruiter") {
+      const existingRecruiter = await User.findOne({ role: "recruiter" });
+
+      if (existingRecruiter) {
+        return res.status(403).json({
+          message: "Recruiter account already exists. Contact admin.",
+          success: false,
+        });
+      }
+    }
+
     const file = req.file;
     const fileUri = getDataUri(file);
     const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
@@ -70,12 +82,28 @@ export const login = async (req, res) => {
       });
     }
 
-    if (role != user.role) {
-      return res.status(400).json({
-        message: "Account doesn't exist with current role.",
+// UPDATED ROLE CHECK (IMPORTANT)
+    if (role === "recruiter" && user.role !== "recruiter") {
+      return res.status(403).json({
+        message: "Not authorized as recruiter.",
         success: false,
       });
     }
+    
+    if (role === "student" && user.role !== "student") {
+      return res.status(403).json({
+        message: "Not authorized as student.",
+        success: false,
+      });
+    }
+
+
+    //if (role != user.role) {
+      //return res.status(400).json({
+       // message: "Account doesn't exist with current role.",
+       // success: false,
+      //});
+    //}
 
     const tokenData = { userId: user._id };
     const token = jwt.sign(tokenData, process.env.SECRET_KEY, { expiresIn: '1d' });
