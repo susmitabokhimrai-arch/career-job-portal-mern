@@ -53,8 +53,45 @@ export const applyJob = async (req, res) => {
             companyName: job.company?.name,
             newStatus: 'applied'
         });
-
-        //Send email confirmation
+        // 🔥 DEBUG: Check if admin users exist
+        console.log("=== ADMIN NOTIFICATION DEBUG ===");
+        // notify admins about new application
+        // Get all admin and recruiter users
+        const adminUsers = await User.find({ role: { $in: ['admin', 'recruiter'] } });
+    // 🔥 DEBUG: Log admin users found
+        console.log("Admin users found:", adminUsers.length);
+        adminUsers.forEach(admin => {
+            console.log(`- Admin Email: ${admin.email}, Role: ${admin.role}, ID: ${admin._id}`);
+        });
+        
+        // Create notification for each admin
+        for (const admin of adminUsers) {
+            await Notification.create({
+                recipient: admin._id,
+                type: 'new_application',
+                title: '📝 New Application Received!',
+                message: `${user.fullname} has applied for ${job.title} at ${job.company?.name || 'your company'}.`,
+                applicationId: newApplication._id,
+                jobTitle: job.title,
+                companyName: job.company?.name,
+                newStatus: 'applied'
+            });
+        }
+ // 🔥 DEBUG: Verify notification was created
+        if (adminUsers.length > 0) {
+            const checkNotification = await Notification.findOne({ 
+                recipient: adminUsers[0]._id, 
+                type: 'new_application' 
+            });
+            console.log("Admin notification created:", checkNotification ? "✅ YES" : "❌ NO");
+            if (checkNotification) {
+                console.log("Notification message:", checkNotification.message);
+            }
+        } else {
+            console.log("❌ No admin/recruiter users found! Create an admin user first.");
+        }
+        console.log("================================");
+        //Send email confirmation to student
         await sendStatusUpdateEmail(
             user.email,
             user.fullname,
