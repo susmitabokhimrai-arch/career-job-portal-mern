@@ -8,6 +8,11 @@ import {
 
 const router = express.Router();
 
+// Test- Add this temporarily
+router.get("/test", (req, res) => {
+    res.json({ message: "Notification route is working!", success: true });
+});
+
 router.get("/", isAuthenticated, getUserNotifications);
 router.put("/:id/read", isAuthenticated, markNotificationAsRead);
 router.put("/read/all", isAuthenticated, markAllAsRead);
