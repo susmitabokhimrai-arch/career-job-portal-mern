@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, CheckCircle, Calendar, Star, XCircle, Clock } from 'lucide-react';
+import { Bell, CheckCircle, Calendar, Star, XCircle, Clock, UserPlus, Briefcase } from 'lucide-react';
 import axios from 'axios';
 import { NOTIFICATION_API_END_POINT } from '@/utils/constant'; // ← CHANGE THIS
 
@@ -74,18 +74,27 @@ const NotificationBell = () => {
             console.error("Error marking all as read:", error);
         }
     };
-
+     // Added icons for new_application and applied types
     const getIcon = (type) => {
         switch(type) {
-            case 'selected': return <CheckCircle className="w-5 h-5 text-green-500" />;
-            case 'interview': return <Calendar className="w-5 h-5 text-blue-500" />;
-            case 'shortlisted': return <Star className="w-5 h-5 text-yellow-500" />;
-            case 'rejected': return <XCircle className="w-5 h-5 text-red-500" />;
-            default: return <Clock className="w-5 h-5 text-purple-500" />;
+            case 'selected':
+                return <CheckCircle className="w-5 h-5 text-green-500" />;
+            case 'interview':
+                return <Calendar className="w-5 h-5 text-blue-500" />;
+            case 'shortlisted':
+                return <Star className="w-5 h-5 text-yellow-500" />;
+            case 'rejected':
+                return <XCircle className="w-5 h-5 text-red-500" />;
+            case 'new_application':  // For admin notifications when student applies
+return <UserPlus className="w-5 h-5 text-purple-500" />;
+            case 'applied':  // For student application confirmation
+     return <Briefcase className="w-5 h-5 text-indigo-500" />;
+            default:
+                return <Clock className="w-5 h-5 text-gray-500" />;
         }
     };
-
-    const getTimeAgo = (date) => {
+    
+     const getTimeAgo = (date) => {
         const seconds = Math.floor((new Date() - new Date(date)) / 1000);
         if (seconds < 60) return 'Just now';
         const minutes = Math.floor(seconds / 60);
@@ -95,7 +104,6 @@ const NotificationBell = () => {
         const days = Math.floor(hours / 24);
         return `${days} day${days === 1 ? '' : 's'} ago`;
     };
-
     return (
         <div className="relative" ref={dropdownRef}>
             <button
