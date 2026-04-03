@@ -8,7 +8,7 @@ import { login,
        getRecommendedJobs,
         getResume,
     createRecruiter,
-getRecruiter,
+getAllRecruiters,
 removeRecruiter,
 } from "../controllers/user.controller.js";
 
@@ -31,12 +31,12 @@ router.route("/job/saved").get(isAuthenticated, getSavedJobs);
 router.route("/jobs/recommended").get(isAuthenticated, getRecommendedJobs);
 router.route("/resume/:id").get(isAuthenticated, getResume);
 
-// Admin only routes
-// GET    /api/v1/user/admin/recruiter    (view current recruiter)
-// POST   /api/v1/user/admin/recruiter        (create new recruiter)
-// DELETE /api/v1/user/admin/recruiter/:id    (remove & blacklist recruiter)
-router.route("/admin/recruiter").get(isAuthenticated, isAdmin, getRecruiter);
-router.route("/admin/recruiter").post(isAuthenticated, isAdmin, createRecruiter);
-router.route("/admin/recruiter/:recruiterId").delete(isAuthenticated, isAdmin, removeRecruiter);
+// ── Admin-Only: Recruiter Management ─────────
+// GET    /api/v1/user/admin/recruiters           → list all recruiters
+// POST   /api/v1/user/admin/recruiters           → create a new recruiter
+// DELETE /api/v1/user/admin/recruiters/:id       → remove & blacklist a recruiter
+router.route("/admin/recruiters").get(isAuthenticated, isAdmin, getAllRecruiters);
+router.route("/admin/recruiters").post(isAuthenticated, isAdmin, createRecruiter);
+router.route("/admin/recruiters/:recruiterId").delete(isAuthenticated, isAdmin, removeRecruiter);
  
 export default router;
