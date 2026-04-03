@@ -5,7 +5,7 @@ import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import { Job } from "../models/job.model.js";
 
-// register
+// REGISTER (students only via public signup)
 export const register = async (req, res) => {
   try {
     const { fullname, email, password, phoneNumber, role } = req.body;
@@ -14,31 +14,53 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "Something is missing", success: false });
     }
 
-    // NEW: Restrict recruiter creation
-    if (role === "recruiter") {
-      const existingRecruiter = await User.findOne({ role: "recruiter" });
+    // Block recruiter & admin from public signup entirely
+    if (role === "recruiter" || role == "admin") {
+      //const existingRecruiter = await User.findOne({ role: "recruiter" });
 
-      if (existingRecruiter) {
+      //if (existingRecruiter) {
         return res.status(403).json({
-          message: "Recruiter account already exists. Contact admin.",
+          message: "Recruiter accounts can only be created by an admin.",
           success: false,
         });
       }
+    
+      // Block blacklisted emails from re-registering
+
+    const blacklisted = await User.findOne({ email, isBlacklisted: true });
+    if (blacklisted) {
+      return res.status(403).json({
+        message: "This email is not allowed to register.",
+        success: false,
+      });
     }
 
-    const file = req.file;
-    const fileUri = getDataUri(file);
-    const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-
-    const user = await User.findOne({ email });
-    if (user) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({
         message: "User already exists with this email.",
         success: false,
       });
     }
 
+    let profilePhoto = "";
+    if (req.file) {
+// const file = req.file;
+    const fileUri = getDataUri(file);
+    const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+    profilePhoto = cloudResponse.secure_url;
+    }
+
+    //const user = await User.findOne({ email });
+    //if (user) {
+      //return res.status(400).json({
+        //message: "User already exists with this email.",
+       // success: false,
+      //});
+  
+
     const hashedPassword = await bcrypt.hash(password, 10);
+
     await User.create({
       fullname,
       email,
@@ -46,7 +68,7 @@ export const register = async (req, res) => {
       password: hashedPassword,
       role,
       profile: {
-        profilePhoto: cloudResponse.secure_url,
+        profilePhoto, // cloudResponse.secure_url,
       },
     });
 
@@ -66,10 +88,18 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Something is missing", success: false });
     }
 
-    let user = await User.findOne({ email });
+      const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({
         message: "Incorrect email or password.",
+        success: false,
+      });
+    }
+
+    // Block blacklisted users from logging in
+    if (user.isBlacklisted) {
+      return res.status(403).json({
+        message: "Your account has been deactivated. Contact admin.",
         success: false,
       });
     }
@@ -98,17 +128,17 @@ export const login = async (req, res) => {
     }
 
 
-    //if (role != user.role) {
-      //return res.status(400).json({
-       // message: "Account doesn't exist with current role.",
-       // success: false,
-      //});
-    //}
+    if (role != user.role) {
+      return res.status(400).json({
+        message: "Account doesn't exist with current role.",
+       success: false,
+      });
+    }
 
     const tokenData = { userId: user._id };
     const token = jwt.sign(tokenData, process.env.SECRET_KEY, { expiresIn: '1d' });
 
-    user = {
+    const responseUser = {
       _id: user._id,
       fullname: user.fullname,
       email: user.email,
@@ -376,5 +406,120 @@ export const getResume = async (req, res) => {
       success: false,
       error: error.message,
     });
+  }
+};
+
+// ADMIN: CREATE RECRUITER (admin only)
+
+export const createRecruiter = async (req, res) => {
+  try {
+    const { fullname, email, password, phoneNumber } = req.body;
+ 
+    if (!fullname || !email || !password || !phoneNumber) {
+      return res.status(400).json({ message: "All fields are required.", success: false });
+    }
+ 
+    // Only one recruiter allowed at a time
+    const existingRecruiter = await User.findOne({ role: "recruiter", isBlacklisted: false });
+    if (existingRecruiter) {
+      return res.status(409).json({
+        message: "A recruiter already exists. Remove the current recruiter before adding a new one.",
+        success: false,
+      });
+    }
+ 
+    // Block blacklisted emails
+    const blacklisted = await User.findOne({ email, isBlacklisted: true });
+    if (blacklisted) {
+      return res.status(403).json({
+        message: "This email is blacklisted and cannot be used for a recruiter account.",
+        success: false,
+      });
+    }
+ 
+    // Check if email is already in use
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        message: "An account with this email already exists.",
+        success: false,
+      });
+    }
+ 
+    const hashedPassword = await bcrypt.hash(password, 10);
+ 
+    const recruiter = await User.create({
+      fullname,
+      email,
+      phoneNumber,
+      password: hashedPassword,
+      role: "recruiter",
+      profile: {
+        profilePhoto: "",
+      },
+    });
+ 
+    return res.status(201).json({
+      message: `Recruiter account created for ${fullname}.`,
+      recruiter: {
+        _id: recruiter._id,
+        fullname: recruiter.fullname,
+        email: recruiter.email,
+        phoneNumber: recruiter.phoneNumber,
+        role: recruiter.role,
+      },
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+ 
+
+// ADMIN: GET CURRENT RECRUITER
+export const getRecruiter = async (req, res) => {
+  try {
+    const recruiter = await User.findOne({ role: "recruiter", isBlacklisted: false }).select(
+      "-password"
+    );
+ 
+    if (!recruiter) {
+      return res.status(404).json({
+        message: "No active recruiter found.",
+        recruiter: null,
+        success: true,
+      });
+    }
+ 
+    return res.status(200).json({ recruiter, success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+// ADMIN: REMOVE RECRUITER (blacklists them)
+// ─────────────────────────────────────────────
+export const removeRecruiter = async (req, res) => {
+  try {
+    const { recruiterId } = req.params;
+ 
+    const recruiter = await User.findById(recruiterId);
+ 
+    if (!recruiter || recruiter.role !== "recruiter") {
+      return res.status(404).json({ message: "Recruiter not found.", success: false });
+    }
+ 
+    // Blacklist so they can never re-register with same email
+    recruiter.isBlacklisted = true;
+    await recruiter.save();
+ 
+    return res.status(200).json({
+      message: `Recruiter ${recruiter.fullname} has been removed and blacklisted.`,
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error", success: false });
   }
 };
