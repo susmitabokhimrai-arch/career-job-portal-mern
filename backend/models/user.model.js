@@ -20,8 +20,14 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["student", "recruiter"],
+      enum: ["student", "recruiter","admin"],
       required: true,
+    },
+
+     // NEW: blocks removed recruiters from re-registering
+    isBlacklisted: {
+      type: Boolean,
+      default: false,
     },
 
     // job save

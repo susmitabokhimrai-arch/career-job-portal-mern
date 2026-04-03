@@ -17,3 +17,15 @@ export const isRecruiter = (req, res, next) => {
   }
   next();
 };
+
+//  NEW: Admin-only middleware
+export const isAdmin = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({
+      message: "Access denied. Admins only.",
+      success: false,
+    });
+  }
+  next();
+};
+ 
