@@ -16,6 +16,8 @@ import Applicants from './components/admin/Applicants'
 import ProtectedRoute from './components/admin/ProtectedRoute'
 import SavedJobs from './components/SavedJobs'
 import { Toaster } from 'sonner';
+import AdminRoute from './components/admin/AdminRoute'
+import ManageRecruiter from './components/admin/ManageRecruiter'
 
 const appRouter = createBrowserRouter([
   {
@@ -79,7 +81,11 @@ const appRouter = createBrowserRouter([
     path:"/admin/jobs/:id/applicants",
     element:<ProtectedRoute><Applicants/></ProtectedRoute>
   },
-
+// admin only
+  { 
+    path: '/admin/manage-recruiter',
+     element: <AdminRoute><ManageRecruiter /></AdminRoute> 
+    },
 ])
 
 function App() {

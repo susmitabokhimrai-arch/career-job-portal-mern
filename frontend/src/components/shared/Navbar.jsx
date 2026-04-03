@@ -43,75 +43,75 @@ const Navbar = () => {
                 <div className='flex items-center space-x-6'>
                     <ul className="flex items-center space-x-4 font-medium list-none p-0 m-0">
                         {
-                            user && user.role === 'recruiter' ? (
-                                <>
-                                    <li>
-                                        <Link to="/admin/companies"
-                                            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
-                                        ${location.pathname.startsWith('/admin/companies') ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`} >
-                                            <Building className="w-4 h-4 mr-2 text-gray-500" />
-                                            Companies</Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/admin/jobs"
-                                            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
-                                        ${location.pathname.startsWith('/admin/jobs') ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`} >
-                                            <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
-                                            Jobs</Link>
-                                    </li>
-
-                                </>
-                            ) : (
-                                <>
-                                    <li>
-                                        <Link
-                                            to="/"
-                                            className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}
-                                        >
-                                            Home
-                                        </Link>
-                                    </li>
-
-                                    <li>
-                                        <Link
-                                            to="/jobs"
-                                            className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/jobs' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}
-                                        >
-                                            Jobs
-                                        </Link>
-                                    </li>
-
-                                    <li>
-                                        <Link
-                                            to="/browse"
-                                            className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/browse' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}
-                                        >
-                                            Browse
-                                        </Link>
-                                    </li>
-
-                                    {/* Saved Jobs icon with badge */}
-                                    {user && user.role === 'student' && (
-                                        <li className="relative">
-                                            <Link
-                                                to="/saved-jobs"   
-                                                className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/saved-jobs' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}
-                                            >
-                                                <Bookmark size={18} />
-                                                {user.savedJobs && user.savedJobs.length > 0 && (
-                                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                                                        {user.savedJobs.length}
-                                                    </span>
-                                                )}
-                                            </Link>
-                                        </li>
-                                    )}
-                                </>
-                            )
+                           user && user.role === 'recruiter' ? (
+    <>
+        <li>
+            <Link to="/admin/companies"
+                className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
+                ${location.pathname.startsWith('/admin/companies') ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`}>
+                <Building className="w-4 h-4 mr-2 text-gray-500" />
+                Companies
+            </Link>
+        </li>
+        <li>
+            <Link to="/admin/jobs"
+                className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
+                ${location.pathname.startsWith('/admin/jobs') ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`}>
+                <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
+                Jobs
+            </Link>
+        </li>
+    </>
+) : user && user.role === 'admin' ? (
+    <>
+        <li>
+            <Link to="/admin/manage-recruiter"
+                className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
+                ${location.pathname === '/admin/manage-recruiter' ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'}`}>
+                <User2 className="w-4 h-4 mr-2 text-gray-500" />
+                Manage Recruiter
+            </Link>
+        </li>
+    </>
+) : (
+    <>
+        <li>
+            <Link to="/"
+                className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}>
+                Home
+            </Link>
+        </li>
+        <li>
+            <Link to="/jobs"
+                className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/jobs' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}>
+                Jobs
+            </Link>
+        </li>
+        <li>
+            <Link to="/browse"
+                className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/browse' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}>
+                Browse
+            </Link>
+        </li>
+        {user && user.role === 'student' && (
+            <li className="relative">
+                <Link to="/saved-jobs"
+                    className={'flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200' + (location.pathname === '/saved-jobs' ? ' bg-blue-100 text-blue-600' : ' text-gray-700 hover:bg-gray-100 hover:text-blue-600')}>
+                    <Bookmark size={18} />
+                    {user.savedJobs && user.savedJobs.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                            {user.savedJobs.length}
+                        </span>
+                    )}
+                </Link>
+            </li>
+        )}
+    </>
+ )
                         }
                     </ul>
  {/* NotificationBell for all logged-in users */}
-                    {user && (
+                    {user && user.role !== "admin" && (
                         <div className="flex items-center">
                             <NotificationBell />
                         </div>
