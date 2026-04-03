@@ -28,6 +28,9 @@ const Login = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
 
+    if(!input.role){
+      return toast.error("Please select a role");
+    }
     try {
       dispatch(setLoading(true));
       const res = await axios.post(`${USER_API_END_POINT}/login`, input, {
@@ -114,6 +117,16 @@ const Login = () => {
                   onChange={changeEventHandler}
                 />
                 Recruiter
+              </label>
+               <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="role"
+                  value="admin"
+                  checked={input.role === "admin"}
+                  onChange={changeEventHandler}
+                />
+                Admin
               </label>
             </div>
           </div>
