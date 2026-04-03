@@ -59,7 +59,7 @@ const ManageRecruiter = () => {
       setPhoneNumber("");
       setPassword("");
 
-      fetchRecruiters(); // refresh list
+      fetchRecruiters();
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "Failed to add recruiter");
@@ -86,105 +86,121 @@ const ManageRecruiter = () => {
 
   return (
     <div>
-      <Navbar/>
-    
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Manage Recruiters</h1>
-</div>
-      {/* Add Recruiter Form */}
-      <form
-        className="p-4 border rounded-lg shadow space-y-4"
-        onSubmit={handleAddRecruiter}
-      >
-        <h2 className="font-semibold text-lg flex items-center gap-2">
-          <UserPlus size={20} /> Add Recruiter
-        </h2>
+  <Navbar />
 
-        <div className="flex flex-col">
-          <Label>Full Name</Label>
-          <Input
-            value={fullname}
-            onChange={(e) => setFullname(e.target.value)}
-            placeholder="Full Name"
-          />
-        </div>
+  <div className="p-6 space-y-6 bg-gradient-to-r from-blue-50 to-blue-100 min-h-screen">
+    <h1 className="text-3xl font-bold text-blue-700">Manage Recruiters</h1>
 
-        <div className="flex flex-col">
-          <Label>Email</Label>
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-          />
-        </div>
+    {/* Add Recruiter Form */}
+    <form
+      className="p-6 border rounded-lg shadow-lg bg-white space-y-4"
+      onSubmit={handleAddRecruiter}
+    >
+      <h2 className="font-semibold text-lg flex items-center gap-2 text-blue-600">
+        <UserPlus size={20} /> Add Recruiter
+      </h2>
 
-        <div className="flex flex-col">
-          <Label>Phone Number</Label>
-          <Input
-            type="text"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            placeholder="Phone Number"
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <Label>Password</Label>
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-          />
-        </div>
-
-        <Button type="submit" disabled={loading}>
-          {loading ? "Adding..." : "Add Recruiter"}
-        </Button>
-      </form>
-
-      {/* Recruiter List */}
-      <div className="p-4 border rounded-lg shadow space-y-2">
-        <h2 className="font-semibold text-lg">All Recruiters ({recruiters.length})</h2>
-        <table className="w-full table-auto text-left">
-          <thead>
-            <tr className="border-b">
-              <th className="px-2 py-1">Name</th>
-              <th className="px-2 py-1">Email</th>
-              <th className="px-2 py-1">Phone</th>
-              <th className="px-2 py-1">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recruiters.map((r) => (
-              <tr key={r._id} className="border-b">
-                <td className="px-2 py-1">{r.fullname}</td>
-                <td className="px-2 py-1">{r.email}</td>
-                <td className="px-2 py-1">{r.phoneNumber}</td>
-                <td className="px-2 py-1">
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteRecruiter(r._id)}
-                  >
-                    <Trash size={16} /> Remove
-                  </Button>
-                </td>
-              </tr>
-            ))}
-            {recruiters.length === 0 && (
-              <tr>
-                <td colSpan="4" className="text-center py-4">
-                  No recruiters found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <div className="flex flex-col">
+        <Label className="text-blue-700">Full Name</Label>
+        <Input
+          value={fullname}
+          onChange={(e) => setFullname(e.target.value)}
+          placeholder="Full Name"
+          className="border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+        />
       </div>
-    </div>
-  );
-};
 
+      <div className="flex flex-col">
+        <Label className="text-blue-700">Email</Label>
+        <Input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <Label className="text-blue-700">Phone Number</Label>
+        <Input
+          type="text"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+          placeholder="Phone Number"
+          className="border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <Label className="text-blue-700">Password</Label>
+        <Input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <Button
+        type="submit"
+        disabled={loading}
+        className="bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300"
+      >
+        {loading ? "Adding..." : "Add Recruiter"}
+      </Button>
+    </form>
+
+    {/* Recruiter List */}
+    <div className="p-6 border rounded-lg shadow-lg bg-white space-y-2">
+      <h2 className="font-semibold text-lg text-blue-600">
+        All Recruiters ({recruiters.length})
+      </h2>
+      <table className="w-full table-auto text-left border-collapse">
+        <thead>
+          <tr className="bg-blue-100 border-b">
+            <th className="px-4 py-2 text-blue-700">Name</th>
+            <th className="px-4 py-2 text-blue-700">Email</th>
+            <th className="px-4 py-2 text-blue-700">Phone</th>
+            <th className="px-4 py-2 text-blue-700">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {recruiters.map((r, index) => (
+            <tr
+              key={r._id}
+              className={`border-b ${
+                index % 2 === 0 ? "bg-blue-50" : "bg-white"
+              }`}
+            >
+              <td className="px-4 py-2">{r.fullname}</td>
+              <td className="px-4 py-2">{r.email}</td>
+              <td className="px-4 py-2">{r.phoneNumber}</td>
+              <td className="px-4 py-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="bg-red-500 hover:bg-red-600 text-white transition-all duration-300"
+                  onClick={() => handleDeleteRecruiter(r._id)}
+                >
+                  <Trash size={16} /> Remove
+                </Button>
+              </td>
+            </tr>
+          ))}
+          {recruiters.length === 0 && (
+            <tr>
+              <td colSpan="4" className="text-center py-4 text-blue-500">
+                No recruiters found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+);
+};
 export default ManageRecruiter;
