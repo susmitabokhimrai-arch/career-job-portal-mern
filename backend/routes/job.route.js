@@ -7,6 +7,7 @@ import {
     getJobById,
     updateJob 
 } from "../controllers/job.controller.js";
+import { isRecruiter } from "../middlewares/roleMiddleware.js";
 
 const router = express.Router();
 
