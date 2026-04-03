@@ -1,175 +1,188 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "sonner"; // using Sonner toast
-import { Input } from "../ui/input";
+import { USER_API_END_POINT } from "@/utils/constant";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
-import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Label } from "@radix-ui/react-label";
+import { Trash, UserPlus } from "lucide-react";
+import { useSelector } from "react-redux";
 import Navbar from "../shared/Navbar";
 
 const ManageRecruiter = () => {
-  const [recruiter, setRecruiter] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    fullname: "",
-    email: "",
-    phoneNumber: "",
-    password: "",
-  });
-  const [creating, setCreating] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const [recruiters, setRecruiters] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const API_BASE = "/api/v1/user/admin/recruiter";
+  // Form state
+  const [fullname, setFullname] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
 
-  // Fetch current recruiter
-  const fetchRecruiter = async () => {
+  // Fetch all recruiters
+  const fetchRecruiters = async () => {
     try {
-      setLoading(true);
-      const res = await axios.get(API_BASE, { withCredentials: true });
-      if (res.data.recruiter) setRecruiter(res.data.recruiter);
-      else setRecruiter(null);
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Failed to fetch recruiter");
-    } finally {
-      setLoading(false);
+      const res = await axios.get(`${USER_API_END_POINT}/admin/recruiters`, {
+        withCredentials: true,
+      });
+      setRecruiters(res.data.recruiters);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to fetch recruiters");
     }
   };
 
   useEffect(() => {
-    fetchRecruiter();
+    fetchRecruiters();
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // Create recruiter
-  const handleCreate = async (e) => {
+  // Add recruiter
+  const handleAddRecruiter = async (e) => {
     e.preventDefault();
-    setCreating(true);
-    try {
-      const res = await axios.post(API_BASE, formData, { withCredentials: true });
-      toast.success(res.data.message);
-      setFormData({ fullname: "", email: "", phoneNumber: "", password: "" });
-      fetchRecruiter();
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Failed to create recruiter");
-    } finally {
-      setCreating(false);
+    if (!fullname || !email || !phoneNumber || !password) {
+      toast.error("Please fill all required fields");
+      return;
     }
+
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `${USER_API_END_POINT}/admin/recruiters`,
+        { fullname, email, phoneNumber, password },
+        { withCredentials: true }
+      );
+
+      toast.success(res.data.message);
+      setFullname("");
+      setEmail("");
+      setPhoneNumber("");
+      setPassword("");
+
+      fetchRecruiters(); // refresh list
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Failed to add recruiter");
+    }
+    setLoading(false);
   };
 
-  // Remove recruiter
-  const handleRemove = async () => {
-    if (!recruiter) return;
-    if (!window.confirm(`Are you sure you want to remove ${recruiter.fullname}?`)) return;
+  // Delete recruiter
+  const handleDeleteRecruiter = async (recruiterId) => {
+    if (!window.confirm("Are you sure you want to remove this recruiter?")) return;
 
     try {
-      const res = await axios.delete(`${API_BASE}/${recruiter._id}`, { withCredentials: true });
+      const res = await axios.delete(
+        `${USER_API_END_POINT}/admin/recruiters/${recruiterId}`,
+        { withCredentials: true }
+      );
       toast.success(res.data.message);
-      setRecruiter(null);
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Failed to remove recruiter");
+      fetchRecruiters();
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Failed to remove recruiter");
     }
   };
-
-  if (loading) return <p className="text-center mt-10">Loading recruiter...</p>;
 
   return (
     <div>
-        <Navbar/>
+      <Navbar/>
     
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Manage Recruiter</h1>
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold">Manage Recruiters</h1>
 </div>
-      {recruiter ? (
-        <div className="bg-white shadow-lg rounded-lg p-6 flex justify-between items-center mb-8">
-          <div>
-            <p className="text-xl font-semibold">{recruiter.fullname}</p>
-            <p className="text-gray-600">{recruiter.email}</p>
-            <p className="text-gray-600">{recruiter.phoneNumber}</p>
-            <span className="inline-block mt-2 px-3 py-1 text-sm font-medium text-white bg-green-500 rounded-full">
-              Active Recruiter
-            </span>
-          </div>
-          <Button
-            variant="destructive"
-            onClick={handleRemove}
-            className="ml-4"
-          >
-            Remove Recruiter
-          </Button>
+      {/* Add Recruiter Form */}
+      <form
+        className="p-4 border rounded-lg shadow space-y-4"
+        onSubmit={handleAddRecruiter}
+      >
+        <h2 className="font-semibold text-lg flex items-center gap-2">
+          <UserPlus size={20} /> Add Recruiter
+        </h2>
+
+        <div className="flex flex-col">
+          <Label>Full Name</Label>
+          <Input
+            value={fullname}
+            onChange={(e) => setFullname(e.target.value)}
+            placeholder="Full Name"
+          />
         </div>
-      ) : (
-        <p className="mb-6 text-gray-700">
-          No active recruiter found. You can create one below.
-        </p>
-      )}
 
-      {/* Only show form if no recruiter exists */}
-      {!recruiter && (
-        <form
-          className="bg-white shadow-md rounded-lg p-6 space-y-4"
-          onSubmit={handleCreate}
-        >
-          <h2 className="text-2xl font-semibold mb-4">Create Recruiter</h2>
+        <div className="flex flex-col">
+          <Label>Email</Label>
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+        </div>
 
-          <div>
-            <Label htmlFor="fullname">Full Name</Label>
-            <Input
-              id="fullname"
-              name="fullname"
-              placeholder="John Doe"
-              value={formData.fullname}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <div className="flex flex-col">
+          <Label>Phone Number</Label>
+          <Input
+            type="text"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="Phone Number"
+          />
+        </div>
 
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="john@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <div className="flex flex-col">
+          <Label>Password</Label>
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+          />
+        </div>
 
-          <div>
-            <Label htmlFor="phoneNumber">Phone Number</Label>
-            <Input
-              id="phoneNumber"
-              name="phoneNumber"
-              placeholder="9801234567"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Adding..." : "Add Recruiter"}
+        </Button>
+      </form>
 
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="********"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <Button type="submit" disabled={creating}>
-            {creating ? "Creating..." : "Create Recruiter"}
-          </Button>
-        </form>
-      )}
+      {/* Recruiter List */}
+      <div className="p-4 border rounded-lg shadow space-y-2">
+        <h2 className="font-semibold text-lg">All Recruiters ({recruiters.length})</h2>
+        <table className="w-full table-auto text-left">
+          <thead>
+            <tr className="border-b">
+              <th className="px-2 py-1">Name</th>
+              <th className="px-2 py-1">Email</th>
+              <th className="px-2 py-1">Phone</th>
+              <th className="px-2 py-1">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recruiters.map((r) => (
+              <tr key={r._id} className="border-b">
+                <td className="px-2 py-1">{r.fullname}</td>
+                <td className="px-2 py-1">{r.email}</td>
+                <td className="px-2 py-1">{r.phoneNumber}</td>
+                <td className="px-2 py-1">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDeleteRecruiter(r._id)}
+                  >
+                    <Trash size={16} /> Remove
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {recruiters.length === 0 && (
+              <tr>
+                <td colSpan="4" className="text-center py-4">
+                  No recruiters found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
