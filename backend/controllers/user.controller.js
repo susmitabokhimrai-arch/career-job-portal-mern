@@ -113,24 +113,24 @@ export const login = async (req, res) => {
     }
 
 // UPDATED ROLE CHECK (IMPORTANT)
-    if (role === "recruiter" && user.role !== "recruiter") {
-      return res.status(403).json({
-        message: "Not authorized as recruiter.",
-        success: false,
-      });
-    }
+   // if (role === "recruiter" && user.role !== "recruiter") {
+      //return res.status(403).json({
+        //message: "Not authorized as recruiter.",
+        //success: false,
+      //});
+    //}
     
-    if (role === "student" && user.role !== "student") {
+    //if (role === "student" && user.role !== "student") {
+      //return res.status(403).json({
+        //message: "Not authorized as student.",
+        //success: false,
+      //});
+    //}
+
+
+    if (user.role !== role) {
       return res.status(403).json({
-        message: "Not authorized as student.",
-        success: false,
-      });
-    }
-
-
-    if (role != user.role) {
-      return res.status(400).json({
-        message: "Account doesn't exist with current role.",
+        message: "Not authorized as ${role}.",
        success: false,
       });
     }
@@ -155,7 +155,7 @@ export const login = async (req, res) => {
         httpOnly: true,
         sameSite: 'strict',
       })
-      .json({ message: `Welcome back ${user.fullname}`, user, success: true });
+      .json({ message: `Welcome back ${user.fullname}`, user : responseUser, success: true });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Server error", success: false });
@@ -410,6 +410,7 @@ export const getResume = async (req, res) => {
 };
 
 // ADMIN: CREATE RECRUITER (admin only)
+// Admin can create as many recruiters as needed.
 
 export const createRecruiter = async (req, res) => {
   try {
@@ -419,25 +420,16 @@ export const createRecruiter = async (req, res) => {
       return res.status(400).json({ message: "All fields are required.", success: false });
     }
  
-    // Only one recruiter allowed at a time
-    const existingRecruiter = await User.findOne({ role: "recruiter", isBlacklisted: false });
-    if (existingRecruiter) {
-      return res.status(409).json({
-        message: "A recruiter already exists. Remove the current recruiter before adding a new one.",
-        success: false,
-      });
-    }
- 
-    // Block blacklisted emails
+    // Block blacklisted emails (previously removed recruiters)
     const blacklisted = await User.findOne({ email, isBlacklisted: true });
     if (blacklisted) {
       return res.status(403).json({
-        message: "This email is blacklisted and cannot be used for a recruiter account.",
+        message: "This email has been blacklisted and cannot be used for a recruiter account.",
         success: false,
       });
     }
  
-    // Check if email is already in use
+    // Block duplicate active email
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -454,9 +446,7 @@ export const createRecruiter = async (req, res) => {
       phoneNumber,
       password: hashedPassword,
       role: "recruiter",
-      profile: {
-        profilePhoto: "",
-      },
+      profile: { profilePhoto: "" },
     });
  
     return res.status(201).json({
@@ -467,6 +457,7 @@ export const createRecruiter = async (req, res) => {
         email: recruiter.email,
         phoneNumber: recruiter.phoneNumber,
         role: recruiter.role,
+        createdAt: recruiter.createdAt,
       },
       success: true,
     });
@@ -476,30 +467,30 @@ export const createRecruiter = async (req, res) => {
   }
 };
  
-
-// ADMIN: GET CURRENT RECRUITER
-export const getRecruiter = async (req, res) => {
+// ─────────────────────────────────────────────
+// ADMIN: GET ALL RECRUITERS
+// Returns all active (non-blacklisted) recruiters
+// ─────────────────────────────────────────────
+export const getAllRecruiters = async (req, res) => {
   try {
-    const recruiter = await User.findOne({ role: "recruiter", isBlacklisted: false }).select(
-      "-password"
-    );
+    const recruiters = await User.find({ role: "recruiter", isBlacklisted: false })
+      .select("-password")
+      .sort({ createdAt: -1 });
  
-    if (!recruiter) {
-      return res.status(404).json({
-        message: "No active recruiter found.",
-        recruiter: null,
-        success: true,
-      });
-    }
- 
-    return res.status(200).json({ recruiter, success: true });
+    return res.status(200).json({
+      recruiters,
+      count: recruiters.length,
+      success: true,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
+ 
+
 // ADMIN: REMOVE RECRUITER (blacklists them)
-// ─────────────────────────────────────────────
+
 export const removeRecruiter = async (req, res) => {
   try {
     const { recruiterId } = req.params;
