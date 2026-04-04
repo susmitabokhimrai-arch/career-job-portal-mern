@@ -10,6 +10,8 @@ import { login,
     createRecruiter,
 getAllRecruiters,
 removeRecruiter,
+updateProfilePhoto,     // ✅ NEW
+  togglePhotoPermission,  // ✅ NEW
 } from "../controllers/user.controller.js";
 
 import isAuthenticated from "../middlewares/isAuthenticate.js";
@@ -38,5 +40,9 @@ router.route("/resume/:id").get(isAuthenticated, getResume);
 router.route("/admin/recruiters").get(isAuthenticated, isAdmin, getAllRecruiters);
 router.route("/admin/recruiters").post(isAuthenticated, isAdmin, createRecruiter);
 router.route("/admin/recruiters/:recruiterId").delete(isAuthenticated, isAdmin, removeRecruiter);
- 
+ // Recruiter: update own photo (admin must allow first)
+router.route("/profile/photo").post(isAuthenticated, singleUpload, updateProfilePhoto);
+
+// Admin: toggle photo permission for a recruiter
+router.route("/admin/recruiters/:recruiterId/photo-permission").patch(isAuthenticated, isAdmin, togglePhotoPermission);
 export default router;

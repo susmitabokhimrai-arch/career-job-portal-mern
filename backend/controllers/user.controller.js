@@ -514,3 +514,86 @@ export const removeRecruiter = async (req, res) => {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
+// RECRUITER: Update own profile photo (only if admin allowed)
+export const updateProfilePhoto = async (req, res) => {
+  try {
+    const user = await User.findById(req.id);
+    if (!user) return res.status(404).json({ message: "User not found.", success: false });
+
+    if (user.role !== "recruiter") {
+      return res.status(403).json({ message: "Only recruiters can use this.", success: false });
+    }
+
+    if (!user.profile.canUpdatePhoto) {
+      return res.status(403).json({
+        message: "You are not allowed to update your photo. Contact admin.",
+        success: false,
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No image provided.", success: false });
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+      return res.status(400).json({ message: "Only JPG, PNG or WEBP allowed.", success: false });
+    }
+
+    if (req.file.size > 2 * 1024 * 1024) {
+      return res.status(400).json({ message: "Image must be under 2MB.", success: false });
+    }
+
+    const fileUri = getDataUri(req.file);
+    const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+      folder: "profile_photos",
+    });
+
+    user.profile.profilePhoto = cloudResponse.secure_url;
+    await user.save();
+
+    const responseUser = {
+      _id: user._id,
+      fullname: user.fullname,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+      profile: user.profile,
+      savedJobs: user.savedJobs || [],
+    };
+
+    return res.status(200).json({
+      message: "Profile photo updated successfully.",
+      user: responseUser,
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error", success: false });
+  }
+};
+
+// ADMIN: Toggle photo update permission for a recruiter
+// ADMIN: Toggle photo update permission for a recruiter
+export const togglePhotoPermission = async (req, res) => {
+  try {
+    const { recruiterId } = req.params;
+    const recruiter = await User.findById(recruiterId);
+
+    if (!recruiter || recruiter.role !== "recruiter") {
+      return res.status(404).json({ success: false, message: "Recruiter not found." });
+    }
+
+    recruiter.profile.canUpdatePhoto = !recruiter.profile.canUpdatePhoto;
+    await recruiter.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Photo permission ${recruiter.profile.canUpdatePhoto ? "granted ✅" : "revoked ❌"} for ${recruiter.fullname}.`,
+      recruiter, // 👈 return updated recruiter object
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
