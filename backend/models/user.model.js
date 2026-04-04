@@ -47,7 +47,10 @@ const userSchema = new mongoose.Schema(
         profilePhoto:{
             type:String,
             default:""
-        }
+        },
+        canUpdatePhoto: {type: Boolean, default: false} // NEW: allows one-time profile photo update
     },
+    
     }, {timestamps:true});
+  
 export const User = mongoose.model('User', userSchema);
