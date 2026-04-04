@@ -18,6 +18,7 @@ import SavedJobs from './components/SavedJobs'
 import { Toaster } from 'sonner';
 import AdminRoute from './components/admin/AdminRoute'
 import ManageRecruiter from './components/admin/ManageRecruiter'
+import RecruiterProfile from './components/Recruiterprofile'
 
 const appRouter = createBrowserRouter([
   {
@@ -86,6 +87,10 @@ const appRouter = createBrowserRouter([
     path: '/admin/manage-recruiter',
      element: <AdminRoute><ManageRecruiter /></AdminRoute> 
     },
+    {
+      path :"/recruiter/profile",
+      element:<ProtectedRoute><RecruiterProfile/></ProtectedRoute>
+    }
 ])
 
 function App() {
