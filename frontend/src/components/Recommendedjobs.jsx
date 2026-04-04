@@ -15,28 +15,22 @@ const RecommendedJobs = () => {
 
   const fetchRecommendedJobs = async () => {
     try {
-      const res = await axios.get(`${USER_API_END_POINT}/recommendations`, {
-        withCredentials: true
+      const res = await axios.get(`${USER_API_END_POINT}/jobs/recommended`, {
+        withCredentials: true,
       });
-
-      console.log("RECOMMENDED JOBS:", JSON.stringify(res.data, null, 2));
 
       if (res.data.success) {
         setRecommendedJobs(res.data.jobs);
       }
-
     } catch (error) {
-      console.log("ERROR:", error);
+      console.error("Error fetching recommended jobs:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  
-
-    fetchRecommendedJobs()
-  }, [user])
-
+  fetchRecommendedJobs();
+}, [user]);
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
