@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import { Job } from "../models/job.model.js";
+import crypto from "crypto"; // for password reset
+import { sendPasswordResetEmail } from "../utils/emailService.js";
 
 // REGISTER (students only via public signup)
 export const register = async (req, res) => {
@@ -408,7 +410,126 @@ export const getResume = async (req, res) => {
     });
   }
 };
+// ========== NEW: FORGOT PASSWORD FUNCTION ==========
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found with this email"
+      });
+    }
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+// Set token expiry (10 minutes)
+    user.resetPasswordToken = resetPasswordToken;
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+// Create reset URL
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+// Send email using your existing email function
+    await sendPasswordResetEmail(user.email, user.fullname, resetUrl);
+res.status(200).json({
+      success: true,
+      message: "Password reset link sent to your email"
+    });
 
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to send reset email"
+    });
+  }
+};
+// ========== NEW: VERIFY RESET TOKEN ==========
+export const verifyResetToken = async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    // Hash the token
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+      // Find user with valid token
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset token"
+      });
+    }
+ res.status(200).json({
+      success: true,
+      message: "Token is valid"
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to verify token"
+    });
+  }
+};
+
+// ========== NEW: RESET PASSWORD ==========
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    // Hash the token
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+// Find user with valid token
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset token"
+      });
+    }
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update user
+    user.password = hashedPassword;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+ res.status(200).json({
+      success: true,
+      message: "Password reset successful. Please login with your new password."
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to reset password"
+    });
+  }
+};
 // ADMIN: CREATE RECRUITER (admin only)
 // Admin can create as many recruiters as needed.
 

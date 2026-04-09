@@ -10,8 +10,11 @@ import { login,
     createRecruiter,
 getAllRecruiters,
 removeRecruiter,
-updateProfilePhoto,     // ✅ NEW
-  togglePhotoPermission,  // ✅ NEW
+updateProfilePhoto,    
+  togglePhotoPermission,
+  forgotPassword, // ========== NEW IMPORTS FOR FORGOT PASSWORD ==========
+  verifyResetToken,
+    resetPassword  
 } from "../controllers/user.controller.js";
 
 import isAuthenticated from "../middlewares/isAuthenticate.js";
@@ -25,6 +28,11 @@ const router = express.Router();
 router.route("/register").post(singleUpload, register);
 router.route("/login").post(login);
 router.route("/logout").get(logout);
+
+// ========== NEW: FORGOT PASSWORD ROUTES (PUBLIC) ==========
+router.route("/forgot-password").post(forgotPassword);
+router.route("/verify-reset-token/:token").get(verifyResetToken);
+router.route("/reset-password/:token").post(resetPassword);
 
 // Authenticated Routes
 router.route("/profile/update").post(isAuthenticated, singleUpload, updateProfile);
