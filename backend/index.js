@@ -8,9 +8,14 @@ import companyRoute from "./routes/company.routes.js";
 import jobRoute from "./routes/job.route.js";
 import applicationRoute from "./routes/application.route.js";
 import notificationRoutes from "./routes/notification.route.js";
-dotenv.config({});
+// Load environment variables
+dotenv.config();
 
-const app = express();
+// Debug - check if FRONTEND_URL is loaded
+console.log("FRONTEND_URL from env:", process.env.FRONTEND_URL);
+console.log("EMAIL_USER from env:", process.env.EMAIL_USER);
+const app = express();  
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -66,3 +66,37 @@ export const sendStatusUpdateEmail = async (userEmail, userName, jobTitle, compa
         return false;
     }
 };
+
+// ========== NEW: SEND PASSWORD RESET EMAIL FUNCTION ==========
+export const sendPasswordResetEmail = async (userEmail, userName, resetUrl) => {
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #4f46e5;">CareerYatra Password Reset</h2>
+            <p>Hello <strong>${userName}</strong>,</p>
+            <p>You requested a password reset. Click the button below to reset your password:</p>
+            <a href="${resetUrl}" style="display: inline-block; background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 20px 0;">
+                Reset Password
+            </a>
+            <p>Or copy this link: <a href="${resetUrl}">${resetUrl}</a></p>
+            <p>This link expires in <strong>10 minutes</strong>.</p>
+            <p>If you didn't request this, please ignore this email.</p>
+            <hr />
+            <p style="color: #666; font-size: 12px;">CareerYatra - Your Career Journey Starts Here</p>
+        </div>
+    `;
+    const mailOptions = {
+        from: `"CareerYatra" <${process.env.EMAIL_USER}>`,
+        to: userEmail,
+        subject: "CareerYatra - Password Reset Request",
+        html: html
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`✅ Password reset email sent to ${userEmail}`);
+        return true;
+    } catch (error) {
+        console.log(`❌ Failed to send password reset email to ${userEmail}:`, error.message);
+        return false;
+    }
+};

@@ -13,7 +13,47 @@ import { USER_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 
-const Login = () => {
+// Floating label input component
+const FloatingLabelInput = ({ id, type, name, value, onChange, placeholder, error }) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const hasValue = value && value.length > 0;
+
+return (
+    <div className="relative mt-2">
+      <input
+        id={id}
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        placeholder=" "
+        className={`
+          w-full bg-gray-100 border-none rounded-full py-4 px-5 text-base
+          focus:outline-none focus:ring-1 focus:ring-gray-300
+          peer
+          ${error ? "ring-1 ring-red-500" : ""}
+        `}
+      />
+       <label
+        htmlFor={id}
+        className={`
+          absolute left-5 transition-all duration-200 pointer-events-none
+          text-gray-500
+          ${(isFocused || hasValue) 
+            ? "text-xs top-0 text-gray-400" 
+            : "text-base top-1/2 transform -translate-y-1/2"
+          }
+        `}
+      >
+        {placeholder}
+      </label>
+  </div>
+  );
+};
+
+  const Login = () => {
   const navigate = useNavigate();
   const [input, setInput] = useState({
     email: "",
@@ -83,14 +123,6 @@ const Login = () => {
       dispatch(setLoading(false));
     }
   }
-
-    // Handle forgot password
-    const handleForgotPassword = () => {
-      toast.info("Password reset link will be sent to your email", {
-        duration: 3000,
-      });
-    };
-
     useEffect(() => {
       if (user) {
         navigate("/");
@@ -107,62 +139,85 @@ const Login = () => {
             className={`w-full max-w-md bg-white shadow-xl rounded-2xl p-8 my-12 border border-gray-100 transition-all duration-300 ${shake ? "animate-shake" : ""
               }`}
           >
-            <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
-              Welcome Back 👋
-            </h1>
-            {/* Email */}
-            <div className="mb-4">
-              <Label className="text-gray-700">Mobile number or email </Label>
-              <Input
-                type="email"
-                value={input.email}
-                name="email"
-                onChange={changeEventHandler}
-                placeholder="Enter your email"
-                className="mt-1 focus:ring-2 focus:ring-indigo-400"
-              />
-              {/* Email error msg */}
-              {emailError && (
-                <p className="text-red-500 text-sm mt-1">{emailError}</p>
-              )}
-            </div>
-            {/* Password Field with Show/Hide Toggle */}
-            <div className="mb-2">
-              <Label className="text-gray-700">Password</Label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}  // ← TOGGLES type
-                  value={input.password}
-                  name="password"
-                  onChange={changeEventHandler}
-                  placeholder="Enter your Password"
-                  className={`mt-1 focus:ring-2 focus:ring-indigo-400 pr-10 ${passwordError ? "border-red-500 focus:ring-red-500" : ""
-                    }`}
-                />
-                {/* Eye icon button*/}
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-              {/* Password error msg */}
-              {passwordError && (
-                <p className="text-red-500 text-sm mt-1">{passwordError}</p>
-              )}
+            {/* CareerYatra Logo */}
+             <div className="flex justify-center mb-6">
+             <h1 className="text-3xl md:text-4xl font-bold font-heading text-primary">
+                    Career<span className="text-blue-500">Yatra</span>
+                </h1>
             </div>
 
+            {/* Email field with floating label*/}
+             <div className="mb-4">
+            <FloatingLabelInput
+              id="email"
+              type="email"
+              name="email"
+              value={input.email}
+              onChange={changeEventHandler}
+              placeholder="Mobile number or email"
+              error={emailError}
+            />
+            {/* Email error msg */}
+            {emailError && (
+              <p className="text-red-500 text-sm mt-2 ml-4">{emailError}</p>
+            )}
+          </div>
+            {/* Password Field with Show/Hide Toggle -with floating label */}
+              <div className="mb-2">
+            <div className="relative mt-2">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={input.password}
+                onChange={changeEventHandler}
+                onFocus={() => {}}
+                onBlur={() => {}}
+                placeholder=" "
+                className={`
+                  w-full bg-gray-100 border-none rounded-full py-4 px-5 pr-12 text-base
+                  focus:outline-none focus:ring-1 focus:ring-gray-300
+                  peer
+                  ${passwordError ? "ring-1 ring-red-500" : ""}
+                `}
+              />
+              <label
+                htmlFor="password"
+                className={`
+                  absolute left-5 transition-all duration-200 pointer-events-none
+                  text-gray-500
+                  ${(input.password && input.password.length > 0) 
+                    ? "text-xs top-0 text-gray-400" 
+                    : "text-base top-1/2 transform -translate-y-1/2"
+                  }
+                `}
+              >
+
+                Password
+              </label>
+              {/* Eye icon button*/}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+            {/* Password error msg */}
+            {passwordError && (
+              <p className="text-red-500 text-sm mt-2 ml-4">{passwordError}</p>
+            )}
+          </div>
             {/* Forgot password link */}
             <div className="text-right mb-4">
               <button
                 type="button"
-                onClick={handleForgotPassword}
+              onClick={() => navigate("/forgot-password")}
                 className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline focus:outline-none"
               >
                 Forgot password?
@@ -211,7 +266,7 @@ const Login = () => {
                 type="submit"
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-300"
               >
-                Login
+                Log in
               </Button>
             }
 
