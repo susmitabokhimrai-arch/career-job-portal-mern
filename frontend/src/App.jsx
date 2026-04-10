@@ -19,6 +19,8 @@ import { Toaster } from 'sonner';
 import AdminRoute from './components/admin/AdminRoute'
 import ManageRecruiter from './components/admin/ManageRecruiter'
 import RecruiterProfile from './components/Recruiterprofile'
+import ForgotPassword from './components/auth/ForgotPassword'
+import ResetPassword from './components/auth/ResetPassword'
 
 const appRouter = createBrowserRouter([
   {
@@ -32,6 +34,14 @@ const appRouter = createBrowserRouter([
   {
     path:'/signup',
     element:<Signup/>
+  },
+  {
+    path:'/forgot-password',
+    element:<ForgotPassword/>
+  },
+  {
+    path:'/reset-password/:token',
+    element:<ResetPassword/>
   },
   {
     path:'/browse',
