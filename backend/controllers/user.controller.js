@@ -5,7 +5,7 @@ import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import { Job } from "../models/job.model.js";
 import crypto from "crypto"; // for password reset
-import { sendPasswordResetEmail } from "../utils/emailService.js";
+import { sendPasswordResetEmail, sendRecruiterRequestEmail } from "../utils/emailService.js";
 
 // REGISTER (students only via public signup)
 export const register = async (req, res) => {
@@ -711,10 +711,50 @@ export const togglePhotoPermission = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: `Photo permission ${recruiter.profile.canUpdatePhoto ? "granted ✅" : "revoked ❌"} for ${recruiter.fullname}.`,
-      recruiter, // 👈 return updated recruiter object
+      recruiter, //  return updated recruiter object
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+// ========== RECRUITER INTERNSHIP REQUEST ==========
+export const recruiterContactRequest = async (req, res) => {
+  try {
+    const { company_name, contact_person, contact_email, phone, internship_details } = req.body;
+
+    if (!company_name || !contact_email || !internship_details) {
+      return res.status(400).json({
+        success: false,
+        message: "Company name, email and internship details are required."
+      });
+    }
+
+    const sent = await sendRecruiterRequestEmail(
+      company_name,
+      contact_person,
+      contact_email,
+      phone,
+      internship_details
+    );
+
+    if (!sent) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send request. Please try again."
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Request sent successfully! Our admin will contact you within 24 hours."
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
   }
 };

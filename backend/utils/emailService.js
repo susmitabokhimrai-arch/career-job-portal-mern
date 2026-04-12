@@ -100,3 +100,54 @@ export const sendPasswordResetEmail = async (userEmail, userName, resetUrl) => {
         return false;
     }
 };
+
+export const sendRecruiterRequestEmail = async (companyName, contactPerson, contactEmail, phone, internshipDetails) => {
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #4f46e5;">New Internship Post Request</h2>
+            <p>A recruiter has submitted a request to post an internship on CareerYatra.</p>
+            <hr />
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px 0; color: #666; width: 40%;"><strong>Company Name</strong></td>
+                    <td style="padding: 8px 0;">${companyName}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #666;"><strong>Contact Person</strong></td>
+                    <td style="padding: 8px 0;">${contactPerson || "Not provided"}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #666;"><strong>Email</strong></td>
+                    <td style="padding: 8px 0;"><a href="mailto:${contactEmail}">${contactEmail}</a></td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #666;"><strong>Phone</strong></td>
+                    <td style="padding: 8px 0;">${phone || "Not provided"}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #666; vertical-align: top;"><strong>Internship Details</strong></td>
+                    <td style="padding: 8px 0;">${internshipDetails}</td>
+                </tr>
+            </table>
+            <hr />
+            <p style="color: #666; font-size: 12px;">CareerYatra - Admin Notification</p>
+        </div>
+    `;
+
+    const mailOptions = {
+        from: `"CareerYatra" <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_USER,       // sends to your admin inbox
+        replyTo: contactEmail,            // admin can reply directly to recruiter
+        subject: `📋 New Internship Request – ${companyName}`,
+        html: html
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`✅ Recruiter request email sent from ${contactEmail}`);
+        return true;
+    } catch (error) {
+        console.log(`❌ Failed to send recruiter request email:`, error.message);
+        return false;
+    }
+};
