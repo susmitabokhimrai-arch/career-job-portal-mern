@@ -6,7 +6,7 @@ import cloudinary from "../utils/cloudinary.js";
 import { Job } from "../models/job.model.js";
 import crypto from "crypto"; // for password reset
 import { sendPasswordResetEmail, sendRecruiterRequestEmail } from "../utils/emailService.js";
-
+import { Notification } from "../models/notification.model.js";
 // REGISTER (students only via public signup)
 export const register = async (req, res) => {
   try {
@@ -742,6 +742,15 @@ export const recruiterContactRequest = async (req, res) => {
       return res.status(500).json({
         success: false,
         message: "Failed to send request. Please try again."
+      });
+    }
+    const admins = await User.find({ role: "admin" });
+    for (const admin of admins) {
+      await Notification.create({
+        recipient: admin._id,
+        type: "recruiter_request",
+        title: "📋 New Internship Post Request",
+        message: `${company_name} (${contact_person || contact_email}) wants to post an internship. Details: ${internship_details.substring(0, 100)}...`,
       });
     }
 
