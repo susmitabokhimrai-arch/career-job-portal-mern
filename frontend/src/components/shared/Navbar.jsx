@@ -111,7 +111,7 @@ const Navbar = () => {
                         }
                     </ul>
                     {/* NotificationBell for all logged-in users */}
-                    {user && user.role !== "admin" && (
+                    {user  && (
                         <div className="flex items-center">
                             <NotificationBell />
                         </div>
