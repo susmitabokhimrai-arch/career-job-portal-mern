@@ -53,23 +53,34 @@ export const applyJob = async (req, res) => {
             companyName: job.company?.name,
             newStatus: 'applied'
         });
-        // notify admins about new application
-        // Get all admin and recruiter users
-        const adminUsers = await User.find({ role: { $in: ['admin', 'recruiter'] } })
-        
-        // Create notification for each admin
-        for (const admin of adminUsers) {
-            await Notification.create({
-                recipient: admin._id,
-                type: 'new_application',
-                title: '📝 New Application Received!',
-                message: `${user.fullname} has applied for ${job.title} at ${job.company?.name || 'your company'}.`,
-                applicationId: newApplication._id,
-                jobTitle: job.title,
-                companyName: job.company?.name,
-                newStatus: 'applied'
-            });
-        }
+        // Notify only the recruiter who created this job
+if (job.created_by) {
+    await Notification.create({
+        recipient: job.created_by,
+        type: 'new_application',
+        title: '📝 New Application Received!',
+        message: `${user.fullname} has applied for ${job.title}.`,
+        applicationId: newApplication._id,
+        jobTitle: job.title,
+        companyName: job.company?.name,
+        newStatus: 'applied'
+    });
+}
+
+// Notify admins separately
+const admins = await User.find({ role: 'admin' });
+for (const admin of admins) {
+    await Notification.create({
+        recipient: admin._id,
+        type: 'new_application',
+        title: '📝 New Application Received!',
+        message: `${user.fullname} has applied for ${job.title} at ${job.company?.name || 'a company'}.`,
+        applicationId: newApplication._id,
+        jobTitle: job.title,
+        companyName: job.company?.name,
+        newStatus: 'applied'
+    });
+}
         //Send email confirmation to student
         await sendStatusUpdateEmail(
             user.email,
