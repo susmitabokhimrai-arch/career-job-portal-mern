@@ -86,6 +86,8 @@ const NotificationBell = () => {
                 return <UserPlus className="w-5 h-5 text-purple-500" />;
             case 'applied':  // For student application confirmation
                 return <Briefcase className="w-5 h-5 text-indigo-500" />;
+                case 'recruiter_request':  // For admin notifications when recruiter submits request
+                return <Briefcase className="w-5 h-5 text-teal-500" />;
             default:
                 return <Clock className="w-5 h-5 text-gray-500" />;
         }
