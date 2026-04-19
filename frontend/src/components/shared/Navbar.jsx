@@ -111,7 +111,7 @@ const Navbar = () => {
                         }
                     </ul>
                     {/* NotificationBell for all logged-in users */}
-                    {user  && (
+                    {user && (
                         <div className="flex items-center">
                             <NotificationBell />
                         </div>
@@ -170,11 +170,18 @@ const Navbar = () => {
                                             <span className="text-gray-900 font-medium">View Profile</span>
                                         </Link>
                                     )}
-                                    {/* ✅ NEW: Recruiter profile link */}
+                                    {/* NEW: Recruiter profile link */}
                                     {user?.role === 'recruiter' && (
                                         <Link to="/recruiter/profile" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-50 transition">
                                             <User2 className="text-blue-600 w-5 h-5" />
                                             <span className="text-gray-900 font-medium">View Profile</span>
+                                        </Link>
+                                    )}
+                                   
+                                    {user?.role === 'admin' && (
+                                        <Link to="/admin/blog" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-indigo-50 transition">
+                                            <span>📝</span>
+                                            <span className="text-indigo-600 font-medium">Write Article</span>
                                         </Link>
                                     )}
                                     <button

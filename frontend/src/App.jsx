@@ -21,6 +21,10 @@ import ManageRecruiter from './components/admin/ManageRecruiter'
 import RecruiterProfile from './components/Recruiterprofile'
 import ForgotPassword from './components/auth/ForgotPassword'
 import ResetPassword from './components/auth/ResetPassword'
+import CareerAdvice from './components/CareerAdvice'
+import ResumeTips from './components/ResumeTips'
+import BlogDetail from './components/BlogDetail'
+import AdminBlog from './components/admin/AdminBlog'
 
 const appRouter = createBrowserRouter([
   {
@@ -100,7 +104,23 @@ const appRouter = createBrowserRouter([
     {
       path :"/recruiter/profile",
       element:<ProtectedRoute><RecruiterProfile/></ProtectedRoute>
-    }
+    },
+    {
+    path: '/career-advice',
+    element: <CareerAdvice />
+},
+{
+    path: '/resume-tips',
+    element: <ResumeTips />
+},
+{
+    path: '/blog/:id',
+    element: <BlogDetail />
+},
+{
+    path: '/admin/blog',
+    element: <AdminRoute><AdminBlog /></AdminRoute>
+}
 ])
 
 function App() {
