@@ -2,35 +2,61 @@ import React, { useEffect, useState } from "react";
 import Navbar from "./shared/Navbar";
 import FilterCard from "./FilterCard";
 import Job from "./Job";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
-import useGetAllJobs from "@/hooks/useGetAllJobs";
+import { getAllJobs } from "@/redux/jobSlice";
 
 const Jobs = () => {
-  useGetAllJobs();
+  const dispatch = useDispatch();
   const { allJobs, searchedQuery } = useSelector(store => store.job);
-  const [filterJobs, setFilterJobs] = useState(allJobs);
+  const [filterJobs, setFilterJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // Manually fetch jobs on component mount
   useEffect(() => {
-    if (searchedQuery) {
-      const filteredJobs = allJobs.filter((job) => {
-        return (
-          job?.title?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          job?.description?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          job?.location?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          job?.stipend?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          job?.duration?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          //  search by skillsRequired too
-          job?.skillsRequired?.some(skill =>
-            skill.toLowerCase().includes(searchedQuery.toLowerCase())
-          )
-        );
-      });
-      setFilterJobs(filteredJobs);
+    const fetchJobs = async () => {
+      setLoading(true);
+      await dispatch(getAllJobs());
+      setLoading(false);
+    };
+    fetchJobs();
+  }, [dispatch]);
+
+  // Filter jobs when search query changes
+  useEffect(() => {
+    if (allJobs && allJobs.length > 0) {
+      if (searchedQuery) {
+        const filteredJobs = allJobs.filter((job) => {
+          return (
+            job?.title?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.description?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.location?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.stipend?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.duration?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.skillsRequired?.some(skill =>
+              skill.toLowerCase().includes(searchedQuery.toLowerCase())
+            )
+          );
+        });
+        setFilterJobs(filteredJobs);
+      } else {
+        setFilterJobs(allJobs);
+      }
     } else {
-      setFilterJobs(allJobs);
+      setFilterJobs([]);
     }
   }, [allJobs, searchedQuery]);
+
+  if (loading) {
+    return (
+      <div className="bg-gray-50 min-h-screen">
+        <Navbar />
+        <div className="flex justify-center items-center h-96">
+          <p className="text-gray-500">Loading internships...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -46,7 +72,7 @@ const Jobs = () => {
 
           {/* Jobs Section */}
           <div className="flex-1">
-            {filterJobs.length <= 0 ? (
+            {filterJobs.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 gap-3">
                 <p className="text-gray-400 text-lg font-medium">No internships found</p>
                 <p className="text-gray-400 text-sm">Try adjusting your filters</p>
