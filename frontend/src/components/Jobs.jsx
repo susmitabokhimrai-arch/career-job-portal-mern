@@ -4,22 +4,16 @@ import FilterCard from "./FilterCard";
 import Job from "./Job";
 import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
-import { getAllJobs } from "@/redux/jobSlice";
+import { getAllJobs } from "../redux/jobSlice";
 
 const Jobs = () => {
   const dispatch = useDispatch();
-  const { allJobs, searchedQuery } = useSelector(store => store.job);
+  const { allJobs, searchedQuery, loading: reduxLoading, error } = useSelector(store => store.job);
   const [filterJobs, setFilterJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Manually fetch jobs on component mount
+ 
+    // Simplified fetch - Redux handles loading state automatically
   useEffect(() => {
-    const fetchJobs = async () => {
-      setLoading(true);
-      await dispatch(getAllJobs());
-      setLoading(false);
-    };
-    fetchJobs();
+    dispatch(getAllJobs()); // No need for manual loading state management
   }, [dispatch]);
 
   // Filter jobs when search query changes
@@ -47,17 +41,37 @@ const Jobs = () => {
     }
   }, [allJobs, searchedQuery]);
 
-  if (loading) {
+  // Error handling
+  if (error) {
     return (
       <div className="bg-gray-50 min-h-screen">
         <Navbar />
-        <div className="flex justify-center items-center h-96">
-          <p className="text-gray-500">Loading internships...</p>
+        <div className="flex flex-col justify-center items-center h-96">
+          <p className="text-red-500 text-lg">Error loading internships: {error}</p>
+          <button 
+            onClick={() => dispatch(getAllJobs())} 
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
   }
-
+  // Using Redux loading state instead of local state
+  if (reduxLoading) {
+    return (
+      <div className="bg-gray-50 min-h-screen">
+        <Navbar />
+        <div className="flex justify-center items-center h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-500">Loading internships...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="bg-gray-50 min-h-screen">
       <Navbar />
