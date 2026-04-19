@@ -23,6 +23,7 @@ const Footer = () => {
 
       <footer className="bg-gray-900 text-gray-300 border-t border-gray-800">
 
+        {/* Recruiter Banner */}
         <div className="bg-gradient-to-r from-blue-950 to-blue-800 px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-blue-700/30">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
@@ -43,8 +44,10 @@ const Footer = () => {
           </button>
         </div>
 
+        {/* Main Grid */}
         <div className="max-w-7xl mx-auto px-6 pt-10 pb-6 grid grid-cols-1 md:grid-cols-4 gap-10">
 
+          {/* Brand */}
           <div>
             <h2
               className="text-2xl font-bold text-white mb-4 cursor-pointer"
@@ -111,10 +114,22 @@ const Footer = () => {
             </ul>
           </div>
 
+          {/* Resources */}
           <div>
             <h3 className="text-white font-semibold mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
-              
+              <li
+                onClick={() => navigate("/career-advice")}
+                className="hover:text-white cursor-pointer transition"
+              >
+                Career Advice
+              </li>
+              <li
+                onClick={() => navigate("/resume-tips")}
+                className="hover:text-white cursor-pointer transition"
+              >
+                Resume Tips
+              </li>
               <li
                 onClick={() => navigate("/forgot-password")}
                 className="hover:text-white cursor-pointer transition"
@@ -130,6 +145,7 @@ const Footer = () => {
             </ul>
           </div>
 
+          {/* Contact */}
           <div>
             <h3 className="text-white font-semibold mb-4">Contact</h3>
             <div className="space-y-3">
@@ -156,6 +172,7 @@ const Footer = () => {
 
         </div>
 
+        {/* Bottom Bar */}
         <div className="border-t border-gray-800 py-5 px-6">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-gray-500">
             <p>© 2026 CareerYatra. All rights reserved.</p>
