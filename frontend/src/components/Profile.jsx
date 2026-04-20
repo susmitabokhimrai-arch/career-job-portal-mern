@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import Navbar from './shared/Navbar';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
-import {Contact,Mail,Pen,Bookmark,FileText,Eye,Download,File,CheckCircle,Calendar,X,AlertCircle} from 'lucide-react';
+import { Contact, Mail, Pen, Bookmark, FileText, Eye, Download, File, CheckCircle, Calendar, X, AlertCircle } from 'lucide-react';
 import { Badge } from './ui/badge';
 import AppliedJobTable from './AppliedJobTable';
 import UpdateProfileDialog from './UpdateProfileDialog';
 import { useSelector } from 'react-redux';
 import useGetAppliedJobs from '@/hooks/useGetAppliedJobs';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   useGetAppliedJobs();
   const [open, setOpen] = useState(false);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
-
+  const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
   const savedCount = user?.savedJobs?.length || 0;
 
@@ -38,18 +38,18 @@ const Profile = () => {
       borderColor: 'border-gray-200',
       displayExt: ext.toUpperCase() || 'FILE',
     };
-    
+
   };
 
-  const fileInfo= getFileInfo(user?.profile?.resumeOriginalName);
+  const fileInfo = getFileInfo(user?.profile?.resumeOriginalName);
   const fileName = user?.profile?.resumeOriginalName || 'Resume.pdf';
-  const hasResume = user?.profile?.resume?true:false;
+  const hasResume = user?.profile?.resume ? true : false;
   const isPDF = user?.profile?.resumeOriginalName?.toLowerCase().endsWith('.pdf');
 
   // View Resume
   const handleViewResume = () => {
     if (hasResume) setShowPdfViewer(true);
-  
+
   };
 
   // Download Resume
@@ -110,10 +110,10 @@ const Profile = () => {
                     {user?.role === 'student'
                       ? 'Student'
                       : user?.role === 'admin'
-                      ? 'Administrator'
-                      : user?.role === 'hr'
-                      ? 'HR Professional'
-                      : 'Job Seeker'}
+                        ? 'Administrator'
+                        : user?.role === 'hr'
+                          ? 'HR Professional'
+                          : 'Job Seeker'}
                   </p>
                   <p className="text-gray-600 text-sm mt-2 max-w-md">
                     {user?.profile?.bio || 'No bio available. Click edit to add your professional summary.'}
@@ -161,39 +161,45 @@ const Profile = () => {
             </div>
 
             {/* Resume Section */}
+            {/* Resume Section */}
             <div className="mt-8 pt-6 border-t border-gray-200">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-purple-600" />
-                  <h2 className="font-semibold text-lg text-gray-800">Resume / CV</h2>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h2 className="font-semibold text-lg text-gray-800">Resume / CV</h2>
+                    <p className="text-xs text-gray-400">Your professional resume</p>
+                  </div>
                 </div>
-                {hasResume && isPDF && (
-                  <Badge className="bg-green-100 text-green-700 border-none">
-                    <CheckCircle className="w-3 h-3 mr-1" /> Active
-                  </Badge>
-                )}
-                {hasResume && !isPDF && (
-                  <Badge className="bg-red-100 text-red-700 border-none">
-                    <AlertCircle className="w-3 h-3 mr-1" /> Invalid Format
-                  </Badge>
-                )}
+                <button
+                  onClick={() => navigate("/resume-builder")}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-xl hover:bg-purple-700 transition shadow-sm"
+                >
+                  <FileText className="w-4 h-4" />
+                  Build Resume
+                </button>
               </div>
 
               {hasResume ? (
                 isPDF ? (
-                  <div
-                    className={`rounded-xl border ${fileInfo.borderColor} ${fileInfo.bgColor} p-5 transition-all hover:shadow-md`}
-                  >
+                  <div className="rounded-xl border border-purple-100 bg-purple-50 p-5 transition-all hover:shadow-md">
                     <div className="flex items-start justify-between flex-wrap gap-4">
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-xl ${fileInfo.bgColor} flex items-center justify-center`}>
-                          <File className={`w-6 h-6 ${fileInfo.color}`} />
+                        <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                          <File className="w-6 h-6 text-red-500" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-800 mb-1">{fileName}</h3>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-gray-800">{fileName}</h3>
+                            <Badge className="bg-green-100 text-green-700 border-none text-xs">
+                              <CheckCircle className="w-3 h-3 mr-1" /> Active
+                            </Badge>
+                          </div>
                           <div className="flex items-center gap-3 text-xs text-gray-500">
                             <span className="flex items-center gap-1">
-                              <FileText className="w-3 h-3" /> {fileInfo.displayExt || 'PDF'}
+                              <FileText className="w-3 h-3" /> PDF Document
                             </span>
                             <span>•</span>
                             <span className="flex items-center gap-1">
@@ -205,16 +211,16 @@ const Profile = () => {
                       <div className="flex gap-2">
                         <button
                           onClick={handleViewResume}
-                          className="group relative px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+                          className="group px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 shadow-sm"
                         >
-                          <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                          <span className="text-sm font-medium">View Resume</span>
+                          <Eye className="w-4 h-4" />
+                          <span className="text-sm font-medium">View</span>
                         </button>
                         <button
                           onClick={handleDownloadResume}
-                          className="group px-4 py-2 bg-white text-green-600 border border-green-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-all duration-200 flex items-center gap-2"
+                          className="group px-4 py-2 bg-white text-green-600 border border-green-200 rounded-xl hover:bg-green-50 transition-all duration-200 flex items-center gap-2"
                         >
-                          <Download className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                          <Download className="w-4 h-4" />
                           <span className="text-sm font-medium">Download</span>
                         </button>
                       </div>
@@ -227,22 +233,43 @@ const Profile = () => {
                         <AlertCircle className="w-6 h-6 text-red-500" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-red-800 mb-1">Invalid File Format</h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-red-800">Invalid File Format</h3>
+                          <Badge className="bg-red-100 text-red-700 border-none text-xs">
+                            <AlertCircle className="w-3 h-3 mr-1" /> Invalid
+                          </Badge>
+                        </div>
                         <p className="text-sm text-red-600">
-                          The uploaded file "{fileName}" is not a PDF. Only PDF files are allowed.
+                          "{fileName}" is not a PDF. Only PDF files are allowed.
                         </p>
-                        <p className="text-xs text-red-500 mt-2">
-                          Please upload a PDF version of your resume. Click "Edit Profile" to update your resume.
+                        <p className="text-xs text-red-500 mt-1">
+                          Click "Edit Profile" to upload a valid PDF resume.
                         </p>
                       </div>
                     </div>
                   </div>
                 )
               ) : (
-                <div className="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-8 text-center">
-                  <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500 mb-2">No resume uploaded yet</p>
-                  <p className="text-sm text-gray-400">Click edit profile to upload your resume (PDF only)</p>
+                <div className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 p-10 text-center">
+                  <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <FileText className="w-7 h-7 text-purple-400" />
+                  </div>
+                  <p className="text-gray-600 font-medium mb-1">No resume uploaded yet</p>
+                  <p className="text-sm text-gray-400 mb-4">Upload a PDF or build one using our Resume Builder</p>
+                  <div className="flex items-center justify-center gap-3">
+                    <button
+                      onClick={() => setOpen(true)}
+                      className="px-4 py-2 border border-gray-300 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition"
+                    >
+                      Upload Resume
+                    </button>
+                    <button
+                      onClick={() => navigate("/resume-builder")}
+                      className="px-4 py-2 bg-purple-600 text-white text-sm rounded-xl hover:bg-purple-700 transition"
+                    >
+                      Build with AI ✨
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
