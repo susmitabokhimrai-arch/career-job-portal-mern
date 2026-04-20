@@ -25,6 +25,7 @@ import CareerAdvice from './components/CareerAdvice'
 import ResumeTips from './components/ResumeTips'
 import BlogDetail from './components/BlogDetail'
 import AdminBlog from './components/admin/AdminBlog'
+import ResumeBuilder from './components/ResumeBuilder'
 
 const appRouter = createBrowserRouter([
   {
@@ -66,6 +67,10 @@ const appRouter = createBrowserRouter([
   {
     path: '/saved-jobs',       // added
     element: <SavedJobs />     // added
+  },
+  {
+    path: '/resume-builder',
+    element: <ResumeBuilder />
   },
   //admin part here start
   {
