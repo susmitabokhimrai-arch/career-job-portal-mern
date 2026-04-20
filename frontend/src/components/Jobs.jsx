@@ -2,36 +2,76 @@ import React, { useEffect, useState } from "react";
 import Navbar from "./shared/Navbar";
 import FilterCard from "./FilterCard";
 import Job from "./Job";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
-import useGetAllJobs from "@/hooks/useGetAllJobs";
+import { getAllJobs } from "../redux/jobSlice";
 
 const Jobs = () => {
-  useGetAllJobs();
-  const { allJobs, searchedQuery } = useSelector(store => store.job);
-  const [filterJobs, setFilterJobs] = useState(allJobs);
-
+  const dispatch = useDispatch();
+  const { allJobs, searchedQuery, loading: reduxLoading, error } = useSelector(store => store.job);
+  const [filterJobs, setFilterJobs] = useState([]);
+ 
+    // Simplified fetch - Redux handles loading state automatically
   useEffect(() => {
-    if (searchedQuery) {
-      const filteredJobs = allJobs.filter((job) => {
-        return (
-          job?.title?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          job?.description?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          job?.location?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          job?.stipend?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          job?.duration?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-          //  search by skillsRequired too
-          job?.skillsRequired?.some(skill =>
-            skill.toLowerCase().includes(searchedQuery.toLowerCase())
-          )
-        );
-      });
-      setFilterJobs(filteredJobs);
+    dispatch(getAllJobs()); // No need for manual loading state management
+  }, [dispatch]);
+
+  // Filter jobs when search query changes
+  useEffect(() => {
+    if (allJobs && allJobs.length > 0) {
+      if (searchedQuery) {
+        const filteredJobs = allJobs.filter((job) => {
+          return (
+            job?.title?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.description?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.location?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.stipend?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.duration?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.skillsRequired?.some(skill =>
+              skill.toLowerCase().includes(searchedQuery.toLowerCase())
+            )
+          );
+        });
+        setFilterJobs(filteredJobs);
+      } else {
+        setFilterJobs(allJobs);
+      }
     } else {
-      setFilterJobs(allJobs);
+      setFilterJobs([]);
     }
   }, [allJobs, searchedQuery]);
 
+  // Error handling
+  if (error) {
+    return (
+      <div className="bg-gray-50 min-h-screen">
+        <Navbar />
+        <div className="flex flex-col justify-center items-center h-96">
+          <p className="text-red-500 text-lg">Error loading internships: {error}</p>
+          <button 
+            onClick={() => dispatch(getAllJobs())} 
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+  // Using Redux loading state instead of local state
+  if (reduxLoading) {
+    return (
+      <div className="bg-gray-50 min-h-screen">
+        <Navbar />
+        <div className="flex justify-center items-center h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-500">Loading internships...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="bg-gray-50 min-h-screen">
       <Navbar />
@@ -46,7 +86,7 @@ const Jobs = () => {
 
           {/* Jobs Section */}
           <div className="flex-1">
-            {filterJobs.length <= 0 ? (
+            {filterJobs.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 gap-3">
                 <p className="text-gray-400 text-lg font-medium">No internships found</p>
                 <p className="text-gray-400 text-sm">Try adjusting your filters</p>
