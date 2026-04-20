@@ -47,7 +47,7 @@ export const register = async (req, res) => {
 
     let profilePhoto = "";
     if (req.file) {
-// const file = req.file;
+ const file = req.file;
     const fileUri = getDataUri(file);
     const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
     profilePhoto = cloudResponse.secure_url;
