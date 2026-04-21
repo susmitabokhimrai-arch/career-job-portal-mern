@@ -27,6 +27,8 @@ const Jobs = () => {
             job?.location?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
             job?.stipend?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
             job?.duration?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.internshipType?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            job?.jobType?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
             job?.skillsRequired?.some(skill =>
               skill.toLowerCase().includes(searchedQuery.toLowerCase())
             )

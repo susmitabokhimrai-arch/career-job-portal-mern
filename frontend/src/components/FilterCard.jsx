@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchedQuery } from "@/redux/jobSlice";
-import { MapPin, Briefcase, Wallet, Clock, X } from "lucide-react";
+import { MapPin, Briefcase, Wallet, Clock, X, BriefcaseIcon  } from "lucide-react";
 import { Button } from "./ui/button";
 
 const colorMap = {
@@ -29,6 +29,12 @@ const colorMap = {
     dot: "bg-orange-400",
     icon: "text-orange-400",
   },
+  JobType: {
+    active: "bg-pink-600 text-white border-pink-600",
+    hover: "hover:bg-pink-50 hover:border-pink-300 hover:text-pink-700",
+    dot: "bg-pink-500",
+    icon: "text-pink-500",
+  },
 };
 
 const FilterCard = () => {
@@ -37,7 +43,8 @@ const FilterCard = () => {
     location: [],
     industry: [],
     stipend: [],
-    duration: []
+    duration: [],
+    jobType: []
   });
   const dispatch = useDispatch();
   const { allJobs } = useSelector(store => store.job);
@@ -48,6 +55,7 @@ const FilterCard = () => {
     { filterType: "Industry", icon: <Briefcase size={14} />, array: [] },
     { filterType: "Stipend", icon: <Wallet size={14} />, array: [] },
     { filterType: "Duration", icon: <Clock size={14} />, array: [] },
+    { filterType: "JobType", icon: <BriefcaseIcon size={14} />, array: [] }, 
   ]);
   // Function to extract unique values from jobs for each filter category
   const extractUniqueFilterOptions = () => {
@@ -73,6 +81,13 @@ const FilterCard = () => {
         .map(job => job?.stipend)
         .filter(stipend => stipend && stipend.trim() !== "")
     )];
+    // Get unique job type values 
+    const uniqueJobTypes = [...new Set(
+      allJobs
+        .map(job => job?.internshipType || job?.jobType || job?.employmentType || job?.type)
+        .filter(jobType => jobType && jobType.trim() !== "")
+    )];
+
     
     // Get unique duration values - filter out empty values
     const uniqueDurations = [...new Set(
@@ -87,6 +102,7 @@ const FilterCard = () => {
     console.log("  Industries:", uniqueIndustries);
     console.log("  Stipends:", uniqueStipends);
     console.log("  Durations:", uniqueDurations);
+    console.log("  Job Types:", uniqueJobTypes);
 
     // Update dynamic filter data
     setDynamicFilterData([
@@ -94,6 +110,7 @@ const FilterCard = () => {
       { filterType: "Industry", icon: <Briefcase size={14} />, array: uniqueIndustries },
       { filterType: "Stipend", icon: <Wallet size={14} />, array: uniqueStipends },
       { filterType: "Duration", icon: <Clock size={14} />, array: uniqueDurations },
+      { filterType: "JobType", icon: <BriefcaseIcon size={14} />, array: uniqueJobTypes },
     ]);
   };
 
@@ -117,7 +134,8 @@ const FilterCard = () => {
       location: [],
       industry: [],
       stipend: [],
-      duration: []
+      duration: [],
+      jobType: []
     });
     dispatch(setSearchedQuery(""));
   };
