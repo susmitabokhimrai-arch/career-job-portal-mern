@@ -26,6 +26,7 @@ import ResumeTips from './components/ResumeTips'
 import BlogDetail from './components/BlogDetail'
 import AdminBlog from './components/admin/AdminBlog'
 import ResumeBuilder from './components/ResumeBuilder'
+import ChatBot from './components/ChatBot'
 
 const appRouter = createBrowserRouter([
   {
@@ -138,7 +139,7 @@ function App() {
         closeButton
       />
      <RouterProvider router ={appRouter} />
-      
+      <ChatBot />
     </>
   )
 }
