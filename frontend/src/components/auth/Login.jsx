@@ -88,6 +88,7 @@ return (
     // Clear previous errors
     setPasswordError("");
     setEmailError("");
+
     try {
       dispatch(setLoading(true));
       const res = await axios.post(`${USER_API_END_POINT}/login`, input, {
@@ -95,13 +96,25 @@ return (
           "Content-Type": "application/json",
         },
         withCredentials: true,
-      });
-      if (res.data.success) {
-        dispatch(setUser(res.data.user));
-        navigate("/");
-        toast.success(res.data.message);
       }
-    } catch (error) {
+      );
+//
+        if (res.data.success) {
+  dispatch(setUser(res.data.user));
+
+  const role = res.data.user.role;
+
+  if (role === "admin") {
+    navigate("/admin/profile");
+  } else if (role === "recruiter") {
+    navigate("/admin/jobs"); // or recruiter dashboard
+  } else {
+    navigate("/");
+  }
+
+  toast.success(res.data.message);
+}
+} catch (error) {
       console.log(error);
 
       // Handle different error types

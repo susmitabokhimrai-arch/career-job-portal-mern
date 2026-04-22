@@ -12,6 +12,11 @@ const AdminRoute = ({ children }) => {
     }
   }, [user, navigate]);
 
+  // ✅ (IMPORTANT FIX)
+  if (!user || user.role !== "admin") {
+    return null;
+  }
+
   return <>{children}</>;
 };
 
