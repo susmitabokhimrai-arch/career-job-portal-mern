@@ -9,6 +9,9 @@ import jobRoute from "./routes/job.route.js";
 import applicationRoute from "./routes/application.route.js";
 import notificationRoutes from "./routes/notification.route.js";
 import blogRoute from "./routes/blog.route.js";
+import analyticsRoutes from "./routes/analytics.routes.js";
+
+
 // Load environment variables
 dotenv.config();
 
@@ -39,7 +42,7 @@ app.use("/api/v1/job",jobRoute);
 app.use("/api/v1/application",applicationRoute);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/blogs", blogRoute);
-
+app.use("/api/v1/admin", analyticsRoutes);
 
 app.listen(PORT,()=>{
     connectDB();
