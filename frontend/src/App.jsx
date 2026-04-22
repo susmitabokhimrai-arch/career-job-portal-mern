@@ -28,10 +28,25 @@ import AdminBlog from './components/admin/AdminBlog'
 import ResumeBuilder from './components/ResumeBuilder'
 import ChatBot from './components/ChatBot'
 
+// analytics
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminProfile from "./components/admin/AdminProfile";
+
+
 const appRouter = createBrowserRouter([
   {
     path:'/',
     element:<Home/>
+  },
+
+{
+  path: "/admin/profile",
+  element: <AdminRoute><AdminProfile /></AdminRoute>
+},
+  // analytics admindashbaord
+  {
+    path: "/admin/dashboard",
+    element: <AdminDashboard />
   },
   {
     path:'/login',

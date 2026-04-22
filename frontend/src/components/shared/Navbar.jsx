@@ -72,6 +72,21 @@ const Navbar = () => {
                                             Manage Recruiter
                                         </Link>
                                     </li>
+
+                                   {/* ✅ ADDED ONLY THIS BLOCK */}
+                                    <li>
+                                        <Link
+                                            to="/admin/dashboard"
+                                            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
+                                            ${location.pathname === '/admin/dashboard'
+                                                ? 'bg-blue-100 text-blue-600'
+                                                : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
+                                            }`}
+                                        >
+                                            📊 Dashboard
+                                        </Link>
+                                    </li>
+                                    {/* ✅ END ADDITION */}  
                                 </>
                             ) : (
                                 <>
@@ -103,9 +118,9 @@ const Navbar = () => {
                                                         {user.savedJobs.length}
                                                     </span>
                                                 )}
-                                            </Link>
+                                         </Link>
                                         </li>
-                                    )}
+     )}
                                 </>
                             )
                         }

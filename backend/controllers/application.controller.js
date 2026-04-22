@@ -1,4 +1,4 @@
-import { Application } from "../models/application.model.js";
+import  {Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
 import { Notification } from "../models/notification.model.js";
 import { sendStatusUpdateEmail } from "../utils/emailService.js";
