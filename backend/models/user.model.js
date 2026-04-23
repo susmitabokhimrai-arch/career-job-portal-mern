@@ -20,37 +20,37 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["student", "recruiter","admin"],
+      enum: ["student", "recruiter", "admin"],
       required: true,
     },
 
-     // NEW: blocks removed recruiters from re-registering
+    // NEW: blocks removed recruiters from re-registering
     isBlacklisted: {
       type: Boolean,
       default: false,
     },
 
     // job save
-    savedJobs:[
+    savedJobs: [
       {
-       type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Job",
       },
     ],
 
-    profile:{
-        bio:{type:String},
-        skills:[{type:String}],
-        resume:{type:String}, // URL to resume file
-        resumeOriginalName:{type:String},
-        company:{type:mongoose.Schema.Types.ObjectId,ref:'Company'},
-        profilePhoto:{
-            type:String,
-            default:""
-        },
-        canUpdatePhoto: {type: Boolean, default: false} // NEW: allows one-time profile photo update
+    profile: {
+      bio: { type: String },
+      skills: [{ type: String }],
+      resume: { type: String }, // URL to resume file
+      resumeOriginalName: { type: String },
+      company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
+      profilePhoto: {
+        type: String,
+        default: ""
+      },
+      canUpdatePhoto: { type: Boolean, default: false } // NEW: allows one-time profile photo update
     },
-     // forgot password fields
+    // forgot password fields
     resetPasswordToken: {
       type: String,
       default: null
@@ -58,7 +58,10 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpires: {
       type: Date,
       default: null
-    }
-    }, {timestamps:true});
-  
+    },
+    otp: { type: String },
+    otpExpiry: { type: Date },
+    isVerified: { type: Boolean, default: false },
+  }, { timestamps: true });
+
 export const User = mongoose.model('User', userSchema);
