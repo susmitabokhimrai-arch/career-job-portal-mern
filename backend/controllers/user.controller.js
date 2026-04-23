@@ -5,7 +5,7 @@ import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import { Job } from "../models/job.model.js";
 import crypto from "crypto"; // for password reset
-import { sendPasswordResetEmail, sendRecruiterRequestEmail } from "../utils/emailService.js";
+import { sendPasswordResetEmail, sendRecruiterRequestEmail, sendOtpEmail } from "../utils/emailService.js";
 import { Notification } from "../models/notification.model.js";
 // REGISTER (students only via public signup)
 export const register = async (req, res) => {
@@ -21,13 +21,13 @@ export const register = async (req, res) => {
       //const existingRecruiter = await User.findOne({ role: "recruiter" });
 
       //if (existingRecruiter) {
-        return res.status(403).json({
-          message: "Recruiter accounts can only be created by an admin.",
-          success: false,
-        });
-      }
-    
-      // Block blacklisted emails from re-registering
+      return res.status(403).json({
+        message: "Recruiter accounts can only be created by an admin.",
+        success: false,
+      });
+    }
+
+    // Block blacklisted emails from re-registering
 
     const blacklisted = await User.findOne({ email, isBlacklisted: true });
     if (blacklisted) {
@@ -47,34 +47,46 @@ export const register = async (req, res) => {
 
     let profilePhoto = "";
     if (req.file) {
- const file = req.file;
-    const fileUri = getDataUri(file);
-    const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-    profilePhoto = cloudResponse.secure_url;
+      const file = req.file;
+      const fileUri = getDataUri(file);
+      const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+      profilePhoto = cloudResponse.secure_url;
     }
 
     //const user = await User.findOne({ email });
     //if (user) {
-      //return res.status(400).json({
-        //message: "User already exists with this email.",
-       // success: false,
-      //});
-  
+    //return res.status(400).json({
+    //message: "User already exists with this email.",
+    // success: false,
+    //});
+
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({
+    const newUser = await User.create({
       fullname,
       email,
       phoneNumber,
       password: hashedPassword,
       role,
+      isVerified: false,   // 👈 add this
       profile: {
-        profilePhoto, // cloudResponse.secure_url,
+        profilePhoto,
       },
     });
 
-    return res.status(201).json({ message: "Account created successfully.", success: true });
+    //  Generate OTP and send email
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    newUser.otp = otp;
+    newUser.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    await newUser.save();
+
+    await sendOtpEmail(email, fullname, otp);
+
+    return res.status(201).json({
+      message: "Account created! Please verify your email with the OTP sent.",
+      success: true,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Server error", success: false });
@@ -90,7 +102,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Something is missing", success: false });
     }
 
-      const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({
         message: "Incorrect email or password.",
@@ -105,6 +117,13 @@ export const login = async (req, res) => {
         success: false,
       });
     }
+    // Block unverified users
+if (!user.isVerified && user.createdAt > new Date("2026-04-23")) {
+  return res.status(403).json({
+    message: "Please verify your email before logging in.",
+    success: false,
+  });
+}
 
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
@@ -114,26 +133,26 @@ export const login = async (req, res) => {
       });
     }
 
-// UPDATED ROLE CHECK (IMPORTANT)
-   // if (role === "recruiter" && user.role !== "recruiter") {
-      //return res.status(403).json({
-        //message: "Not authorized as recruiter.",
-        //success: false,
-      //});
+    // UPDATED ROLE CHECK (IMPORTANT)
+    // if (role === "recruiter" && user.role !== "recruiter") {
+    //return res.status(403).json({
+    //message: "Not authorized as recruiter.",
+    //success: false,
+    //});
     //}
-    
+
     //if (role === "student" && user.role !== "student") {
-      //return res.status(403).json({
-        //message: "Not authorized as student.",
-        //success: false,
-      //});
+    //return res.status(403).json({
+    //message: "Not authorized as student.",
+    //success: false,
+    //});
     //}
 
 
     if (user.role !== role) {
       return res.status(403).json({
         message: "Not authorized as ${role}.",
-       success: false,
+        success: false,
       });
     }
 
@@ -157,7 +176,7 @@ export const login = async (req, res) => {
         httpOnly: true,
         sameSite: 'strict',
       })
-      .json({ message: `Welcome back ${user.fullname}`, user : responseUser, success: true });
+      .json({ message: `Welcome back ${user.fullname}`, user: responseUser, success: true });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Server error", success: false });
@@ -183,21 +202,21 @@ export const updateProfile = async (req, res) => {
     const { fullname, email, phoneNumber, bio, skills } = req.body;
     const file = req.file;
     let cloudResponse;
-    
+
     if (file) {
       // check if file is PDF
       if (file.mimetype !== 'application/pdf') {
-        return res.status(400).json({ 
-          message: "Only PDF files are allowed. Please upload a PDF document.", 
-          success: false 
+        return res.status(400).json({
+          message: "Only PDF files are allowed. Please upload a PDF document.",
+          success: false
         });
       }
       // Check file size (max 5MB)
-      const maxSize = 5 * 1024 * 1024; 
+      const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
-        return res.status(400).json({ 
-          message: `File size must be less than 5MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`, 
-          success: false 
+        return res.status(400).json({
+          message: `File size must be less than 5MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`,
+          success: false
         });
       }
 
@@ -366,9 +385,9 @@ export const getResume = async (req, res) => {
     }
 
     if (!targetUser.profile || !targetUser.profile.resume) {
-      return res.status(404).json({ 
-        message: "Resume not found. Please upload a resume first.", 
-        success: false 
+      return res.status(404).json({
+        message: "Resume not found. Please upload a resume first.",
+        success: false
       });
     }
 
@@ -378,9 +397,9 @@ export const getResume = async (req, res) => {
     if (targetUserId && targetUserId !== loggedInUserId) {
       const loggedInUser = await User.findById(loggedInUserId);
       if (!loggedInUser || (loggedInUser.role !== 'admin' && loggedInUser.role !== 'hr')) {
-        return res.status(401).json({ 
-          message: "Unauthorized to view this resume", 
-          success: false 
+        return res.status(401).json({
+          message: "Unauthorized to view this resume",
+          success: false
         });
       }
     }
@@ -414,7 +433,7 @@ export const getResume = async (req, res) => {
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    
+
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
@@ -429,15 +448,15 @@ export const forgotPassword = async (req, res) => {
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
-// Set token expiry (10 minutes)
+    // Set token expiry (10 minutes)
     user.resetPasswordToken = resetPasswordToken;
     user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
-// Create reset URL
+    // Create reset URL
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-// Send email using your existing email function
+    // Send email using your existing email function
     await sendPasswordResetEmail(user.email, user.fullname, resetUrl);
-res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Password reset link sent to your email"
     });
@@ -454,13 +473,13 @@ res.status(200).json({
 export const verifyResetToken = async (req, res) => {
   try {
     const { token } = req.params;
-    
+
     // Hash the token
     const hashedToken = crypto
       .createHash('sha256')
       .update(token)
       .digest('hex');
-      // Find user with valid token
+    // Find user with valid token
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() }
@@ -472,7 +491,7 @@ export const verifyResetToken = async (req, res) => {
         message: "Invalid or expired reset token"
       });
     }
- res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Token is valid"
     });
@@ -497,7 +516,7 @@ export const resetPassword = async (req, res) => {
       .createHash('sha256')
       .update(token)
       .digest('hex');
-// Find user with valid token
+    // Find user with valid token
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() }
@@ -517,7 +536,7 @@ export const resetPassword = async (req, res) => {
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
     await user.save();
- res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Password reset successful. Please login with your new password."
     });
@@ -536,11 +555,11 @@ export const resetPassword = async (req, res) => {
 export const createRecruiter = async (req, res) => {
   try {
     const { fullname, email, password, phoneNumber } = req.body;
- 
+
     if (!fullname || !email || !password || !phoneNumber) {
       return res.status(400).json({ message: "All fields are required.", success: false });
     }
- 
+
     // Block blacklisted emails (previously removed recruiters)
     const blacklisted = await User.findOne({ email, isBlacklisted: true });
     if (blacklisted) {
@@ -549,7 +568,7 @@ export const createRecruiter = async (req, res) => {
         success: false,
       });
     }
- 
+
     // Block duplicate active email
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -558,9 +577,9 @@ export const createRecruiter = async (req, res) => {
         success: false,
       });
     }
- 
+
     const hashedPassword = await bcrypt.hash(password, 10);
- 
+
     const recruiter = await User.create({
       fullname,
       email,
@@ -569,7 +588,7 @@ export const createRecruiter = async (req, res) => {
       role: "recruiter",
       profile: { profilePhoto: "" },
     });
- 
+
     return res.status(201).json({
       message: `Recruiter account created for ${fullname}.`,
       recruiter: {
@@ -587,7 +606,7 @@ export const createRecruiter = async (req, res) => {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
- 
+
 // ─────────────────────────────────────────────
 // ADMIN: GET ALL RECRUITERS
 // Returns all active (non-blacklisted) recruiters
@@ -597,7 +616,7 @@ export const getAllRecruiters = async (req, res) => {
     const recruiters = await User.find({ role: "recruiter", isBlacklisted: false })
       .select("-password")
       .sort({ createdAt: -1 });
- 
+
     return res.status(200).json({
       recruiters,
       count: recruiters.length,
@@ -608,24 +627,24 @@ export const getAllRecruiters = async (req, res) => {
     return res.status(500).json({ message: "Server error", success: false });
   }
 };
- 
+
 
 // ADMIN: REMOVE RECRUITER (blacklists them)
 
 export const removeRecruiter = async (req, res) => {
   try {
     const { recruiterId } = req.params;
- 
+
     const recruiter = await User.findById(recruiterId);
- 
+
     if (!recruiter || recruiter.role !== "recruiter") {
       return res.status(404).json({ message: "Recruiter not found.", success: false });
     }
- 
+
     // Blacklist so they can never re-register with same email
     recruiter.isBlacklisted = true;
     await recruiter.save();
- 
+
     return res.status(200).json({
       message: `Recruiter ${recruiter.fullname} has been removed and blacklisted.`,
       success: true,
@@ -765,5 +784,35 @@ export const recruiterContactRequest = async (req, res) => {
       success: false,
       message: "Server error"
     });
+  }
+};
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user)
+      return res.status(404).json({ success: false, message: "User not found" });
+
+    if (user.isVerified)
+      return res.status(400).json({ success: false, message: "Email already verified" });
+
+    if (user.otp !== otp)
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+
+    if (Date.now() > user.otpExpiry)
+      return res.status(400).json({ success: false, message: "OTP expired. Please register again." });
+
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save();
+
+    return res.status(200).json({ success: true, message: "Email verified successfully!" });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error", success: false });
   }
 };

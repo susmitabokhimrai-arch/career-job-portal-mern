@@ -15,7 +15,8 @@ updateProfilePhoto,
   forgotPassword, // ========== NEW IMPORTS FOR FORGOT PASSWORD ==========
   verifyResetToken,
     resetPassword,
-    recruiterContactRequest  
+    recruiterContactRequest,
+    verifyOtp
 } from "../controllers/user.controller.js";
 
 import isAuthenticated from "../middlewares/isAuthenticate.js";
@@ -36,6 +37,9 @@ router.route("/verify-reset-token/:token").get(verifyResetToken);
 router.route("/reset-password/:token").post(resetPassword);
 // Recruiter internship request (Public)
 router.route("/recruiter-request").post(recruiterContactRequest);
+// Verify OTP (Public)
+router.route("/verify-otp").post(verifyOtp);
+
 
 // Authenticated Routes
 router.route("/profile/update").post(isAuthenticated, singleUpload, updateProfile);

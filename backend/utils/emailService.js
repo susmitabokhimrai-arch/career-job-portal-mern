@@ -151,3 +151,35 @@ export const sendRecruiterRequestEmail = async (companyName, contactPerson, cont
         return false;
     }
 };
+export const sendOtpEmail = async (userEmail, userName, otp) => {
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #4f46e5;">CareerYatra - Verify Your Email</h2>
+            <p>Hello <strong>${userName}</strong>,</p>
+            <p>Use the OTP below to verify your email address:</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <span style="font-size: 36px; font-weight: bold; letter-spacing: 10px; color: #4f46e5;">
+                    ${otp}
+                </span>
+            </div>
+            <p>This OTP is valid for <strong>10 minutes</strong>.</p>
+            <p>If you didn't create an account, ignore this email.</p>
+            <hr />
+            <p style="color: #666; font-size: 12px;">CareerYatra - Your Career Journey Starts Here</p>
+        </div>
+    `;
+    const mailOptions = {
+        from: `"CareerYatra" <${process.env.EMAIL_USER}>`,
+        to: userEmail,
+        subject: "CareerYatra - Email Verification OTP",
+        html
+    };
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`✅ OTP sent to ${userEmail}`);
+        return true;
+    } catch (error) {
+        console.log(`❌ OTP failed:`, error.message);
+        return false;
+    }
+};
