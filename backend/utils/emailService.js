@@ -162,7 +162,7 @@ export const sendOtpEmail = async (userEmail, userName, otp) => {
                     ${otp}
                 </span>
             </div>
-            <p>This OTP is valid for <strong>10 minutes</strong>.</p>
+            <p>This OTP is valid for <strong>2 minutes</strong>.</p>
             <p>If you didn't create an account, ignore this email.</p>
             <hr />
             <p style="color: #666; font-size: 12px;">CareerYatra - Your Career Journey Starts Here</p>
