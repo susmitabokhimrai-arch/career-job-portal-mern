@@ -163,7 +163,7 @@ const Signup = () => {
                             {otpLoading && <Loader2 className="animate-spin mr-2 h-4 w-4" />}
                             Verify OTP
                         </Button>
-                        <p className="text-xs text-gray-400 mt-4">OTP expires in 10 minutes</p>
+                        <p className="text-xs text-gray-400 mt-4">OTP expires in 2 minutes</p>
                     </div>
                 </div>
             )}

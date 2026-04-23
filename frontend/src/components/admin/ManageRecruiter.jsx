@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "@radix-ui/react-label";
-import { Trash, UserPlus, Camera, CameraOff } from "lucide-react"; {/* ✅ NEW: Added Camera, CameraOff */}
+import { Trash, UserPlus, Camera, CameraOff } from "lucide-react"; 
 import { useSelector } from "react-redux";
 import Navbar from "../shared/Navbar";
 
@@ -79,7 +79,6 @@ const ManageRecruiter = () => {
     }
   };
 
-  // ✅ NEW: Toggle photo permission
   const handleTogglePhotoPermission = async (recruiterId, currentStatus) => {
     try {
       const res = await axios.patch(
@@ -96,7 +95,6 @@ const ManageRecruiter = () => {
       toast.error(error.response?.data?.message || "Failed to update photo permission");
     }
   };
-  // ✅ END NEW
 
   return (
     <div>
@@ -177,7 +175,7 @@ const ManageRecruiter = () => {
                 <th className="px-4 py-2 text-blue-700">Name</th>
                 <th className="px-4 py-2 text-blue-700">Email</th>
                 <th className="px-4 py-2 text-blue-700">Phone</th>
-                <th className="px-4 py-2 text-blue-700">Photo Access</th> {/* ✅ NEW column */}
+                <th className="px-4 py-2 text-blue-700">Photo Access</th> 
                 <th className="px-4 py-2 text-blue-700">Actions</th>
               </tr>
             </thead>
@@ -191,7 +189,7 @@ const ManageRecruiter = () => {
                   <td className="px-4 py-2">{r.email}</td>
                   <td className="px-4 py-2">{r.phoneNumber}</td>
 
-                  {/* ✅ NEW: Photo permission status + toggle */}
+            
                   <td className="px-4 py-2">
                     <div className="flex items-center gap-2">
                       <span
@@ -221,7 +219,7 @@ const ManageRecruiter = () => {
                       </Button>
                     </div>
                   </td>
-                  {/* ✅ END NEW */}
+                  
 
                   <td className="px-4 py-2">
                     <Button
@@ -237,7 +235,7 @@ const ManageRecruiter = () => {
               ))}
               {recruiters.length === 0 && (
                 <tr>
-                  <td colSpan="5" className="text-center py-4 text-blue-500"> {/* ✅ changed colSpan 4→5 */}
+                  <td colSpan="5" className="text-center py-4 text-blue-500"> 
                     No recruiters found.
                   </td>
                 </tr>
