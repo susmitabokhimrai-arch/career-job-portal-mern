@@ -118,7 +118,7 @@ export const login = async (req, res) => {
       });
     }
     // Block unverified users
-if (!user.isVerified && user.createdAt > new Date("2026-04-23")) {
+if (user.role === "student" && !user.isVerified && user.createdAt > new Date("2026-04-23")) {
   return res.status(403).json({
     message: "Please verify your email before logging in.",
     success: false,
