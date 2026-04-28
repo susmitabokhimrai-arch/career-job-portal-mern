@@ -27,6 +27,7 @@ import BlogDetail from './components/BlogDetail'
 import AdminBlog from './components/admin/AdminBlog'
 import ResumeBuilder from './components/ResumeBuilder'
 import ChatBot from './components/ChatBot'
+import TrashPage from './components/TrashPage' 
 
 // analytics
 import AdminDashboard from "./pages/AdminDashboard";
@@ -92,6 +93,10 @@ const appRouter = createBrowserRouter([
   {
     path:"/admin/companies",
     element:<ProtectedRoute><Companies/></ProtectedRoute>
+  },
+  {
+    path:"/admin/trash",
+    element:<ProtectedRoute><TrashPage/></ProtectedRoute>
   },
   {
     path:"/admin/companies/create",
