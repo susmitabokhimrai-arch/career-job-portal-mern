@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../ui/button';
-import { Bookmark, LogOut, User2 } from 'lucide-react';
+import { Bookmark, LogOut, User2, Trash2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -61,6 +61,20 @@ const Navbar = () => {
                                             Jobs
                                         </Link>
                                     </li>
+                                     {/* ========== TRASH LINK FOR RECRUITER ONLY ========== */}
+                                    <li>
+                                        <Link
+                                            to="/admin/trash"
+                                            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
+                                            ${location.pathname === '/admin/trash'
+                                                ? 'bg-red-100 text-red-600'
+                                                : 'text-gray-700 hover:bg-red-50 hover:text-red-600'
+                                            }`}
+                                        >
+                                            <Trash2 className="w-4 h-4 mr-2" />
+                                            Trash
+                                        </Link>
+                                    </li>
                                 </>
                             ) : user && user.role === 'admin' ? (
                                 <>
@@ -72,21 +86,19 @@ const Navbar = () => {
                                             Manage Recruiter
                                         </Link>
                                     </li>
-
-                                   {/* ✅ ADDED ONLY THIS BLOCK */}
+                                    {/* Dashboard link */}
                                     <li>
                                         <Link
                                             to="/admin/dashboard"
                                             className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors duration-200
                                             ${location.pathname === '/admin/dashboard'
-                                                ? 'bg-blue-100 text-blue-600'
-                                                : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
-                                            }`}
+                                                    ? 'bg-blue-100 text-blue-600'
+                                                    : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
+                                                }`}
                                         >
                                             📊 Dashboard
                                         </Link>
                                     </li>
-                                    {/* ✅ END ADDITION */}  
                                 </>
                             ) : (
                                 <>
@@ -118,9 +130,9 @@ const Navbar = () => {
                                                         {user.savedJobs.length}
                                                     </span>
                                                 )}
-                                         </Link>
+                                            </Link>
                                         </li>
-     )}
+                                    )}
                                 </>
                             )
                         }
@@ -192,7 +204,7 @@ const Navbar = () => {
                                             <span className="text-gray-900 font-medium">View Profile</span>
                                         </Link>
                                     )}
-                                   
+
                                     {user?.role === 'admin' && (
                                         <Link to="/admin/blog" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-indigo-50 transition">
                                             <span>📝</span>
