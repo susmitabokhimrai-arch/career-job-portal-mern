@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { Edit2, Eye, MoreHorizontal } from 'lucide-react'
+import { Edit2, Eye, MoreHorizontal, Trash2  } from 'lucide-react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-
+import DeleteCompanyModal from './DeleteCompanyModal' 
+import useSoftDeleteJob from '@/hooks/useSoftDeleteJob' 
 
 const AdminJobsTable = () => {
     const { allAdminJobs, searchJobByText } = useSelector(store => store.job);
     const [filterJobs, setFilterJobs] = useState(allAdminJobs);
     const navigate = useNavigate();
 
+    // State for delete modal
+    const softDeleteJob = useSoftDeleteJob();
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [jobToDelete, setJobToDelete] = useState(null);
+    
     useEffect(() => {
         const filteredJobs = (allAdminJobs || []).filter((job) => {
             if (!searchJobByText) {
@@ -21,6 +27,33 @@ const AdminJobsTable = () => {
         });
         setFilterJobs(filteredJobs);
     }, [allAdminJobs, searchJobByText])
+
+    // Handle delete click 
+    const handleDeleteClick = (job) => {
+        const dontAsk = localStorage.getItem('dontAskDeleteConfirmation') === 'true';
+        
+        if (dontAsk) {
+            softDeleteJob(job._id);
+        } else {
+            setJobToDelete(job);
+            setShowDeleteModal(true);
+        }
+    }
+
+    // Handle confirm delet 
+    const handleConfirmDelete = async () => {
+        if (jobToDelete) {
+            await softDeleteJob(jobToDelete._id);
+        }
+        setShowDeleteModal(false);
+        setJobToDelete(null);
+    }
+    // Handle cancel delete 
+    const handleCancelDelete = () => {
+        setShowDeleteModal(false);
+        setJobToDelete(null);
+    }
+
     return (
         <div className="p-6 bg-gray-50 rounded-lg shadow-lg">
             <Table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
@@ -56,6 +89,11 @@ const AdminJobsTable = () => {
                                                 <Eye className='w-4 h-4 text-gray-600'/>
                                                 <span className="text-gray-700 text-sm">Applicants</span>
                                             </div>
+                                            {/* Delete button */}
+                                            <div onClick={() => handleDeleteClick(job)} className='flex items-center gap-2 w-full cursor-pointer px-2 py-1 mt-1 hover:bg-red-50 rounded-md transition'>
+                                                <Trash2 className='w-4 h-4 text-red-500' />
+                                                <span className="text-red-500 text-sm">Delete</span>
+                                            </div>
                                         </PopoverContent>
                                     </Popover>
                                 </TableCell>
@@ -66,6 +104,14 @@ const AdminJobsTable = () => {
                     }
                 </TableBody>
             </Table>
+            {/* Delete Confirmation Modal (reused from companies) */}
+            {showDeleteModal && jobToDelete && (
+                <DeleteCompanyModal
+                    company={jobToDelete}  // Pass job as company (modal uses company?.name)
+                    onConfirm={handleConfirmDelete}
+                    onCancel={handleCancelDelete}
+                />
+            )}
         </div>
     )
 }

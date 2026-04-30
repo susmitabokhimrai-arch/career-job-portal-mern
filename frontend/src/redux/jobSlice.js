@@ -22,6 +22,7 @@ const jobSlice = createSlice({
         searchedQuery: "",
         loading: false,  // Track API request status
         error: null,     // Store any error messages
+        trashedJobs: [], // Store deleted jobs for trash page
     },
     reducers: {
         setAllJobs: (state, action) => {
@@ -42,8 +43,33 @@ const jobSlice = createSlice({
         },
         setSearchedQuery: (state, action) => {
             state.searchedQuery = action.payload;
-        }
     },
+    // Remove job from active jobs (moved to trash)
+        softDeleteJobReducer: (state, action) => {
+            state.allAdminJobs = state.allAdminJobs.filter(
+                (job) => job._id !== action.payload
+            );
+            state.allJobs = state.allJobs.filter(
+                (job) => job._id !== action.payload
+            );
+        },
+        // Store trashed jobs
+        setTrashedJobs: (state, action) => {
+            state.trashedJobs = action.payload;
+        },
+        // Remove job from trash after restore
+        restoreJobReducer: (state, action) => {
+            state.trashedJobs = state.trashedJobs.filter(
+                (job) => job._id !== action.payload
+            );
+        },
+        // Remove job from trash after permanent delete
+        permanentDeleteJobReducer: (state, action) => {
+            state.trashedJobs = state.trashedJobs.filter(
+                (job) => job._id !== action.payload
+            );
+        }
+            },
     // Handle the async thunk actions
     extraReducers: (builder) => {
         builder
@@ -64,5 +90,5 @@ const jobSlice = createSlice({
             });
     }
 });
-export const { setAllJobs, setSingleJob, setAllAdminJobs, setSearchJobByText, setAllAppliedJobs, setSearchedQuery } = jobSlice.actions;
+export const { setAllJobs, setSingleJob, setAllAdminJobs, setSearchJobByText, setAllAppliedJobs, setSearchedQuery, softDeleteJobReducer, setTrashedJobs, restoreJobReducer, permanentDeleteJobReducer  } = jobSlice.actions;
 export default jobSlice.reducer;
