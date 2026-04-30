@@ -5,7 +5,11 @@ import {
     getAllJobs,
     getAdminJobs,
     getJobById,
-    updateJob 
+    updateJob,
+    softDeleteJob,
+    getDeletedJobs,
+    restoreJob,
+    permanentDeleteJob
 } from "../controllers/job.controller.js";
 import { isRecruiter } from "../middlewares/roleMiddleware.js";
 
@@ -19,6 +23,18 @@ router.get("/", getAllJobs);
 
 // Get admin internships
 router.get("/admin", isAuthenticated, getAdminJobs);
+
+// Get deleted jobs (trash page)
+router.get("/trash", isAuthenticated, getDeletedJobs);
+
+// Move job to trash (soft delete)
+router.delete("/soft-delete/:id", isAuthenticated, softDeleteJob);
+
+// Restore job from trash
+router.put("/restore/:id", isAuthenticated, restoreJob);
+
+// Permanently delete job from trash
+router.delete("/permanent-delete/:id", isAuthenticated, permanentDeleteJob);
 
 // Specific routes first
 router.put("/update/:id", isAuthenticated, updateJob);

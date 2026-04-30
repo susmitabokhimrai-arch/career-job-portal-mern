@@ -30,7 +30,7 @@ export const postJob = async (req, res) => {
             title,
             description,
 
-            // ✅ FIX: handle both string and array
+            // handle both string and array
             requirements: Array.isArray(requirements)
                 ? requirements
                 : requirements.split(","),
@@ -39,12 +39,12 @@ export const postJob = async (req, res) => {
             internshipType,
             duration,
 
-            // ✅ FIX: handle both string and array
+            // handle both string and array
             skillsRequired: skillsRequired
                 ? (Array.isArray(skillsRequired) ? skillsRequired : skillsRequired.split(","))
                 : [],
 
-            // ✅ FIX: handle both string and array
+            // handle both string and array
             perks: perks
                 ? (Array.isArray(perks) ? perks : perks.split(","))
                 : [],
@@ -69,7 +69,7 @@ export const postJob = async (req, res) => {
     }
 };
 
-// students get all internship
+// students get all internship (ONLY ACTIVE JOBS - NOT DELETED)
 export const getAllJobs = async (req, res) => {
     try {
         const keyword = req.query.keyword || "";
@@ -77,6 +77,7 @@ export const getAllJobs = async (req, res) => {
         const internshipType = req.query.intershipType;
 
         let query = {
+            isDeleted: false,
             $or: [
                 { title: { $regex: keyword, $options: "i" } },
                 { description: { $regex: keyword, $options: "i" } },
@@ -118,7 +119,7 @@ export const getJobById = async (req, res) => {
             });
         }
 
-        const job = await Job.findById(jobId)
+        const job = await Job.findOne({ _id: jobId, isDeleted: false }) 
             .populate({ path: "applications" })
             .populate({ path: "company" });
 
@@ -137,12 +138,12 @@ export const getJobById = async (req, res) => {
     }
 };
 
-// recruiter - get all internships created
+// recruiter - get all internships created (ONLY ACTIVE JOBS)
 export const getAdminJobs = async (req, res) => {
     try {
         const adminId = req.id;
 
-        const jobs = await Job.find({ created_by: adminId })
+       const jobs = await Job.find({ created_by: adminId, isDeleted: false })  
             .populate({ path: 'company' })
             .sort({ createdAt: -1 });
 
@@ -157,7 +158,7 @@ export const getAdminJobs = async (req, res) => {
     }
 };
 
-// Update job
+// Update job (ONLY ACTIVE JOBS)
 export const updateJob = async (req, res) => {
     try {
         const jobId = req.params.id;
@@ -178,24 +179,18 @@ export const updateJob = async (req, res) => {
         const updateData = {
             title,
             description,
-
-            // already correct ✅
             requirements: requirements
                 ? (Array.isArray(requirements) ? requirements : requirements.split(","))
                 : [],
-
             stipend,
             internshipType,
             duration,
-
             skillsRequired: skillsRequired
                 ? (Array.isArray(skillsRequired) ? skillsRequired : skillsRequired.split(","))
                 : [],
-
             perks: perks
                 ? (Array.isArray(perks) ? perks : perks.split(","))
                 : [],
-
             position,
             location,
             applicationDeadline,
@@ -203,7 +198,11 @@ export const updateJob = async (req, res) => {
             company: companyId
         };
 
-        const updatedJob = await Job.findByIdAndUpdate(jobId, updateData, { new: true });
+const updatedJob = await Job.findOneAndUpdate(
+    { _id: jobId, isDeleted: false },   
+ updateData, 
+     { returnDocument: 'after' }
+        );
 
         if (!updatedJob) {
             return res.status(404).json({
@@ -226,8 +225,129 @@ export const updateJob = async (req, res) => {
         });
     }
 };
+// SOFT DELETE JOB (Move to Trash) 
+export const softDeleteJob = async (req, res) => {
+    try {
+        const jobId = req.params.id;
+        const userId = req.id;
 
-// recommendation based 
+        const job = await Job.findOneAndUpdate(
+            { _id: jobId, created_by: userId },
+            { 
+                isDeleted: true,
+                deletedAt: new Date()
+            },
+           { returnDocument: 'after' }
+        );
+ if (!job) {
+            return res.status(404).json({
+                success: false,
+                message: "Job not found or you don't have permission"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Job moved to trash",
+            job
+        });
+         } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to move job to trash"
+        });
+    }
+};
+// GET DELETED JOBS (Trash page) 
+export const getDeletedJobs = async (req, res) => {
+    try {
+        const userId = req.id;
+
+        const deletedJobs = await Job.find({ 
+            created_by: userId,
+            isDeleted: true
+        })
+        .populate({ path: 'company' })
+        .sort({ deletedAt: -1 });
+
+        return res.status(200).json({
+            jobs: deletedJobs,
+            success: true
+        });
+        } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch deleted jobs"
+        });
+    }
+};
+// RESTORE JOB FROM TRASH 
+export const restoreJob = async (req, res) => {
+    try {
+        const jobId = req.params.id;
+        const userId = req.id;
+
+        const job = await Job.findOneAndUpdate(
+            { _id: jobId, created_by: userId, isDeleted: true },
+            { 
+                isDeleted: false,
+                deletedAt: null
+            },
+{ returnDocument: 'after' }        );
+if (!job) {
+            return res.status(404).json({
+                success: false,
+                message: "Job not found in trash"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Job restored successfully",
+            job
+        });
+ } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to restore job"
+        });
+    }
+};
+// PERMANENTLY DELETE JOB FROM TRASH 
+export const permanentDeleteJob = async (req, res) => {
+    try {
+        const jobId = req.params.id;
+        const userId = req.id;
+
+        const job = await Job.findOneAndDelete({ 
+            _id: jobId, 
+            created_by: userId,
+            isDeleted: true 
+        });
+
+        if (!job) {
+            return res.status(404).json({
+                success: false,
+                message: "Job not found in trash"
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: "Job permanently deleted"
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to permanently delete job"
+        });
+    }
+};
+// recommendation based (ONLY ACTIVE JOBS)
 export const getRecommendedJobs = async (req, res) => {
     try {
         const user = req.user;
@@ -242,6 +362,7 @@ export const getRecommendedJobs = async (req, res) => {
         }
 
         const jobs = await Job.find({
+            isDeleted: false,
             requirements: { $in: skills }
         });
 

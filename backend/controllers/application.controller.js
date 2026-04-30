@@ -329,7 +329,7 @@ export const markNotificationAsRead = async (req, res) => {
         const notification = await Notification.findByIdAndUpdate(
             notificationId, 
             { read: true },
-            { new: true }
+{ returnDocument: 'after' }
         );
         
         if (!notification) {
