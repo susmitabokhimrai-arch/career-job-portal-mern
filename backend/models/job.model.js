@@ -90,6 +90,17 @@ required:true,
              type:mongoose.Schema.Types.ObjectId,
         ref:'Application',
         }
-    ]
+    ],
+    isDeleted: {
+        type: Boolean,
+        default: false,           // false = active job, true = in trash
+        index: true               // For faster queries
+    },
+    deletedAt: {
+        type: Date,
+        default: null             // When job was moved to trash
+    }
  },{timestamps:true});
+ // ========== OPTIONAL: Compound index for better performance ==========
+jobSchema.index({ created_by: 1, isDeleted: 1 });
 export const Job = mongoose.model("Job",jobSchema);
