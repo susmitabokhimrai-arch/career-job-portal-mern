@@ -19,7 +19,7 @@ const useGetAllAdminJobs = () => {
     useEffect(()=> {
     fetchAllAdminJobs();
   },[]);
-  return {fetchAllAdminJobs};
+  return fetchAllAdminJobs;
 };
 
 export default useGetAllAdminJobs;

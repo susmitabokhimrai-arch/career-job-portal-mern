@@ -10,15 +10,11 @@ import { setSearchJobByText } from '@/redux/jobSlice'
 import { LucideSearch } from 'lucide-react'
 
 const AdminJobs = () => {
-  const { fetchAllAdminJobs } = useGetAllAdminJobs();
+ const fetchAllAdminJobs = useGetAllAdminJobs();
   const [input, setInput] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    fetchAllAdminJobs();
-  }, []);
-
+  
   return (
     <div>
       <Navbar />
