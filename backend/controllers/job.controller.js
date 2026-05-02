@@ -69,20 +69,29 @@ export const postJob = async (req, res) => {
     }
 };
 
-// students get all internship (ONLY ACTIVE JOBS - NOT DELETED)
+// students get all internship
 export const getAllJobs = async (req, res) => {
     try {
         const keyword = req.query.keyword || "";
         const duration = req.query.duration;
-        const internshipType = req.query.intershipType;
+        const internshipType = req.query.internshipType;
 
+// Shows old jobs (no isDeleted field) AND new active jobs 
         let query = {
-            isDeleted: false,
             $or: [
-                { title: { $regex: keyword, $options: "i" } },
-                { description: { $regex: keyword, $options: "i" } },
+                { isDeleted: { $exists: false } },  // Old jobs created before trash feature
+                { isDeleted: false }                 // New active jobs
+            ],
+            $and: [
+                {
+                    $or: [
+                        { title: { $regex: keyword, $options: "i" } },
+                        { description: { $regex: keyword, $options: "i" } },
+                    ]
+                }
             ]
         };
+
 
         if (duration) {
             query.duration = duration;
@@ -107,7 +116,7 @@ export const getAllJobs = async (req, res) => {
     }
 };
 
-// student get internship by id
+// student get internship by id (works for old AND new jobs) 
 export const getJobById = async (req, res) => {
     try {
         const jobId = req.params.id;
@@ -119,7 +128,14 @@ export const getJobById = async (req, res) => {
             });
         }
 
-        const job = await Job.findOne({ _id: jobId, isDeleted: false }) 
+// Shows old jobs OR new active jobs 
+        const job = await Job.findOne({ 
+            _id: jobId,
+            $or: [
+                { isDeleted: { $exists: false } },  // Old jobs
+                { isDeleted: false }                 // New active jobs
+            ]
+        }) 
             .populate({ path: "applications" })
             .populate({ path: "company" });
 
@@ -129,7 +145,6 @@ export const getJobById = async (req, res) => {
                 success: false
             });
         }
-
         return res.status(200).json({ job, success: true });
 
     } catch (error) {
@@ -138,12 +153,19 @@ export const getJobById = async (req, res) => {
     }
 };
 
-// recruiter - get all internships created (ONLY ACTIVE JOBS)
+// recruiter - get all internships created (works for old AND new jobs) 
 export const getAdminJobs = async (req, res) => {
     try {
         const adminId = req.id;
 
-       const jobs = await Job.find({ created_by: adminId, isDeleted: false })  
+       // Shows old jobs OR new active jobs for this recruiter 
+        const jobs = await Job.find({ 
+            created_by: adminId,
+            $or: [
+                { isDeleted: { $exists: false } },  // Old jobs
+                { isDeleted: false }                 // New active jobs
+            ]
+        })  
             .populate({ path: 'company' })
             .sort({ createdAt: -1 });
 
@@ -158,7 +180,7 @@ export const getAdminJobs = async (req, res) => {
     }
 };
 
-// Update job (ONLY ACTIVE JOBS)
+// Update job (works for old AND new jobs) 
 export const updateJob = async (req, res) => {
     try {
         const jobId = req.params.id;
@@ -198,10 +220,17 @@ export const updateJob = async (req, res) => {
             company: companyId
         };
 
-const updatedJob = await Job.findOneAndUpdate(
-    { _id: jobId, isDeleted: false },   
- updateData, 
-     { returnDocument: 'after' }
+// Can update old jobs OR new active jobs 
+        const updatedJob = await Job.findOneAndUpdate(
+            { 
+                _id: jobId,
+                $or: [
+                    { isDeleted: { $exists: false } },  
+                    { isDeleted: false }                 
+                ]
+            },   
+            updateData, 
+            { returnDocument: 'after' }
         );
 
         if (!updatedJob) {
@@ -225,6 +254,7 @@ const updatedJob = await Job.findOneAndUpdate(
         });
     }
 };
+
 // SOFT DELETE JOB (Move to Trash) 
 export const softDeleteJob = async (req, res) => {
     try {
@@ -347,7 +377,7 @@ export const permanentDeleteJob = async (req, res) => {
         });
     }
 };
-// recommendation based (ONLY ACTIVE JOBS)
+// recommendation based (works for old AND new jobs) 
 export const getRecommendedJobs = async (req, res) => {
     try {
         const user = req.user;
@@ -360,9 +390,12 @@ export const getRecommendedJobs = async (req, res) => {
                 message: "No skills found. Add skills to get recommendations."
             });
         }
-
+        // Shows old jobs OR new active jobs 
         const jobs = await Job.find({
-            isDeleted: false,
+            $or: [
+                { isDeleted: { $exists: false } }, 
+                { isDeleted: false }                 
+            ],
             requirements: { $in: skills }
         });
 
