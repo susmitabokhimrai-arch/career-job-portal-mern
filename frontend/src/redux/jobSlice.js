@@ -11,6 +11,31 @@ export const getAllJobs = createAsyncThunk(
         return data.jobs || data.data || data;
     }
 );
+// Delete application thunk 
+export const deleteApplication = createAsyncThunk(
+    'job/deleteApplication',
+    async (applicationId, { rejectWithValue }) => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/v1/application/${applicationId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                return rejectWithValue(data.message || 'Failed to delete application');
+            }
+
+            return { applicationId, message: data.message };
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 const jobSlice = createSlice({
     name: "job",
     initialState: {
@@ -41,10 +66,15 @@ const jobSlice = createSlice({
         setAllAppliedJobs: (state, action) => {
             state.allAppliedJobs = action.payload;
         },
+        removeAppliedJob: (state, action) => {
+            state.allAppliedJobs = state.allAppliedJobs.filter(
+                (application) => application._id !== action.payload
+            );
+        },
         setSearchedQuery: (state, action) => {
             state.searchedQuery = action.payload;
-    },
-    // Remove job from active jobs (moved to trash)
+        },
+        // Remove job from active jobs (moved to trash)
         softDeleteJobReducer: (state, action) => {
             state.allAdminJobs = state.allAdminJobs.filter(
                 (job) => job._id !== action.payload
@@ -69,7 +99,7 @@ const jobSlice = createSlice({
                 (job) => job._id !== action.payload
             );
         }
-            },
+    },
     // Handle the async thunk actions
     extraReducers: (builder) => {
         builder
@@ -87,8 +117,17 @@ const jobSlice = createSlice({
                 // When API call fails
                 state.loading = false;
                 state.error = action.error.message; // Store error message
+            })
+            // Handle delete application 
+            .addCase(deleteApplication.fulfilled, (state, action) => {
+                state.allAppliedJobs = state.allAppliedJobs.filter(
+                    (application) => application._id !== action.payload.applicationId
+                );
+            })
+            .addCase(deleteApplication.rejected, (state, action) => {
+                console.error('Delete failed:', action.payload);
             });
     }
 });
-export const { setAllJobs, setSingleJob, setAllAdminJobs, setSearchJobByText, setAllAppliedJobs, setSearchedQuery, softDeleteJobReducer, setTrashedJobs, restoreJobReducer, permanentDeleteJobReducer  } = jobSlice.actions;
+export const { setAllJobs, setSingleJob, setAllAdminJobs, setSearchJobByText, setAllAppliedJobs, setSearchedQuery, softDeleteJobReducer, setTrashedJobs, restoreJobReducer, permanentDeleteJobReducer, removeAppliedJob } = jobSlice.actions;
 export default jobSlice.reducer;
