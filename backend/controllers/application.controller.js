@@ -1,4 +1,4 @@
-import  {Application } from "../models/application.model.js";
+import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
 import { Notification } from "../models/notification.model.js";
 import { sendStatusUpdateEmail } from "../utils/emailService.js";
@@ -54,33 +54,33 @@ export const applyJob = async (req, res) => {
             newStatus: 'applied'
         });
         // Notify only the recruiter who created this job
-if (job.created_by) {
-    await Notification.create({
-        recipient: job.created_by,
-        type: 'new_application',
-        title: '📝 New Application Received!',
-        message: `${user.fullname} has applied for ${job.title}.`,
-        applicationId: newApplication._id,
-        jobTitle: job.title,
-        companyName: job.company?.name,
-        newStatus: 'applied'
-    });
-}
+        if (job.created_by) {
+            await Notification.create({
+                recipient: job.created_by,
+                type: 'new_application',
+                title: '📝 New Application Received!',
+                message: `${user.fullname} has applied for ${job.title}.`,
+                applicationId: newApplication._id,
+                jobTitle: job.title,
+                companyName: job.company?.name,
+                newStatus: 'applied'
+            });
+        }
 
-// Notify admins separately
-const admins = await User.find({ role: 'admin' });
-for (const admin of admins) {
-    await Notification.create({
-        recipient: admin._id,
-        type: 'new_application',
-        title: '📝 New Application Received!',
-        message: `${user.fullname} has applied for ${job.title} at ${job.company?.name || 'a company'}.`,
-        applicationId: newApplication._id,
-        jobTitle: job.title,
-        companyName: job.company?.name,
-        newStatus: 'applied'
-    });
-}
+        // Notify admins separately
+        const admins = await User.find({ role: 'admin' });
+        for (const admin of admins) {
+            await Notification.create({
+                recipient: admin._id,
+                type: 'new_application',
+                title: '📝 New Application Received!',
+                message: `${user.fullname} has applied for ${job.title} at ${job.company?.name || 'a company'}.`,
+                applicationId: newApplication._id,
+                jobTitle: job.title,
+                companyName: job.company?.name,
+                newStatus: 'applied'
+            });
+        }
         //Send email confirmation to student
         await sendStatusUpdateEmail(
             user.email,
@@ -96,7 +96,7 @@ for (const admin of admins) {
             success: true
         });
 
-     } catch (error) {
+    } catch (error) {
         console.log(error);
         return res.status(500).json({
             message: "Server error while applying",
@@ -136,6 +136,53 @@ export const getAppliedJobs = async (req, res) => {
         return res.status(500).json({
             message: "Server error",
             success: false
+        });
+    }
+};
+// Delete an application
+export const deleteApplication = async (req, res) => {
+    try {
+        const applicationId = req.params.id;
+        const userId = req.id; // The logged-in user
+
+        // Find the application
+        const application = await Application.findById(applicationId);
+
+        if (!application) {
+            return res.status(404).json({
+                success: false,
+                message: "Application not found"
+            });
+        }
+        // Check if the logged-in user owns this application
+        if (application.applicant.toString() !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to delete this application"
+            });
+        }
+
+        // Find the job and remove the application reference
+        const job = await Job.findById(application.job);
+        if (job) {
+            job.applications = job.applications.filter(
+                appId => appId.toString() !== applicationId
+            );
+            await job.save();
+        }
+        // Delete the application
+        await Application.findByIdAndDelete(applicationId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Application deleted successfully"
+        });
+
+    } catch (error) {
+        console.log("Delete application error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while deleting application"
         });
     }
 };
@@ -295,23 +342,23 @@ export const updateStatus = async (req, res) => {
 export const getUserNotifications = async (req, res) => {
     try {
         const userId = req.id;
-        
+
         // Find all notifications for the user, sorted by newest first
         const notifications = await Notification.find({ recipient: userId })
             .sort({ createdAt: -1 })
             .limit(50);
-        
+
         // Count unread notifications
         const unreadCount = await Notification.countDocuments({
             recipient: userId,
             read: false
         });
-         return res.status(200).json({
+        return res.status(200).json({
             success: true,
             notifications,
             unreadCount
         });
-        
+
     } catch (error) {
         console.error("Error fetching notifications:", error);
         return res.status(500).json({
@@ -324,14 +371,14 @@ export const getUserNotifications = async (req, res) => {
 export const markNotificationAsRead = async (req, res) => {
     try {
         const notificationId = req.params.id;
-        
+
         // Update notification to read = true
         const notification = await Notification.findByIdAndUpdate(
-            notificationId, 
+            notificationId,
             { read: true },
-{ returnDocument: 'after' }
+            { returnDocument: 'after' }
         );
-        
+
         if (!notification) {
             return res.status(404).json({
                 success: false,
@@ -342,7 +389,7 @@ export const markNotificationAsRead = async (req, res) => {
             success: true,
             message: "Notification marked as read"
         });
-        
+
     } catch (error) {
         console.error("Error marking notification as read:", error);
         return res.status(500).json({
@@ -356,18 +403,18 @@ export const markNotificationAsRead = async (req, res) => {
 export const markAllAsRead = async (req, res) => {
     try {
         const userId = req.id;
-        
+
         // Update all unread notifications for this user
         const result = await Notification.updateMany(
             { recipient: userId, read: false },
             { read: true }
         );
-        
+
         return res.status(200).json({
             success: true,
             message: `Marked ${result.modifiedCount} notifications as read`
         });
-         } catch (error) {
+    } catch (error) {
         console.error("Error marking all notifications as read:", error);
         return res.status(500).json({
             success: false,
