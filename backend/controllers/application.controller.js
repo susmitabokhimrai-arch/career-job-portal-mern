@@ -154,7 +154,7 @@ export const deleteApplication = async (req, res) => {
                 message: "Application not found"
             });
         }
-        // Check if the logged-in user owns this application
+       // Check if the logged-in user owns this application
         if (application.applicant.toString() !== userId) {
             return res.status(403).json({
                 success: false,
@@ -162,14 +162,11 @@ export const deleteApplication = async (req, res) => {
             });
         }
 
-        // Find the job and remove the application reference
-        const job = await Job.findById(application.job);
-        if (job) {
-            job.applications = job.applications.filter(
-                appId => appId.toString() !== applicationId
-            );
-            await job.save();
-        }
+            await Job.updateOne(
+            { _id: application.job },
+            { $pull: { applications: applicationId } }
+        );
+
         // Delete the application
         await Application.findByIdAndDelete(applicationId);
 
@@ -186,7 +183,6 @@ export const deleteApplication = async (req, res) => {
         });
     }
 };
-
 //get all applicants of applied jobs by user
 
 export const getApplicants = async (req, res) => {
