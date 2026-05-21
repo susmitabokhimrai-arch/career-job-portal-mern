@@ -80,29 +80,6 @@ CareerYatra is a full-stack internship portal designed to connect students with 
 
 # ⚙️ Installation & Setup
 
-## 1️⃣ Clone Repository
-
-```bash
-git clone <your-repository-link>
-```
-
----
-
-## 2️⃣ Install Depend
-
-# 🔑 Environment Variables
-
-Create a `.env` file inside the backend folder.
-
-Example:
-
-```env
-PORT=8000
-MONGO_URI=your_mongodb_connection
-JWT_SECRET=your_secret_key
-EMAIL_USER=your_email
-EMAIL_PASS=your_password
-```
 
 
 # 🌐 API Base URL
