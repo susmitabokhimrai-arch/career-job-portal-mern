@@ -77,11 +77,6 @@ CareerYatra is a full-stack internship portal designed to connect students with 
 
 ---
 
-
-# ⚙️ Installation & Setup
-
-
-
 # 🌐 API Base URL
 
 ```txt
@@ -116,12 +111,6 @@ http://localhost:8000/api/v1
 * Kajal Sharma
 * Susmita Rai
 * Nikita Raj Rouniyar
-
----
-
-# 📄 License
-
-This project is developed for educational and academic purposes.
 
 ---
 
