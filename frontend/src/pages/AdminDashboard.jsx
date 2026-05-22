@@ -92,10 +92,21 @@ const AdminDashboard = () => {
 
         {/* Recent Activity */}
         <div>
-          <p style={{ fontSize: "13px", fontWeight: "500", color: "#666", marginBottom: "10px" }}>
-            Recent activity
-          </p>
-          <div style={{ border: "1px solid #e5e7eb", borderRadius: "12px", overflow: "hidden", background: "#fff" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+            <p style={{ fontSize: "13px", fontWeight: "500", color: "#666", margin: 0 }}>
+              Recent activity
+            </p>
+            {!loading && activity.length > 0 && (
+              <p style={{ fontSize: "12px", color: "#888", margin: 0 }}>
+                {activity.length} total events
+              </p>
+            )}
+          </div>
+          <div style={{
+            border: "1px solid #e5e7eb", borderRadius: "12px",
+            overflow: "hidden", background: "#fff",
+            maxHeight: "400px", overflowY: "auto"
+          }}>
             {loading ? (
               <p style={{ padding: "16px", color: "#888", fontSize: "13px" }}>Loading...</p>
             ) : activity.length === 0 ? (
