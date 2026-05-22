@@ -83,11 +83,11 @@ export const getDetailedStats = async () => {
 // ── RECENT ACTIVITY ───────────────────────────────────
 export const getRecentActivity = async () => {
   const [recentUsers, recentJobs, recentApps] = await Promise.all([
-    User.find().sort({ createdAt: -1 }).limit(3).select("fullname createdAt"),
-    Job.find().sort({ createdAt: -1 }).limit(3).select("title createdAt"),
+    User.find().sort({ createdAt: -1 }).limit(50).select("fullname createdAt"),
+    Job.find().sort({ createdAt: -1 }).limit(50).select("title createdAt"),
     Application.find()
       .sort({ createdAt: -1 })
-      .limit(3)
+      .limit(50)
       .populate("applicant", "fullname")
       .populate("job", "title"),
   ]);
@@ -120,6 +120,5 @@ export const getRecentActivity = async () => {
   ];
 
   return activities
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 6);
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 };
