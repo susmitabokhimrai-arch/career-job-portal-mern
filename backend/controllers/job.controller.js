@@ -19,13 +19,20 @@ export const postJob = async (req, res) => {
 
         const userId = req.id;
 
+        // Check if position is provided
         if (!title || !description || !requirements || !location || !internshipType || !duration || !position || !companyId) {
             return res.status(400).json({
                 message: "something is missing.",
                 success: false
             });
         }
-
+// Validate position is a positive number
+        if (position < 1) {
+            return res.status(400).json({
+                message: "Number of positions must be at least 1",
+                success: false
+            });
+        }
         const job = await Job.create({
             title,
             description,
@@ -197,6 +204,14 @@ export const updateJob = async (req, res) => {
             internshipType, duration, skillsRequired, position, 
             companyId, applicationDeadline, startDate, perks 
         } = req.body;
+
+        // Validate position is a positive number (if provided)
+        if (position !== undefined && position < 1) {
+            return res.status(400).json({
+                message: "Number of positions must be at least 1",
+                success: false
+            });
+        }
 
         const updateData = {
             title,
