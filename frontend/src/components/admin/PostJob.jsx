@@ -24,7 +24,7 @@ const PostJob = () => {
         internshipType: "",
         duration: "",
         skillsRequired: "",
-        position: 0,
+        position: "",
         companyId: "",
         applicationDeadline: "",
         startDate: "",
@@ -55,7 +55,7 @@ const PostJob = () => {
                         internshipType: job.jobType || "",
                         duration: job.duration || "",
                         skillsRequired: job.skillsRequired?.join(",") || "",
-                        position: job.position || 0,
+                        position: job.position || "",
                         companyId: job.company?._id || "",
                         applicationDeadline: job.applicationDeadline?.split("T")[0] || "",
                         startDate: job.startDate?.split("T")[0] || "",
@@ -69,9 +69,28 @@ const PostJob = () => {
         };
         fetchJob();
     }, [id]);
-        
+
     const changeEventHandler = (e) => {
-        setInput({ ...input, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        
+        // If the field is 'position', validate the value
+        if (name === "position") {
+ // If value is empty, keep it empty (so placeholder shows)            if (value === "") {
+             if (value === "") {
+                setInput({ ...input, [name]: "" });
+                return;
+            }
+            const numValue = Number(value);
+            // Block negative numbers
+            if (numValue < 0) {
+                return; // Don't update state for negative values
+            }
+            // If value is valid positive number, update it
+            setInput({ ...input, [name]: numValue });
+            return;
+        }
+        
+     setInput({ ...input, [name]: value });
     };
 
     const selectChangeHandler = (value) => {
@@ -79,16 +98,26 @@ const PostJob = () => {
         setInput({ ...input, companyId: selectedCompany?._id ||""});
     };
 
-
    // supports both create and update
     const submitHandler = async (e) => {
         e.preventDefault();
+
+
+         // Convert position to number for validation
+        const positionNum = Number(input.position);
+        
+        // Frontend validation - prevents submission with 0 or negative
+        if (input.position === "" || positionNum < 1) {
+            toast.error("Number of positions must be at least 1");
+            return;
+        }
         try {
             setLoading(true);
             
-            // Prepare data
+           // Prepare data - convert position to number
             const jobData = {
                 ...input,
+                position: Number(input.position), // Ensure position is a number
                 requirements: input.requirements ? input.requirements.split(",") : [],
                 skillsRequired: input.skillsRequired ? input.skillsRequired.split(",") : [],
                 perks: input.perks ? input.perks.split(",") : []
@@ -237,7 +266,25 @@ const PostJob = () => {
                                 name="position"
                                 value={input.position}
                                 onChange={changeEventHandler}
-                                className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1" />
+                                placeholder="0"
+                                min="0"
+                                onKeyDown={(e) => {
+                                    // Prevent negative sign and minus key from being typed
+                                    if (e.key === '-' || e.key === 'Minus') {
+                                        e.preventDefault();
+                                    }
+                                }}
+                                className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1" 
+                                required
+                            />
+                            {/* Show hint when position is 0 */}
+                            {input.position === "" && (
+                                <p className="text-gray-500 text-xs mt-1">Enter number of positions (minimum 1)</p>
+                            )}
+                            {/* Show error message if position is invalid */}
+                            {input.position !== "" && Number(input.position) < 1 && (
+                                <p className="text-red-500 text-xs mt-1">Number of positions must be at least 1</p>
+                            )}
                         </div>
                         <div>
                             <Label>Application Deadline</Label>
