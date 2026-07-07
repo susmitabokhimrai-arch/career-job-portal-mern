@@ -1,6 +1,36 @@
 import mongoose from "mongoose";
 import { Job } from "../models/job.model.js";
 
+// Validate job data 
+const validateJobData = (data) => {
+    const errors = [];
+    
+    // Validate position (must be >= 1)
+    if (data.position !== undefined && data.position !== null && data.position !== "") {
+        const positionNum = Number(data.position);
+        if (isNaN(positionNum) || positionNum < 1) {
+            errors.push('Number of positions must be at least 1');        
+        }
+     }
+    
+    // Validate duration (must be >= 1)
+    if (data.duration !== undefined && data.duration !== null && data.duration !== "") {
+        const durationNum = Number(data.duration);
+        if (isNaN(durationNum) || durationNum < 1) {
+            errors.push('Duration must be at least 1');
+        }
+    }
+// Validate stipend (must be >= 0)
+    if (data.stipend !== undefined && data.stipend !== null && data.stipend !== "") {
+        const stipendNum = Number(data.stipend);
+        if (isNaN(stipendNum) || stipendNum < 0) {
+            errors.push('Stipend cannot be negative');
+        }
+    }
+    
+    return errors;
+};
+
 export const postJob = async (req, res) => {
     try {
         // restrict to recruiter
@@ -19,44 +49,39 @@ export const postJob = async (req, res) => {
 
         const userId = req.id;
 
-        // Check if position is provided
-        if (!title || !description || !requirements || !location || !internshipType || !duration || !position || !companyId) {
+        // Validate required fields
+       if (!title || !description || !location || !internshipType || !duration || !position || !companyId) {
             return res.status(400).json({
-                message: "something is missing.",
+                message: "Missing required fields. Please fill all required fields.",
                 success: false
             });
         }
-// Validate position is a positive number
-        if (position < 1) {
+        // Validate all numeric fields
+        const validationErrors = validateJobData(req.body);
+        if (validationErrors.length > 0) {
             return res.status(400).json({
-                message: "Number of positions must be at least 1",
+                message: "Validation failed",
+                errors: validationErrors,
                 success: false
             });
         }
+        // Convert string values to numbers 
         const job = await Job.create({
             title,
             description,
-
-            // handle both string and array
             requirements: Array.isArray(requirements)
                 ? requirements
-                : requirements.split(","),
-
-            stipend,
+                : requirements?.split(",") || [],
+            stipend: stipend ? Number(stipend) : 0, // Ensure it's a number
             internshipType,
-            duration,
-
-            // handle both string and array
+            duration: Number(duration), // Ensure it's a number
             skillsRequired: skillsRequired
                 ? (Array.isArray(skillsRequired) ? skillsRequired : skillsRequired.split(","))
                 : [],
-
-            // handle both string and array
             perks: perks
-                ? (Array.isArray(perks) ? perks : perks.split(","))
+            ? (Array.isArray(perks) ? perks : perks.split(","))
                 : [],
-
-            position,
+            position: Number(position), // Ensure it's a number
             location,
             applicationDeadline,
             startDate,
@@ -69,8 +94,7 @@ export const postJob = async (req, res) => {
             job,
             success: true
         });
-
-    } catch (error) {
+         } catch (error) {
         console.log(error);
         return res.status(500).json({ message: error.message, success: false });
     }
@@ -205,35 +229,49 @@ export const updateJob = async (req, res) => {
             companyId, applicationDeadline, startDate, perks 
         } = req.body;
 
-        // Validate position is a positive number (if provided)
-        if (position !== undefined && position < 1) {
+        // Validate all numeric fields 
+        const validationErrors = validateJobData(req.body);
+        if (validationErrors.length > 0) {
             return res.status(400).json({
-                message: "Number of positions must be at least 1",
+                message: "Validation failed",
+                errors: validationErrors,
                 success: false
             });
         }
-
-        const updateData = {
-            title,
-            description,
-            requirements: requirements
-                ? (Array.isArray(requirements) ? requirements : requirements.split(","))
-                : [],
-            stipend,
-            internshipType,
-            duration,
-            skillsRequired: skillsRequired
+// Build update data with number conversion 
+        const updateData = {};
+        
+        if (title !== undefined) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (requirements !== undefined) {
+            updateData.requirements = Array.isArray(requirements) 
+                ? requirements 
+                : requirements.split(",");
+        }
+        if (stipend !== undefined) {
+            updateData.stipend = stipend ? Number(stipend) : 0;
+        }
+        if (internshipType !== undefined) updateData.internshipType = internshipType;
+        if (duration !== undefined) {
+            updateData.duration = Number(duration);
+        }
+        if (skillsRequired !== undefined) {
+            updateData.skillsRequired = skillsRequired
                 ? (Array.isArray(skillsRequired) ? skillsRequired : skillsRequired.split(","))
-                : [],
-            perks: perks
+                : [];
+        }
+        if (position !== undefined) {
+            updateData.position = Number(position);
+        }
+        if (location !== undefined) updateData.location = location;
+        if (applicationDeadline !== undefined) updateData.applicationDeadline = applicationDeadline;
+        if (startDate !== undefined) updateData.startDate = startDate;
+        if (companyId !== undefined) updateData.company = companyId;
+        if (perks !== undefined) {
+            updateData.perks = perks
                 ? (Array.isArray(perks) ? perks : perks.split(","))
-                : [],
-            position,
-            location,
-            applicationDeadline,
-            startDate,
-            company: companyId
-        };
+                : [];
+        }
 
 // Can update old jobs OR new active jobs 
         const updatedJob = await Job.findOneAndUpdate(

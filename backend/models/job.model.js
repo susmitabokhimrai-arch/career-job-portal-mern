@@ -9,14 +9,16 @@ const jobSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    // requirements:[{
-        //type:String
-    //}],
+    requirements:[{
+        type:String
+    }],
 
     // intership fields
 
      stipend:{
-        type:String
+        type:Number,
+        min: [0, 'Stipend cannot be negative'],
+         default: 0 
     },
 
     internshipType:{
@@ -53,37 +55,41 @@ required:true,
     },
     location:{
         type:String,
-        required:true
+        required:[true, 'Location is required']
     },
     duration:{
-        type:String,
-        required:true
+        type: Number,
+        required: [true, 'Duration is required'],
+        min: [1, 'Duration must be at least 1']
     },
     skillsRequired:[{
         type:String
     }],
-    applicationDeadline:{
-        type:Date
+     applicationDeadline: {
+        type: Date,
+        required: [true, 'Application deadline is required']
     },
     startDate:{
-        type:Date
+        type:Date,
+        required: [true, 'Start date is required']
     },
     perks:[{
         type:String // certificate
     }],
     position:{
-        type: String,
-        required:true
+        type: Number,
+        required: [true, 'Number of positions is required'],
+        min: [1, 'Number of positions must be at least 1']
     },
     company:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Company',
-        required:true
+        required: [true, 'Company is required']
     },
     created_by:{
          type:mongoose.Schema.Types.ObjectId,
         ref:'User',
-        required:true
+        required: [true, 'Creator is required']
     },
     applications:[
         {
@@ -101,6 +107,47 @@ required:true,
         default: null             // When job was moved to trash
     }
  },{timestamps:true});
- // ========== OPTIONAL: Compound index for better performance ==========
+ // Compound index for better performance
 jobSchema.index({ created_by: 1, isDeleted: 1 });
-export const Job = mongoose.model("Job",jobSchema);
+ 
+// ========== CHANGE 9: Pre-save middleware to ensure numbers ==========
+jobSchema.pre('save', function(next) {
+    // Ensure stipend is a number
+    if (this.stipend !== undefined && this.stipend !== null) {
+        this.stipend = Number(this.stipend);
+    }
+    
+    // Ensure duration is a number
+    if (this.duration !== undefined && this.duration !== null) {
+        this.duration = Number(this.duration);
+    }
+    
+    // Ensure position is a number
+    if (this.position !== undefined && this.position !== null) {
+        this.position = Number(this.position);
+    }
+    
+    next();
+});
+// ========== CHANGE 10: Method to validate job data ==========
+jobSchema.methods.validateData = function() {
+    const errors = [];
+    
+    // Check position
+    if (this.position < 1 || !Number.isInteger(this.position)) {
+        errors.push('Position must be a positive integer');
+    }
+    
+    // Check duration
+    if (this.duration < 1 || !Number.isInteger(this.duration)) {
+        errors.push('Duration must be a positive integer');
+    }
+    
+    // Check stipend
+    if (this.stipend < 0) {
+        errors.push('Stipend cannot be negative');
+    }
+return errors;
+};
+
+export const Job = mongoose.model("Job", jobSchema);
