@@ -75,7 +75,7 @@ const PostJob = () => {
         
         // If the field is 'position', validate the value
         if (name === "position") {
- // If value is empty, keep it empty (so placeholder shows)            if (value === "") {
+ // If value is empty, keep it empty (so placeholder shows)           
              if (value === "") {
                 setInput({ ...input, [name]: "" });
                 return;
@@ -89,7 +89,38 @@ const PostJob = () => {
             setInput({ ...input, [name]: numValue });
             return;
         }
-        
+        // Duration field validation 
+        if (name === "duration") {
+            // If empty, allow it
+            if (value === "") {
+                setInput({ ...input, [name]: "" });
+                return;
+            }
+            const numValue = Number(value);
+            // Block negative numbers from being entered
+            if (numValue < 0) {
+                return; // Don't update state for negative values
+            }
+            // If value is valid positive number, update it
+            setInput({ ...input, [name]: numValue });
+            return;
+        }
+        // Stipend field validation 
+        if (name === "stipend") {
+            // If empty, allow it
+            if (value === "") {
+                setInput({ ...input, [name]: "" });
+                return;
+            }
+            const numValue = Number(value);
+            // Block negative numbers from being entered
+            if (numValue < 0) {
+                return; // Don't update state for negative values
+            }
+            // If value is valid number (can be 0 or positive), update it
+            setInput({ ...input, [name]: numValue });
+            return;
+        }
      setInput({ ...input, [name]: value });
     };
 
@@ -111,6 +142,19 @@ const PostJob = () => {
             toast.error("Number of positions must be at least 1");
             return;
         }
+         // Validate Duration 
+        const durationNum = Number(input.duration);
+        if (input.duration !== "" && durationNum < 1) {
+            toast.error("Duration must be at least 1");
+            return;
+        }
+
+        // Validate Stipend 
+        const stipendNum = Number(input.stipend);
+        if (input.stipend !== "" && stipendNum < 0) {
+            toast.error("Stipend cannot be negative");
+            return;
+        }
         try {
             setLoading(true);
             
@@ -118,6 +162,8 @@ const PostJob = () => {
             const jobData = {
                 ...input,
                 position: Number(input.position), // Ensure position is a number
+                duration: input.duration ? Number(input.duration) : 0,
+                stipend: input.stipend ? Number(input.stipend) : 0,
                 requirements: input.requirements ? input.requirements.split(",") : [],
                 skillsRequired: input.skillsRequired ? input.skillsRequired.split(",") : [],
                 perks: input.perks ? input.perks.split(",") : []
@@ -200,14 +246,26 @@ const PostJob = () => {
 <div>
                             <Label>Stipend</Label>
                             <Input
-                                type="text"
+                                type="number"
                                 name="stipend"
                                 value={input.stipend}
                                 onChange={changeEventHandler}
+                                 min="0" // Prevents negative values in browser
+                                onKeyDown={(e) => {
+                                    // Prevent negative sign from being typed
+                                    if (e.key === '-' || e.key === 'Minus' || e.key === 'e') {
+                                        e.preventDefault();
+                                    }
+                                }}
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
+                                placeholder="Enter stipend amount"
                             />
+                        {/* Show error message if stipend is invalid */}
+                            {input.stipend !== "" && Number(input.stipend) < 0 && (
+                                <p className="text-red-500 text-xs mt-1">Stipend cannot be negative</p>
+                            )}
                         </div>
-     <div>
+                        <div>
                             <Label>Location</Label>
                             <Input
                                 type="text"
@@ -242,12 +300,25 @@ const PostJob = () => {
                         <div>
                             <Label>Duration</Label>
                             <Input
-                                type="text"
+                                type="number"
                                 name="duration"
                                 value={input.duration}
                                 onChange={changeEventHandler}
+                                min="1" // Prevents negative values in browser
+                                onKeyDown={(e) => {
+                                    // Prevent negative sign from being typed
+                                    if (e.key === '-' || e.key === 'Minus' || e.key === 'e') {
+                                        e.preventDefault();
+                                    }
+                                }}
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
+                                placeholder="Enter duration in months"
+                                required
                             />
+                            {/* Show error message if duration is invalid */}
+                            {input.duration !== "" && Number(input.duration) < 1 && (
+                                <p className="text-red-500 text-xs mt-1">Duration must be at least 1</p>
+                            )}
                         </div>
                         <div>
                             <Label>Skills Required</Label>
@@ -267,10 +338,10 @@ const PostJob = () => {
                                 value={input.position}
                                 onChange={changeEventHandler}
                                 placeholder="0"
-                                min="0"
+                                min="1"
                                 onKeyDown={(e) => {
                                     // Prevent negative sign and minus key from being typed
-                                    if (e.key === '-' || e.key === 'Minus') {
+                                    if (e.key === '-' || e.key === 'Minus' || e.key === 'e') {
                                         e.preventDefault();
                                     }
                                 }}
