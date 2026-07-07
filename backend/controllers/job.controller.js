@@ -5,6 +5,10 @@ import { Job } from "../models/job.model.js";
 const validateJobData = (data) => {
     const errors = [];
 
+    if (!data.duration || data.duration.trim() === "") {
+        errors.push('Duration is required');
+    }
+
     // Validate position (must be >= 1)
     if (data.position !== undefined && data.position !== null && data.position !== "") {
         const positionNum = Number(data.position);
@@ -13,13 +17,6 @@ const validateJobData = (data) => {
         }
     }
 
-    // Validate duration (must be >= 1)
-    if (data.duration !== undefined && data.duration !== null && data.duration !== "") {
-        const durationNum = Number(data.duration);
-        if (isNaN(durationNum) || durationNum < 1) {
-            errors.push('Duration must be at least 1');
-        }
-    }
     // Validate stipend (must be >= 0)
     if (data.stipend !== undefined && data.stipend !== null && data.stipend !== "") {
         const stipendNum = Number(data.stipend);
@@ -50,7 +47,7 @@ export const postJob = async (req, res, next) => {
         const userId = req.id;
 
         // Validate required fields
-       if (!title || !description || !location || !internshipType || !duration || !position || !companyId) {
+        if (!title || !description || !location || !internshipType || !duration || !position || !companyId) {
             return res.status(400).json({
                 message: "Missing required fields. Please fill all required fields.",
                 success: false
@@ -74,7 +71,7 @@ export const postJob = async (req, res, next) => {
                 : requirements?.split(",") || [],
             stipend: stipend ? Number(stipend) : 0, // Ensure it's a number
             internshipType,
-            duration: Number(duration), // Ensure it's a number
+            duration: duration.trim(),  // Ensure it's a number
             skillsRequired: skillsRequired
                 ? (Array.isArray(skillsRequired) ? skillsRequired : skillsRequired.split(","))
                 : [],
@@ -253,7 +250,7 @@ export const updateJob = async (req, res, next) => {
         }
         if (internshipType !== undefined) updateData.internshipType = internshipType;
         if (duration !== undefined) {
-            updateData.duration = Number(duration);
+            updateData.duration = duration.trim();
         }
         if (skillsRequired !== undefined) {
             updateData.skillsRequired = skillsRequired
@@ -384,7 +381,7 @@ export const restoreJob = async (req, res, next) => {
         });
     } catch (error) {
         console.log(error);
-         next(error);
+        next(error);
     }
 };
 

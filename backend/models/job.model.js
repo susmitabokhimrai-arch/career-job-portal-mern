@@ -49,9 +49,8 @@ const jobSchema = new mongoose.Schema({
         required: [true, 'Location is required']
     },
     duration: {
-        type: Number,
+        type: String,
         required: [true, 'Duration is required'],
-        min: [1, 'Duration must be at least 1']
     },
     skillsRequired: [{
         type: String
