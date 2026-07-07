@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import Navbar from '../shared/Navbar';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
@@ -41,9 +41,9 @@ const PostJob = () => {
                 try {
                     console.log("Fetching job ID:", id);
                     const res = await axios.get(`${JOB_API_END_POINT}/${id}`, {
-                     withCredentials: true
+                        withCredentials: true
                     });
-                     console.log("Job data:", res.data); 
+                    console.log("Job data:", res.data);
                     const job = res.data.job;
 
                     setInput({
@@ -61,7 +61,7 @@ const PostJob = () => {
                         startDate: job.startDate?.split("T")[0] || "",
                         perks: job.perks?.join(",") || ""
                     });
-                     } catch (error) {
+                } catch (error) {
                     console.error("Error fetching job:", error);
                     toast.error("Failed to load job data");
                 }
@@ -72,11 +72,11 @@ const PostJob = () => {
 
     const changeEventHandler = (e) => {
         const { name, value } = e.target;
-        
+
         // If the field is 'position', validate the value
         if (name === "position") {
- // If value is empty, keep it empty (so placeholder shows)           
-             if (value === "") {
+            // If value is empty, keep it empty (so placeholder shows)           
+            if (value === "") {
                 setInput({ ...input, [name]: "" });
                 return;
             }
@@ -89,20 +89,14 @@ const PostJob = () => {
             setInput({ ...input, [name]: numValue });
             return;
         }
-        // Duration field validation 
+        // Block negative signs in duration 
         if (name === "duration") {
-            // If empty, allow it
-            if (value === "") {
-                setInput({ ...input, [name]: "" });
+            // Block if value starts with '-' (negative sign)
+            if (value.startsWith('-')) {
+                toast.error("Duration cannot be negative");
                 return;
             }
-            const numValue = Number(value);
-            // Block negative numbers from being entered
-            if (numValue < 0) {
-                return; // Don't update state for negative values
-            }
-            // If value is valid positive number, update it
-            setInput({ ...input, [name]: numValue });
+            setInput({ ...input, [name]: value });
             return;
         }
         // Stipend field validation 
@@ -121,55 +115,59 @@ const PostJob = () => {
             setInput({ ...input, [name]: numValue });
             return;
         }
-     setInput({ ...input, [name]: value });
+        setInput({ ...input, [name]: value });
     };
 
     const selectChangeHandler = (value) => {
         const selectedCompany = companies.find((company) => company.name.toLowerCase() === value);
-        setInput({ ...input, companyId: selectedCompany?._id ||""});
+        setInput({ ...input, companyId: selectedCompany?._id || "" });
     };
-
-   // supports both create and update
+    
+    // supports both create and update
     const submitHandler = async (e) => {
         e.preventDefault();
 
 
-         // Convert position to number for validation
+        // Convert position to number for validation
         const positionNum = Number(input.position);
-        
+
         // Frontend validation - prevents submission with 0 or negative
         if (input.position === "" || positionNum < 1) {
             toast.error("Number of positions must be at least 1");
             return;
         }
-         // Validate Duration 
-        const durationNum = Number(input.duration);
-        if (input.duration !== "" && durationNum < 1) {
-            toast.error("Duration must be at least 1");
+          // Duration validation - Block empty and negative 
+        if (!input.duration || input.duration.trim() === "") {
+            toast.error("Duration is required");
             return;
         }
-
-        // Validate Stipend 
+// Check if duration starts with negative sign
+        if (input.duration.trim().startsWith('-')) {
+            toast.error("Duration cannot be negative");
+            return;
+        }
+       // Stipend validation
         const stipendNum = Number(input.stipend);
         if (input.stipend !== "" && stipendNum < 0) {
             toast.error("Stipend cannot be negative");
             return;
         }
+
         try {
             setLoading(true);
-            
-           // Prepare data - convert position to number
+
+// Duration is sent as text (no conversion) 
             const jobData = {
                 ...input,
-                position: Number(input.position), // Ensure position is a number
-                duration: input.duration ? Number(input.duration) : 0,
+                position: Number(input.position),
+                duration: input.duration.trim(), // Text like "3 months"
                 stipend: input.stipend ? Number(input.stipend) : 0,
                 requirements: input.requirements ? input.requirements.split(",") : [],
                 skillsRequired: input.skillsRequired ? input.skillsRequired.split(",") : [],
                 perks: input.perks ? input.perks.split(",") : []
             };
-            
-            
+
+
             let response;
             if (id) {
                 response = await axios.put(`${JOB_API_END_POINT}/update/${id}`, jobData, {
@@ -187,18 +185,18 @@ const PostJob = () => {
                     withCredentials: true
                 });
             }
-            
+
             if (response.data.success) {
                 toast.success(response.data.message);
                 navigate("/admin/jobs");
             }
         } catch (error) {
             toast.error(error?.response?.data?.message || "Something went wrong");
-            } finally {
+        } finally {
             setLoading(false);
         }
     };
- // Determine button text based on edit or create mode
+    // Determine button text based on edit or create mode
     const buttonText = id ? "Update Internship" : "Post Internship";
     const formTitle = id ? "Edit Internship" : "Post New Internship";
 
@@ -207,7 +205,7 @@ const PostJob = () => {
             <Navbar />
             <div className='flex items-center justify-center w-screen my-5'>
                 <form onSubmit={submitHandler} className='p-8 max-w-4xl border border-gray-200 shadow-lg rounded-md'>
-       {/*Form Title */}
+                    {/*Form Title */}
                     <h2 className="text-2xl font-bold mb-6 text-center">{formTitle}</h2>
 
                     <div className='grid grid-cols-2 gap-2'>
@@ -222,7 +220,7 @@ const PostJob = () => {
                                 required
                             />
                         </div>
-             <div>
+                        <div>
                             <Label>Description</Label>
                             <Input
                                 type="text"
@@ -233,7 +231,7 @@ const PostJob = () => {
                                 required
                             />
                         </div>
-<div>
+                        <div>
                             <Label>Requirements</Label>
                             <Input
                                 type="text"
@@ -243,14 +241,14 @@ const PostJob = () => {
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
                             />
                         </div>
-<div>
+                        <div>
                             <Label>Stipend</Label>
                             <Input
                                 type="number"
                                 name="stipend"
                                 value={input.stipend}
                                 onChange={changeEventHandler}
-                                 min="0" // Prevents negative values in browser
+                                min="0" // Prevents negative values in browser
                                 onKeyDown={(e) => {
                                     // Prevent negative sign from being typed
                                     if (e.key === '-' || e.key === 'Minus' || e.key === 'e') {
@@ -260,7 +258,7 @@ const PostJob = () => {
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
                                 placeholder="Enter stipend amount"
                             />
-                        {/* Show error message if stipend is invalid */}
+                            {/* Show error message if stipend is invalid */}
                             {input.stipend !== "" && Number(input.stipend) < 0 && (
                                 <p className="text-red-500 text-xs mt-1">Stipend cannot be negative</p>
                             )}
@@ -276,14 +274,14 @@ const PostJob = () => {
                                 required
                             />
                         </div>
-                                                  <div>
+                        <div>
                             <Label>Internship Type</Label>
                             <Select
                                 onValueChange={(value) =>
                                     setInput({ ...input, internshipType: value })
                                 }
                                 value={input.internshipType}>
-  
+
                                 <SelectTrigger className="w-full my-1">
                                     <SelectValue placeholder="Select Internship Type" />
                                 </SelectTrigger>
@@ -300,27 +298,21 @@ const PostJob = () => {
                         <div>
                             <Label>Duration</Label>
                             <Input
-                                type="number"
+                                type="text"
                                 name="duration"
                                 value={input.duration}
                                 onChange={changeEventHandler}
-                                min="1" // Prevents negative values in browser
-                                onKeyDown={(e) => {
-                                    // Prevent negative sign from being typed
-                                    if (e.key === '-' || e.key === 'Minus' || e.key === 'e') {
-                                        e.preventDefault();
-                                    }
-                                }}
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
-                                placeholder="Enter duration in months"
                                 required
                             />
-                            {/* Show error message if duration is invalid */}
-                            {input.duration !== "" && Number(input.duration) < 1 && (
-                                <p className="text-red-500 text-xs mt-1">Duration must be at least 1</p>
+                           <p className="text-gray-400 text-xs mt-1">Example: 3 months, 1 year, 6 months</p>
+                            {/* Show error message if duration is empty */}
+                            {input.duration !== "" && input.duration.trim() === "" && (
+                                <p className="text-red-500 text-xs mt-1">Duration cannot be empty</p>
                             )}
                         </div>
-                        <div>
+                                                <div>
+
                             <Label>Skills Required</Label>
                             <Input
                                 type="text"
@@ -345,7 +337,7 @@ const PostJob = () => {
                                         e.preventDefault();
                                     }
                                 }}
-                                className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1" 
+                                className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
                                 required
                             />
                             {/* Show hint when position is 0 */}
