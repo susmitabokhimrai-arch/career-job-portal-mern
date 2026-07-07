@@ -61,49 +61,59 @@ const FilterCard = () => {
   const extractUniqueFilterOptions = () => {
     if (!allJobs || allJobs.length === 0) return;
 
-    // Get unique locations - filter out empty/null/undefined values
-    const uniqueLocations = [...new Set(
-      allJobs
-        .map(job => job?.location)
-        .filter(location => location && location.trim() !== "")
-    )];
-    
-    // Get unique industries (based on job title) - filter out empty values
-    const uniqueIndustries = [...new Set(
-      allJobs
-        .map(job => job?.title)
-        .filter(title => title && title.trim() !== "")
-    )];
-    
-    // Get unique stipend values - filter out empty values
-    const uniqueStipends = [...new Set(
-      allJobs
-        .map(job => job?.stipend)
-        .filter(stipend => stipend && stipend.trim() !== "")
-    )];
-    // Get unique job type values 
-    const uniqueJobTypes = [...new Set(
-      allJobs
-        .map(job => job?.internshipType || job?.jobType || job?.employmentType || job?.type)
-        .filter(jobType => jobType && jobType.trim() !== "")
-    )];
+    // Handle both String and Number types 
+  const getUniqueValues = (jobs, field) => {
+    return [...new Set(
+      jobs
+        .map(job => job?.[field])
+        .filter(value => {
+          // Skip undefined, null, empty values
+          if (value === undefined || value === null) return false;
+          // If string, check if not empty after trim
+          if (typeof value === 'string') return value.trim() !== "";
+          // If number, check if valid
+          if (typeof value === 'number') return !isNaN(value);
+          // For other types, just check if truthy
+          return Boolean(value);
+        })
+        .map(value => {
+          // Convert numbers to string for display
+          if (typeof value === 'number') return String(value);
+          if (typeof value === 'string') return value.trim();
+          return value;
+        })
+        )];
+  };
+  // Get unique locations
+  const uniqueLocations = getUniqueValues(allJobs, 'location');
+  
+  // Get unique industries (based on job title)
+  const uniqueIndustries = getUniqueValues(allJobs, 'title');
+  // Stipend is now a Number 
+  const uniqueStipends = getUniqueValues(allJobs, 'stipend');
+  
+  // Job Types 
+  const uniqueJobTypes = [...new Set(
+    allJobs
+      .map(job => job?.internshipType || job?.jobType || job?.employmentType || job?.type)
+      .filter(jobType => {
+        if (!jobType) return false;
+        if (typeof jobType === 'string') return jobType.trim() !== "";
+        return Boolean(jobType);
+      })
+      .map(jobType => typeof jobType === 'string' ? jobType.trim() : String(jobType))
+  )];
+//  Duration is now a Number 
+  const uniqueDurations = getUniqueValues(allJobs, 'duration');
 
+  // ========== ADDED CONSOLE LOGS FOR DEBUGGING ==========
+  console.log("📊 Filter Options Extracted:");
+  console.log("  Locations:", uniqueLocations);
+  console.log("  Industries:", uniqueIndustries);
+  console.log("  Stipends:", uniqueStipends);
+  console.log("  Durations:", uniqueDurations);
+  console.log("  Job Types:", uniqueJobTypes);
     
-    // Get unique duration values - filter out empty values
-    const uniqueDurations = [...new Set(
-      allJobs
-        .map(job => job?.duration)
-        .filter(duration => duration && duration.trim() !== "")
-    )];
-
-    // ========== ADDED CONSOLE LOGS FOR DEBUGGING ==========
-    console.log("📊 Filter Options Extracted:");
-    console.log("  Locations:", uniqueLocations);
-    console.log("  Industries:", uniqueIndustries);
-    console.log("  Stipends:", uniqueStipends);
-    console.log("  Durations:", uniqueDurations);
-    console.log("  Job Types:", uniqueJobTypes);
-
     // Update dynamic filter data
     setDynamicFilterData([
       { filterType: "Location", icon: <MapPin size={14} />, array: uniqueLocations },

@@ -6,6 +6,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
 import { getAllJobs } from "../redux/jobSlice";
 
+// Safe toLowerCase for any type 
+const safeToLowerCase = (value) => {
+  if (value === undefined || value === null) return '';
+  return String(value).toLowerCase();
+};
+
 const Jobs = () => {
   const dispatch = useDispatch();
   const { allJobs, searchedQuery, loading: reduxLoading, error } = useSelector(store => store.job);
@@ -16,21 +22,22 @@ const Jobs = () => {
     dispatch(getAllJobs()); // No need for manual loading state management
   }, [dispatch]);
 
-  // Filter jobs when search query changes
+  // Filter jobs with safeToLowerCase 
   useEffect(() => {
     if (allJobs && allJobs.length > 0) {
       if (searchedQuery) {
+        const searchLower = searchedQuery.toLowerCase();
         const filteredJobs = allJobs.filter((job) => {
           return (
-            job?.title?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-            job?.description?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-            job?.location?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-            job?.stipend?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-            job?.duration?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-            job?.internshipType?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-            job?.jobType?.toLowerCase().includes(searchedQuery.toLowerCase()) ||
+            safeToLowerCase(job?.title).includes(searchLower) ||
+            safeToLowerCase(job?.description).includes(searchLower) ||
+            safeToLowerCase(job?.location).includes(searchLower) ||
+            safeToLowerCase(job?.stipend).includes(searchLower) ||  // ✅ FIXED
+            safeToLowerCase(job?.duration).includes(searchLower) ||  // ✅ FIXED
+            safeToLowerCase(job?.internshipType).includes(searchLower) ||
+            safeToLowerCase(job?.jobType).includes(searchLower) ||
             job?.skillsRequired?.some(skill =>
-              skill.toLowerCase().includes(searchedQuery.toLowerCase())
+              safeToLowerCase(skill).includes(searchLower)
             )
           );
         });
