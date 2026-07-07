@@ -4,15 +4,15 @@ import { Job } from "../models/job.model.js";
 // Validate job data 
 const validateJobData = (data) => {
     const errors = [];
-    
+
     // Validate position (must be >= 1)
     if (data.position !== undefined && data.position !== null && data.position !== "") {
         const positionNum = Number(data.position);
         if (isNaN(positionNum) || positionNum < 1) {
-            errors.push('Number of positions must be at least 1');        
+            errors.push('Number of positions must be at least 1');
         }
-     }
-    
+    }
+
     // Validate duration (must be >= 1)
     if (data.duration !== undefined && data.duration !== null && data.duration !== "") {
         const durationNum = Number(data.duration);
@@ -20,18 +20,18 @@ const validateJobData = (data) => {
             errors.push('Duration must be at least 1');
         }
     }
-// Validate stipend (must be >= 0)
+    // Validate stipend (must be >= 0)
     if (data.stipend !== undefined && data.stipend !== null && data.stipend !== "") {
         const stipendNum = Number(data.stipend);
         if (isNaN(stipendNum) || stipendNum < 0) {
             errors.push('Stipend cannot be negative');
         }
     }
-    
+
     return errors;
 };
 
-export const postJob = async (req, res) => {
+export const postJob = async (req, res, next) => {
     try {
         // restrict to recruiter
         if (req.user.role !== "recruiter") {
@@ -41,10 +41,10 @@ export const postJob = async (req, res) => {
             });
         }
 
-        const { 
-            title, description, requirements, stipend, location, 
-            internshipType, duration, skillsRequired, position, 
-            companyId, applicationDeadline, startDate, perks 
+        const {
+            title, description, requirements, stipend, location,
+            internshipType, duration, skillsRequired, position,
+            companyId, applicationDeadline, startDate, perks
         } = req.body;
 
         const userId = req.id;
@@ -79,7 +79,7 @@ export const postJob = async (req, res) => {
                 ? (Array.isArray(skillsRequired) ? skillsRequired : skillsRequired.split(","))
                 : [],
             perks: perks
-            ? (Array.isArray(perks) ? perks : perks.split(","))
+                ? (Array.isArray(perks) ? perks : perks.split(","))
                 : [],
             position: Number(position), // Ensure it's a number
             location,
@@ -94,20 +94,20 @@ export const postJob = async (req, res) => {
             job,
             success: true
         });
-         } catch (error) {
+    } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: error.message, success: false });
+        next(error);
     }
 };
 
 // students get all internship
-export const getAllJobs = async (req, res) => {
+export const getAllJobs = async (req, res, next) => {
     try {
         const keyword = req.query.keyword || "";
         const duration = req.query.duration;
         const internshipType = req.query.internshipType;
 
-// Shows old jobs (no isDeleted field) AND new active jobs 
+        // Shows old jobs (no isDeleted field) AND new active jobs 
         let query = {
             $or: [
                 { isDeleted: { $exists: false } },  // Old jobs created before trash feature
@@ -143,12 +143,12 @@ export const getAllJobs = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: error.message, success: false });
+        next(error);
     }
 };
 
 // student get internship by id (works for old AND new jobs) 
-export const getJobById = async (req, res) => {
+export const getJobById = async (req, res, next) => {
     try {
         const jobId = req.params.id;
 
@@ -159,14 +159,14 @@ export const getJobById = async (req, res) => {
             });
         }
 
-// Shows old jobs OR new active jobs 
-        const job = await Job.findOne({ 
+        // Shows old jobs OR new active jobs 
+        const job = await Job.findOne({
             _id: jobId,
             $or: [
                 { isDeleted: { $exists: false } },  // Old jobs
                 { isDeleted: false }                 // New active jobs
             ]
-        }) 
+        })
             .populate({ path: "applications" })
             .populate({ path: "company" });
 
@@ -180,23 +180,23 @@ export const getJobById = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: error.message, success: false });
+        next(error);
     }
 };
 
 // recruiter - get all internships created (works for old AND new jobs) 
-export const getAdminJobs = async (req, res) => {
+export const getAdminJobs = async (req, res, next) => {
     try {
         const adminId = req.id;
 
-       // Shows old jobs OR new active jobs for this recruiter 
-        const jobs = await Job.find({ 
+        // Shows old jobs OR new active jobs for this recruiter 
+        const jobs = await Job.find({
             created_by: adminId,
             $or: [
                 { isDeleted: { $exists: false } },  // Old jobs
                 { isDeleted: false }                 // New active jobs
             ]
-        })  
+        })
             .populate({ path: 'company' })
             .sort({ createdAt: -1 });
 
@@ -207,12 +207,12 @@ export const getAdminJobs = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: error.message, success: false });
+        next(error);
     }
 };
 
 // Update job (works for old AND new jobs) 
-export const updateJob = async (req, res) => {
+export const updateJob = async (req, res, next) => {
     try {
         const jobId = req.params.id;
 
@@ -223,10 +223,10 @@ export const updateJob = async (req, res) => {
             });
         }
 
-        const { 
-            title, description, requirements, stipend, location, 
-            internshipType, duration, skillsRequired, position, 
-            companyId, applicationDeadline, startDate, perks 
+        const {
+            title, description, requirements, stipend, location,
+            internshipType, duration, skillsRequired, position,
+            companyId, applicationDeadline, startDate, perks
         } = req.body;
 
         // Validate all numeric fields 
@@ -238,14 +238,14 @@ export const updateJob = async (req, res) => {
                 success: false
             });
         }
-// Build update data with number conversion 
+        // Build update data with number conversion 
         const updateData = {};
-        
+
         if (title !== undefined) updateData.title = title;
         if (description !== undefined) updateData.description = description;
         if (requirements !== undefined) {
-            updateData.requirements = Array.isArray(requirements) 
-                ? requirements 
+            updateData.requirements = Array.isArray(requirements)
+                ? requirements
                 : requirements.split(",");
         }
         if (stipend !== undefined) {
@@ -273,16 +273,16 @@ export const updateJob = async (req, res) => {
                 : [];
         }
 
-// Can update old jobs OR new active jobs 
+        // Can update old jobs OR new active jobs 
         const updatedJob = await Job.findOneAndUpdate(
-            { 
+            {
                 _id: jobId,
                 $or: [
-                    { isDeleted: { $exists: false } },  
-                    { isDeleted: false }                 
+                    { isDeleted: { $exists: false } },
+                    { isDeleted: false }
                 ]
-            },   
-            updateData, 
+            },
+            updateData,
             { returnDocument: 'after' }
         );
 
@@ -301,28 +301,25 @@ export const updateJob = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            message: error.message || "Server error while updating job",
-            success: false
-        });
+        next(error);
     }
 };
 
 // SOFT DELETE JOB (Move to Trash) 
-export const softDeleteJob = async (req, res) => {
+export const softDeleteJob = async (req, res, next) => {
     try {
         const jobId = req.params.id;
         const userId = req.id;
 
         const job = await Job.findOneAndUpdate(
             { _id: jobId, created_by: userId },
-            { 
+            {
                 isDeleted: true,
                 deletedAt: new Date()
             },
-           { returnDocument: 'after' }
+            { returnDocument: 'after' }
         );
- if (!job) {
+        if (!job) {
             return res.status(404).json({
                 success: false,
                 message: "Job not found or you don't have permission"
@@ -334,52 +331,46 @@ export const softDeleteJob = async (req, res) => {
             message: "Job moved to trash",
             job
         });
-         } catch (error) {
+    } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: "Failed to move job to trash"
-        });
+        next(error);
     }
 };
 // GET DELETED JOBS (Trash page) 
-export const getDeletedJobs = async (req, res) => {
+export const getDeletedJobs = async (req, res, next) => {
     try {
         const userId = req.id;
 
-        const deletedJobs = await Job.find({ 
+        const deletedJobs = await Job.find({
             created_by: userId,
             isDeleted: true
         })
-        .populate({ path: 'company' })
-        .sort({ deletedAt: -1 });
+            .populate({ path: 'company' })
+            .sort({ deletedAt: -1 });
 
         return res.status(200).json({
             jobs: deletedJobs,
             success: true
         });
-        } catch (error) {
+    } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: "Failed to fetch deleted jobs"
-        });
+        next(error);
     }
 };
 // RESTORE JOB FROM TRASH 
-export const restoreJob = async (req, res) => {
+export const restoreJob = async (req, res, next) => {
     try {
         const jobId = req.params.id;
         const userId = req.id;
 
         const job = await Job.findOneAndUpdate(
             { _id: jobId, created_by: userId, isDeleted: true },
-            { 
+            {
                 isDeleted: false,
                 deletedAt: null
             },
-{ returnDocument: 'after' }        );
-if (!job) {
+            { returnDocument: 'after' });
+        if (!job) {
             return res.status(404).json({
                 success: false,
                 message: "Job not found in trash"
@@ -391,24 +382,22 @@ if (!job) {
             message: "Job restored successfully",
             job
         });
- } catch (error) {
+    } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: "Failed to restore job"
-        });
+         next(error);
     }
 };
+
 // PERMANENTLY DELETE JOB FROM TRASH 
-export const permanentDeleteJob = async (req, res) => {
+export const permanentDeleteJob = async (req, res, next) => {
     try {
         const jobId = req.params.id;
         const userId = req.id;
 
-        const job = await Job.findOneAndDelete({ 
-            _id: jobId, 
+        const job = await Job.findOneAndDelete({
+            _id: jobId,
             created_by: userId,
-            isDeleted: true 
+            isDeleted: true
         });
 
         if (!job) {
@@ -424,14 +413,11 @@ export const permanentDeleteJob = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            success: false,
-            message: "Failed to permanently delete job"
-        });
+        next(error);
     }
 };
 // recommendation based (works for old AND new jobs) 
-export const getRecommendedJobs = async (req, res) => {
+export const getRecommendedJobs = async (req, res, next) => {
     try {
         const user = req.user;
         const skills = user.profile?.skills || [];
@@ -446,8 +432,8 @@ export const getRecommendedJobs = async (req, res) => {
         // Shows old jobs OR new active jobs 
         const jobs = await Job.find({
             $or: [
-                { isDeleted: { $exists: false } }, 
-                { isDeleted: false }                 
+                { isDeleted: { $exists: false } },
+                { isDeleted: false }
             ],
             requirements: { $in: skills }
         });
@@ -474,9 +460,6 @@ export const getRecommendedJobs = async (req, res) => {
 
     } catch (error) {
         console.error("Recommendation Error:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Failed to fetch recommended jobs"
-        });
+        next(error);
     }
 };
